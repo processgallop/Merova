@@ -22,7 +22,7 @@ Central register of open items. **Owner:** M = Merova management, D = developmen
 | 16 | GA4 / GTM / Search Console IDs | M | P1 | Open | Vercel env | Consent-gated loader implemented |
 | 17 | Mira AI mode requires `ANTHROPIC_API_KEY` | M | P2 | Open | Vercel env | Guided mode functional and tested; AI mode compiles against the SDK; not exercised without a key |
 | 18 | Cloudflare Turnstile keys (optional) | M | P2 | Open | Vercel env | Honeypot, timing and rate limit active |
-| 19 | Vercel deployment credentials / account access | M | P0 | Open | See README → Deployment | Build verified locally; deploy pending access |
-| 20 | Custom domain and regenerating PDFs for it | D | P1 | Open | `NEXT_PUBLIC_SITE_URL`, `npm run pdfs` | PDFs currently point to merova.vercel.app |
+| 19 | Vercel deployment | D | P0 | Resolved | Vercel project `merova-printpack` | Deployed to https://merova-printpack.vercel.app and verified. Auto-deploy on push needs the Vercel GitHub integration (`vercel git connect` / dashboard) |
+| 20 | Custom domain and regenerating PDFs for it; the old merova.vercel.app prototype lives in a different Vercel account and still shows placeholders | M + D | P1 | Open | `NEXT_PUBLIC_SITE_URL`, `npm run pdfs` | PDFs and canonical URLs point to merova-printpack.vercel.app |
 | 21 | Uploaded files are emailed, not stored; add object storage if CRM file storage is needed | D | P2 | Open | `deliverLead()` in `src/lib/enquiry.ts` | 4 MB attachment limit enforced |
 | 22 | In-memory rate limiter is per instance | D | P2 | Open | Vercel Firewall rule on `/api/enquiry` | Documented |

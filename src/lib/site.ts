@@ -19,7 +19,7 @@ export const site = {
   proposition: "Engineered to Protect. Designed to Perform.",
   description:
     "Merova Printpack is a multi-material packaging partner for corrugated, paperboard, foodservice, flexible and custom packaging — specified, sampled and supplied to your application.",
-  url: (env("NEXT_PUBLIC_SITE_URL") ?? "https://merova.vercel.app").replace(/\/$/, ""),
+  url: (env("NEXT_PUBLIC_SITE_URL") ?? "https://merova-printpack.vercel.app").replace(/\/$/, ""),
   locale: "en_IN",
   contact: {
     // Digits only, with country code, e.g. 919876543210. Supplied by Merova.

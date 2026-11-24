@@ -8,7 +8,9 @@
 import { chromium } from "@playwright/test";
 
 const BASE = process.env.BASE ?? "http://localhost:3100";
-const browser = await chromium.launch();
+// Honour an outbound HTTPS proxy (e.g. CI or sandboxed environments) when one is configured.
+const proxy = process.env.HTTPS_PROXY || process.env.https_proxy;
+const browser = await chromium.launch(proxy && !BASE.includes("localhost") ? { proxy: { server: proxy } } : {});
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 const errors = [];
 let current = "";

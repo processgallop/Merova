@@ -1,0 +1,6 @@
+.data
+.next
+.next-qa
+test-results
+playwright-report
+node_modules

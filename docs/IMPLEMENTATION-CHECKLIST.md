@@ -34,7 +34,7 @@ Verification is from the local production build (`next build` + `next start`).
 | Analytics events are verified | 🟡 | Event calls are wired to every conversion (TRACKING-PLAN.md) and consent-gated; needs GA4/GTM IDs to verify in DebugView (#16) |
 | Privacy and terms pages are functional | ✅ / 🟡 | Live pages (previously 404); legal review pending (#15) |
 | Central issue register maintained | ✅ | [ISSUE-REGISTER.md](ISSUE-REGISTER.md) |
-| Vercel deployment verified on a live URL | ❌ | No Vercel credentials are available in the build environment. The project is ready to import; see README → Deployment (#19) |
+| Vercel deployment verified on a live URL | ✅ | Production: https://merova-printpack.vercel.app (Vercel project `merova-printpack`, deployment READY, build log clean). Live crawl: 119 pages, 122 assets, 0 problems, 0 console errors; sitemap, robots, canonical URLs, PDFs and Mira verified live; enquiry API correctly returns 503 until a delivery channel is configured |
 
 ## Build status
 `npm run lint` clean · `tsc --noEmit` clean · `next build` succeeds (182 static pages, 2 API routes) · `npm run validate:data` OK · Playwright: 18/18 passed (desktop and mobile) · crawler: 0 problems, 0 console errors.
