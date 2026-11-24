@@ -12,7 +12,7 @@ export default async function Brochure({ params }: { params: Promise<{ category:
   if (!c) notFound();
   const subs = subcategoriesOf(c.id);
   // page plan: 1 cover, 2 contents, then per sub: divider + ceil(n/3) product pages, then index, back
-  let folio = 3; const plan = subs.map((s) => { const start = folio; folio += 1 + Math.ceil(s.products.length / 3); return { s, start }; });
+  let folio = 3; const plan = subs.map((s) => { const start = folio; folio += 1 + Math.ceil(s.products.length / 2); return { s, start }; });
   const indexPage = folio;
   const all = subs.flatMap((s) => s.products.map((p) => p.id));
   const inds = industries.map((i) => ({ i, ops: i.operators.filter((o) => o.primary.some((id) => all.includes(id))) })).filter((x) => x.ops.length);

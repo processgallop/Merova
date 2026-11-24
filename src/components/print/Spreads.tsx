@@ -38,18 +38,18 @@ export function Divider({ eyebrow, title, text, count, tone = "graphite", folio 
 export async function ProductHalf({ p }: { p: Product }) {
   const ops = operatorsFor(p.id);
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "72mm 1fr", gap: "7mm", padding: "6mm 0", borderTop: "0.6pt solid #e6ddd1" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "82mm 1fr", gap: "8mm", padding: "8mm 0", borderTop: "0.6pt solid #e6ddd1", height: "122mm", boxSizing: "border-box", overflow: "hidden" }}>
       <div>
-        <div style={{ height: "56mm", borderRadius: "4mm", overflow: "hidden", background: "#f4ede3" }}><img src={printImg(p.image)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
+        <div style={{ height: "74mm", borderRadius: "4mm", overflow: "hidden", background: "#f4ede3" }}><img src={printImg(p.image)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
         <div style={{ display: "flex", gap: "3mm", alignItems: "center", marginTop: "3mm" }}><Qr path={`${p.url}?src=catalogue`} size={44} /><span className="p-small">Scan for specifications, flyer and enquiry.<br /><b style={{ color: "#1e1b1b" }}>{p.id}</b></span></div>
       </div>
       <div>
         <p className="p-eyebrow" style={{ color: "#d52b1e" }}>{p.subcategory}</p>
-        <h3 className="pd" style={{ fontSize: "17pt", fontWeight: 700, margin: "1.5mm 0 0", lineHeight: 1.05 }}>{p.name}</h3>
+        <h3 className="pd" style={{ fontSize: "19pt", fontWeight: 700, margin: "1.5mm 0 0", lineHeight: 1.05 }}>{p.name}</h3>
         <p className="p-body" style={{ margin: "2.5mm 0 0" }}>{p.description}</p>
         <p style={{ fontSize: "7.5pt", fontWeight: 700, color: "#1e1b1b", margin: "3mm 0 1mm" }}>Variants</p>
         <p className="p-small" style={{ margin: 0 }}>{p.variants.join(" · ")}</p>
-        <table className="p-table" style={{ marginTop: "2.5mm" }}><tbody>{p.specs.slice(0, 4).map((s) => <tr key={s.label}><th>{s.label}</th><td>{s.value}</td></tr>)}</tbody></table>
+        <table className="p-table" style={{ marginTop: "2.5mm" }}><tbody>{p.specs.slice(0, 5).map((s) => <tr key={s.label}><th>{s.label}</th><td>{s.value}</td></tr>)}</tbody></table>
         {ops.primary.length > 0 && <p className="p-small" style={{ margin: "2mm 0 0" }}><b style={{ color: "#1e1b1b" }}>Used by:</b> {ops.primary.slice(0, 5).map((o) => o.name).join(", ")}</p>}
       </div>
     </div>
@@ -58,13 +58,13 @@ export async function ProductHalf({ p }: { p: Product }) {
 
 export async function ProductPages({ list, label, startFolio }: { list: Product[]; label: string; startFolio: number }) {
   const pages: Product[][] = [];
-  for (let i = 0; i < list.length; i += 3) pages.push(list.slice(i, i + 3));
+  for (let i = 0; i < list.length; i += 2) pages.push(list.slice(i, i + 2));
   return (
     <>
       {pages.map((pg, i) => (
         <div key={i} className="page">
           <RunningHead label={label} folio={startFolio + i} />
-          <div style={{ padding: "26mm 14mm 16mm", display: "grid", gap: 0 }}>
+          <div style={{ padding: "28mm 14mm 16mm", display: "grid", gap: 0 }}>
             {pg.map((p) => <ProductHalf key={p.id} p={p} />)}
           </div>
           <span style={{ position: "absolute", left: "14mm", bottom: "15mm", fontSize: "6.5pt", color: "#8a8380" }}>Specification values are indicative and confirmed at quotation.</span>
@@ -99,7 +99,7 @@ export function BackPage({ title = "Build your packaging enquiry." }: { title?: 
   );
 }
 
-export function Contents({ items, folio }: { items: { title: string; sub?: string; page: number }[]; folio: number }) {
+export function Contents({ items, folio }: { items: { title: string; sub?: string; page: number; children?: string[] }[]; folio: number }) {
   return (
     <div className="page">
       <RunningHead label="Contents" folio={folio} />
@@ -109,7 +109,7 @@ export function Contents({ items, folio }: { items: { title: string; sub?: strin
           {items.map((it, i) => (
             <li key={i} style={{ display: "flex", alignItems: "baseline", gap: "6mm", padding: "4mm 0", borderTop: "0.6pt solid #e6ddd1" }}>
               <span className="pd" style={{ color: "#d52b1e", fontWeight: 600, fontSize: "11pt", width: "12mm" }}>{String(i + 1).padStart(2, "0")}</span>
-              <span style={{ flex: 1 }}><span className="pd" style={{ fontSize: "13pt", fontWeight: 600 }}>{it.title}</span>{it.sub && <span className="p-small" style={{ display: "block", marginTop: "1mm" }}>{it.sub}</span>}</span>
+              <span style={{ flex: 1 }}><span className="pd" style={{ fontSize: "13pt", fontWeight: 600 }}>{it.title}</span>{it.sub && <span className="p-small" style={{ display: "block", marginTop: "1mm" }}>{it.sub}</span>}{it.children && <span style={{ display: "block", marginTop: "2.5mm", columns: 2, columnGap: "6mm" }}>{it.children.map((c) => <span key={c} className="p-small" style={{ display: "block", color: "#454040", fontSize: "8pt", lineHeight: 1.6 }}>{c}</span>)}</span>}</span>
               <span className="pd" style={{ fontSize: "11pt", color: "#6f6866" }}>{it.page}</span>
             </li>
           ))}
