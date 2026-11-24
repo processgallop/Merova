@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Green compostable carry bag">
+<title>Green compostable carry bag</title>
+<defs>
+<radialGradient id="bgG" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="#f8f4ec"/><stop offset="1" stop-color="#ebe2d4"/></radialGradient>
+<radialGradient id="sh" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="rgba(60,40,20,0.30)"/><stop offset="1" stop-color="rgba(60,40,20,0)"/></radialGradient>
+<pattern id="flute" width="14" height="10" patternUnits="userSpaceOnUse"><path d="M0,9 Q3.5,1 7,9 T14,9" fill="none" stroke="#8a6440" stroke-width="1.6"/></pattern>
+</defs>
+<rect width="800" height="600" fill="url(#bgG)"/>
+<g transform="translate(400 346) scale(0.84) translate(-400 -300)">
+<ellipse cx="400" cy="485" rx="190" ry="28" fill="url(#sh)" /><path d="M270,170 L530,170 L540,470 L260,470 Z" fill="#8fbf8a" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><path d="M270,170 L330,170 L330,240 C330,290 470,290 470,240 L470,170 L530,170 L530,200 L270,200 Z" fill="#7aae75" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" opacity="0.6"/><path d="M330,170 L330,120 C330,90 360,90 360,120 L360,170 M440,170 L440,120 C440,90 470,90 470,120 L470,170" fill="none" stroke="#7aae75" stroke-width="14"/><path d="M330,170 C330,215 470,215 470,170 Z" fill="#ebe2d4"  stroke-linejoin="round" stroke="none"/><circle cx="400" cy="360" r="52" fill="none" stroke="#fff" stroke-width="5"/><path d="M380,380 C370,340 400,320 425,325 C425,355 410,380 380,380 Z" fill="#fff"/><text x="400" y="440" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#fff" letter-spacing="1.5">COMPOSTABLE*</text>
+</g>
+</svg>

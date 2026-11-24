@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Die-cut corrugated mailer box">
+<title>Die-cut corrugated mailer box</title>
+<defs>
+<radialGradient id="bgG" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="#f8f4ec"/><stop offset="1" stop-color="#ebe2d4"/></radialGradient>
+<radialGradient id="sh" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="rgba(60,40,20,0.30)"/><stop offset="1" stop-color="rgba(60,40,20,0)"/></radialGradient>
+<pattern id="flute" width="14" height="10" patternUnits="userSpaceOnUse"><path d="M0,9 Q3.5,1 7,9 T14,9" fill="none" stroke="#8a6440" stroke-width="1.6"/></pattern>
+</defs>
+<rect width="800" height="600" fill="url(#bgG)"/>
+<g transform="translate(400 370) scale(0.8) translate(-400 -300)">
+<ellipse cx="400" cy="470" rx="240" ry="36" fill="url(#sh)" /><polygon points="218.1,315.0 426.0,435.0 426.0,365.0 218.1,245.0" fill="#c69a6b" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="581.9,345.0 426.0,435.0 426.0,365.0 581.9,275.0" fill="#b3875a" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="374.0,155.0 581.9,275.0 426.0,365.0 218.1,245.0" fill="#d8b289" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="374.0,155.0 581.9,275.0 633.8,85.0 426.0,-35.0" fill="#c69a6b" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="426.0,-35.0 633.8,85.0 616.5,80.0 408.7,-40.0" fill="#d8b289" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="374.0,165.0 564.5,275.0 426.0,355.0 235.5,245.0" fill="#946b43" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon opacity="0.7" points="374.0,205.0 564.5,315.0 426.0,395.0 235.5,285.0" fill="#a87c50" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="218.1,275.0 426.0,395.0 426.0,383.0 218.1,263.0" fill="#d52b1e" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" />
+</g>
+</svg>

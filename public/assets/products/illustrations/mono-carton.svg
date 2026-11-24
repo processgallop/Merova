@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Printed mono carton beside a bottle">
+<title>Printed mono carton beside a bottle</title>
+<defs>
+<radialGradient id="bgG" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="#f8f4ec"/><stop offset="1" stop-color="#ebe2d4"/></radialGradient>
+<radialGradient id="sh" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="rgba(60,40,20,0.30)"/><stop offset="1" stop-color="rgba(60,40,20,0)"/></radialGradient>
+<pattern id="flute" width="14" height="10" patternUnits="userSpaceOnUse"><path d="M0,9 Q3.5,1 7,9 T14,9" fill="none" stroke="#8a6440" stroke-width="1.6"/></pattern>
+</defs>
+<rect width="800" height="600" fill="url(#bgG)"/>
+<g transform="translate(400 346) scale(0.84) translate(-400 -300)">
+<ellipse cx="420" cy="470" rx="200" ry="30" fill="url(#sh)" /><polygon points="277.7,392.5 373.0,447.5 373.0,197.5 277.7,142.5" fill="#ece6dc" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="442.3,407.5 373.0,447.5 373.0,197.5 442.3,157.5" fill="#ddd5c8" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="347.0,102.5 442.3,157.5 373.0,197.5 277.7,142.5" fill="#fbf9f5" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="277.7,232.5 373.0,287.5 373.0,237.5 277.7,182.5" fill="#14304f" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="442.3,247.5 373.0,287.5 373.0,237.5 442.3,197.5" fill="#23416a" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><polygon points="277.7,372.5 373.0,427.5 373.0,413.5 277.7,358.5" fill="#d52b1e" stroke="rgba(40,30,20,0.18)" stroke-width="1" stroke-linejoin="round" /><g transform="translate(299.3782217350893,285) scale(0.9)"><path d="M0,10 C8,-6 18,-6 26,6 C34,18 44,18 52,4" fill="none" stroke="#d52b1e" stroke-width="6" stroke-linecap="round"/></g><rect x="480" y="280" width="80" height="170" rx="18" fill="#7d4a2a"/><rect x="502" y="235" width="36" height="50" rx="6" fill="#7d4a2a"/><rect x="498" y="215" width="44" height="26" rx="5" fill="#fbf9f5" stroke="#cfc3b1"/><rect x="480" y="330" width="80" height="60" fill="#fbf9f5"/><rect x="480" y="330" width="80" height="12" fill="#14304f"/><path d="M492,290 v120" stroke="rgba(255,255,255,0.35)" stroke-width="8" stroke-linecap="round"/>
+</g>
+</svg>
