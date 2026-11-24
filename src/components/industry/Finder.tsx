@@ -19,7 +19,7 @@ export function IndustryFinder({ data }: { data: FinderData }) {
   const I = data.industries[ind];
   const O = I.ops[Math.min(op, I.ops.length - 1)];
   return (
-    <div className="grid gap-6">
+    <div className="grid min-w-0 grid-cols-1 gap-6">
       <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1" role="group" aria-label="Industry">
         {data.industries.map((d, i) => (
           <button key={d.id} type="button" aria-pressed={i === ind} className="chip !min-h-11 flex-none !px-5 !text-[14px]" onClick={() => { setInd(i); setOp(0); track("industry_select", { industry: d.id }); }}>{d.name}</button>

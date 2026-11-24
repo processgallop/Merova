@@ -45,7 +45,7 @@ const OP_KEYWORDS: Record<string, string[]> = {
 export function detectOperator(text: string) {
   const t = text.toLowerCase();
   let best: { id: string; score: number } | null = null;
-  for (const [id, kws] of Object.entries(OP_KEYWORDS)) { const s = kws.reduce((a, k) => a + (t.includes(k) ? k.length : 0), 0); if (s && (!best || s > best.score)) best = { id, score: s }; }
+  for (const [id, kws] of Object.entries(OP_KEYWORDS)) { const s = kws.reduce((a, k) => { const i = t.indexOf(k); return i < 0 ? a : a + k.length * (2 - i / Math.max(1, t.length)); }, 0); if (s && (!best || s > best.score)) best = { id, score: s }; }
   return best ? operatorById[best.id] : undefined;
 }
 export function searchProducts(query: string, category?: string, limit = 6): Product[] {

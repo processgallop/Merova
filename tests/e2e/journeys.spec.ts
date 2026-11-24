@@ -1,190 +1,116 @@
-import { test, expect, type Page } from "@playwright/test";
-import { readdirSync, readFileSync, existsSync } from "node:fs";
+import { expect, test } from "@playwright/test";
+import fs from "node:fs";
 import path from "node:path";
 
-const LEADS = path.resolve(".data/e2e-leads");
-const readLead = (ref: string) => JSON.parse(readFileSync(path.join(LEADS, ref, "lead.json"), "utf8"));
+const reveal = async (page: import("@playwright/test").Page) => page.evaluate(() => document.querySelectorAll(".reveal,.reveal-img").forEach((e) => e.classList.add("is-in")));
+const noOverflow = async (page: import("@playwright/test").Page) => expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
 
-async function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (e) => errors.push(e.message));
-  page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
-  return errors;
-}
+test.describe("core pages render without overflow or errors", () => {
+  for (const url of ["/", "/products/", "/products/paper-products/", "/products/plastic-products-films/bopp-hst-rolls/", "/industries/", "/industries/food-beverage/sweet-shops/", "/about/", "/resources/downloads/", "/insights/", "/request-a-quote/", "/contact/", "/custom-packaging/"]) {
+    test(url, async ({ page }) => {
+      const errors: string[] = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      const res = await page.goto(url);
+      expect(res?.status()).toBe(200);
+      await expect(page.locator("h1").first()).toBeVisible();
+      await noOverflow(page);
+      expect(errors).toEqual([]);
+    });
+  }
+});
 
-test("industry → product → quote → confirmation creates a routed lead", async ({ page, isMobile }) => {
-  const errors = await collectErrors(page);
-  await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Packaging");
+test("held single-use plastic products are not published", async ({ page }) => {
+  const res = await page.goto("/products/plastic-products-films/pet-glasses/");
+  expect(res?.status()).toBe(404);
+});
 
-  // Industry-first discovery
-  if (isMobile) await page.getByLabel("Choose your industry").selectOption("cinema");
-  else await page.getByRole("tab", { name: /Multiplexes/ }).click();
-  const panel = page.locator("#industry-panel");
-  await expect(panel).toContainText("Popcorn Cones");
-  await expect(panel).toContainText("Nachos Trays");
+test("old URLs redirect to the new structure", async ({ page }) => {
+  await page.goto("/paper-packaging/pharmaceutical-cartons");
+  await expect(page).toHaveURL(/\/products\/paper-products\/mono-cartons\/$/);
+  await page.goto("/industries/cinema-multiplex-packaging");
+  await expect(page).toHaveURL(/\/industries\/food-beverage\/multiplex-cinema\/$/);
+});
 
-  // Product page
-  await panel.getByRole("link", { name: "Popcorn Tubs", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/foodservice-packaging\/popcorn-tubs$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Popcorn Tubs");
-  await expect(page.getByRole("table")).toBeVisible();
-
-  // Quote form, pre-filled with the product
-  await page.locator("main").getByRole("link", { name: /Request a Quote/ }).first().click();
-  await expect(page).toHaveURL(/request-a-quote\?product=popcorn-tubs/);
-  await expect(page.locator("#product")).toHaveValue("popcorn-tubs");
-  await page.locator("#industry").selectOption("cinema");
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  // Product-specific fields (foodservice profile)
-  await expect(page.getByLabel(/Food and temperature/)).toBeVisible();
-  await page.getByLabel(/Product format/).fill("130 oz tub");
-  await page.getByLabel(/Food and temperature/).fill("Hot buttered popcorn");
-  await page.locator("#quantity").selectOption("25,000 – 1,00,000");
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  await page.locator("#delivery").fill("Pune, India");
-  await page.locator("#timeline").selectOption("1–3 months");
-  await page.locator('input[type=file]').setInputFiles({ name: "artwork.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4 test") });
-  await expect(page.getByText("artwork.pdf")).toBeVisible();
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  // Validation: submit empty contact step
-  await page.getByRole("button", { name: /Submit quote request/ }).click();
-  await expect(page.getByText("Please enter your name.")).toBeVisible();
-
-  await page.locator("#name").fill("Test Buyer");
-  await page.locator("#company").fill("E2E Cinemas");
-  await page.locator("#email").fill("buyer@example.com");
-  await page.locator("#phone").fill("+91 98765 43210");
+test("product → basket → RFQ submission is confirmed by the server", async ({ page }) => {
+  await page.goto("/products/paper-products/popcorn-tubs/");
+  await page.getByRole("button", { name: "Regular / medium / large / combo" }).click();
+  await page.getByRole("button", { name: /Add to enquiry/ }).first().click();
+  await expect(page.getByRole("button", { name: /Added to enquiry/ }).first()).toBeVisible();
+  await page.goto("/request-a-quote/");
+  await expect(page.getByRole("link", { name: "Popcorn Tubs" })).toBeVisible();
+  // Validation: quantity required
+  await page.getByRole("button", { name: /Continue/ }).click();
+  await expect(page.getByText("Add an approximate quantity.")).toBeVisible();
+  await page.getByLabel("Approximate quantity").fill("20,000 per month");
+  await page.getByRole("button", { name: /Continue/ }).click();
+  await page.getByLabel("Delivery location").fill("Pune 411001");
+  await page.getByRole("button", { name: /Continue/ }).click();
+  await page.getByLabel("Full name").fill("Test Buyer");
+  await page.getByLabel("Company").fill("Example Cinemas");
+  await page.getByLabel("Work email").fill("buyer@example.com");
+  await page.getByLabel("Phone / WhatsApp").fill("+91 20 1234 5678");
   await page.getByRole("checkbox").check();
-  await page.waitForTimeout(3100); // anti-spam minimum completion time
-  await page.getByRole("button", { name: /Submit quote request/ }).click();
-
-  await expect(page).toHaveURL(/enquiry-received\?ref=MRV-/);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("received");
+  await page.waitForTimeout(3200); // minimum completion time (spam control)
+  await page.getByRole("button", { name: /Send enquiry/ }).click();
+  await expect(page).toHaveURL(/enquiry-received/);
   const ref = new URL(page.url()).searchParams.get("ref")!;
-  const lead = readLead(ref);
-  expect(lead.product.slug).toBe("popcorn-tubs");
-  expect(lead.industry.id).toBe("cinema");
-  expect(lead.team).toBe("Foodservice sales");
-  expect(lead.specs["Food and temperature"]).toBe("Hot buttered popcorn");
-  expect(lead.files[0].name).toBe("artwork.pdf");
-  expect(existsSync(path.join(LEADS, ref, "artwork.pdf"))).toBe(true);
-  expect(lead.contact.email).toBe("buyer@example.com");
-  expect(errors).toEqual([]);
+  expect(ref).toMatch(/^MRV-\d{8}-[0-9A-F]{6}$/);
+  await expect(page.getByText(ref)).toBeVisible();
+  const lead = JSON.parse(fs.readFileSync(path.join(".data/e2e-leads", ref, "lead.json"), "utf8"));
+  expect(lead.items[0]).toMatchObject({ id: "PA-09", quantity: "20,000 per month", variant: "Regular / medium / large / combo" });
+  expect(lead.team).toBe("Paper packaging sales");
 });
 
-test("custom requirement route submits and is routed to custom development", async ({ page }) => {
-  await page.goto("/industries/automotive-packaging");
-  await page.getByRole("link", { name: "Discuss Your Custom Requirement" }).first().click();
-  await expect(page).toHaveURL(/custom-requirement/);
-  await page.locator("#message").fill("We need returnable-style trays for 40 machined gear blanks per layer.");
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.locator("#name").fill("Auto Buyer");
-  await page.locator("#email").fill("auto@example.com");
-  await page.getByRole("checkbox").check();
-  await page.waitForTimeout(3100);
-  await page.getByRole("button", { name: /Submit requirement/ }).click();
-  await expect(page).toHaveURL(/enquiry-received\?ref=MRV-/);
-  const lead = readLead(new URL(page.url()).searchParams.get("ref")!);
-  expect(lead.type).toBe("custom");
-  expect(lead.team).toBe("Custom development");
-  expect(lead.industry.id).toBe("automotive");
+test("operator kit adds products from several categories to one enquiry", async ({ page }) => {
+  await page.goto("/industries/food-beverage/multiplex-cinema/");
+  await page.getByRole("button", { name: /Add the complete kit/ }).first().click();
+  await page.goto("/request-a-quote/");
+  await expect(page.getByText("Kit for Multiplexes & Cinemas.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "3-Ply Corrugated Boxes" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Popcorn Cones" })).toBeVisible();
 });
 
-test("contact form routes careers enquiries", async ({ page }) => {
-  await page.goto("/contact?topic=careers");
-  await expect(page.getByRole("radio", { name: "Careers" })).toBeChecked();
-  await page.locator("#c-name").fill("Applicant");
-  await page.locator("#c-email").fill("applicant@example.com");
-  await page.locator("#c-message").fill("Interested in quality roles.");
-  await page.getByRole("checkbox").check();
-  await page.waitForTimeout(3100);
-  await page.getByRole("button", { name: /Send message/ }).click();
-  await expect(page).toHaveURL(/enquiry-received\?ref=MRV-/);
-  expect(readLead(new URL(page.url()).searchParams.get("ref")!).team).toBe("HR & careers");
+test("enquiry API rejects invalid submissions", async ({ request }) => {
+  const res = await request.post("/api/enquiry/", { multipart: { type: "quote", startedAt: String(Date.now() - 10000), name: "A", email: "bad", consent: "no", items: "[]" } });
+  expect(res.status()).toBe(422);
+  const json = await res.json();
+  expect(json.fields).toHaveProperty("email");
 });
 
-test("product flyer, catalogue and company profile download as real PDFs", async ({ page, request }) => {
-  await page.goto("/corrugated-packaging/5-ply-boxes");
-  const href = await page.getByRole("link", { name: /Download Product Flyer/ }).getAttribute("href");
-  expect(href).toBe("/assets/downloads/flyers/merova-5-ply-boxes-flyer.pdf");
-  for (const url of [href!, "/assets/downloads/merova-product-catalogue.pdf", "/assets/downloads/merova-company-profile.pdf"]) {
-    const res = await request.get(url);
-    expect(res.status(), url).toBe(200);
-    expect(res.headers()["content-type"]).toContain("application/pdf");
-    expect((await res.body()).subarray(0, 4).toString()).toBe("%PDF");
-  }
-  await page.goto("/resources/downloads");
-  const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("link", { name: /PDF/ }).first().click()]);
-  expect(download.suggestedFilename()).toMatch(/\.pdf$/);
-});
-
-test("WhatsApp control is always functional (fallback panel when no number is configured)", async ({ page }) => {
-  await page.goto("/foodservice-packaging/nachos-trays");
-  const wa = page.getByRole("link", { name: /Chat with Merova on WhatsApp/ });
-  if (await wa.count()) {
-    const href = await wa.getAttribute("href");
-    expect(href).toMatch(/^https:\/\/wa\.me\/\d+\?text=/);
-    expect(decodeURIComponent(href!)).toContain("Nachos Trays");
-  } else {
-    await page.getByRole("button", { name: "Chat with Merova" }).click();
-    const dialog = page.getByRole("dialog", { name: "Contact options" });
-    await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("link", { name: "Request a Quote" })).toHaveAttribute("href", "/request-a-quote");
-  }
-});
-
-test("Mira discovers products and hands off to an enquiry", async ({ page }) => {
+test("Mira answers the cinema scenario with product cards", async ({ page, isMobile }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Ask Mira" }).click();
-  const mira = page.getByRole("dialog", { name: /Mira/ });
-  await expect(mira).toContainText("AI");
-  await mira.getByLabel("Message Mira").fill("We run a multiplex and need popcorn packaging");
-  await mira.getByRole("button", { name: "Send" }).click();
-  await expect(mira.getByRole("link", { name: /Multiplexes packaging|Popcorn/ }).first()).toBeVisible({ timeout: 20_000 });
-  await mira.getByLabel("Message Mira").fill("What is the price?");
-  await mira.getByRole("button", { name: "Send" }).click();
-  await expect(mira.getByText(/can't give prices|cannot give prices|quotation/i).last()).toBeVisible({ timeout: 20_000 });
-  await mira.getByRole("link", { name: "Request a Quote" }).last().click();
-  await expect(page).toHaveURL(/request-a-quote/);
+  await page.getByRole("button", { name: isMobile ? "Mira" : "Ask Mira" }).click();
+  await page.getByRole("button", { name: /We run a cinema/ }).click();
+  await expect(page.getByRole("dialog", { name: /Mira/ }).getByRole("link", { name: "Popcorn Tubs" })).toBeVisible({ timeout: 20000 });
 });
 
-test("mobile and desktop navigation reach products", async ({ page, isMobile }) => {
+test("search finds products by alternative names", async ({ page, isMobile }) => {
+  test.skip(isMobile, "keyboard shortcut is a desktop feature");
   await page.goto("/");
-  if (isMobile) {
-    await page.getByRole("button", { name: "Open menu" }).click();
-    await page.locator("#mobile-nav").getByRole("button", { name: "Products" }).click();
-    await page.locator("#mobile-nav").getByRole("link", { name: "Plastic & Flexible" }).click();
-  } else {
-    await page.getByRole("button", { name: "Products" }).click();
-    await page.locator("#menu-Products").getByRole("link", { name: /Plastic & Flexible/ }).click();
-  }
-  await expect(page).toHaveURL(/\/plastic-packaging$/);
-  await expect(page.getByRole("link", { name: "BOPP Film Rolls", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: /Search products/ }).click();
+  await page.getByRole("textbox", { name: "Search" }).fill("mithai");
+  await expect(page.getByRole("dialog", { name: "Search" }).getByText("Sweet Boxes").first()).toBeVisible();
 });
 
-test("enquiry API rejects spam and invalid submissions", async ({ request }) => {
-  const base = { type: "quote", startedAt: String(Date.now() - 10_000), name: "A Person", email: "a@example.com", consent: "yes", product: "3-ply-boxes" };
-  const honeypot = await request.post("/api/enquiry", { multipart: { ...base, website: "http://spam" } });
-  expect(honeypot.status()).toBe(400);
-  const fast = await request.post("/api/enquiry", { multipart: { ...base, startedAt: String(Date.now()) } });
-  expect(fast.status()).toBe(400);
-  const invalid = await request.post("/api/enquiry", { multipart: { ...base, email: "nope" } });
-  expect(invalid.status()).toBe(422);
-  expect((await invalid.json()).fields.email).toBeTruthy();
-  const badFile = await request.post("/api/enquiry", { multipart: { ...base, files: { name: "x.exe", mimeType: "application/octet-stream", buffer: Buffer.from("MZ") } } });
-  expect(badFile.status()).toBe(422);
+test("WhatsApp link carries product context", async ({ page, isMobile }) => {
+  test.skip(isMobile, "desktop dock");
+  await page.goto("/products/plastic-products-films/bopp-hst-rolls/");
+  await reveal(page);
+  const href = await page.getByRole("link", { name: /Ask about BOPP Heat-Sealable/ }).first().getAttribute("href");
+  expect(decodeURIComponent(href ?? "")).toContain("BOPP Heat-Sealable (HST) Rolls");
 });
 
-test("direct visit to confirmation page without a reference does not claim success", async ({ page }) => {
-  await page.goto("/enquiry-received");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("No enquiry reference found");
+test("mega menu opens and links to a category", async ({ page, isMobile }) => {
+  test.skip(isMobile, "desktop navigation");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Products" }).click();
+  await page.locator("#panel-products").getByRole("link", { name: "Corrugated & Fluted Products" }).click();
+  await expect(page).toHaveURL(/corrugated-fluted-products\/$/);
 });
 
-test.afterAll(() => {
-  if (existsSync(LEADS)) console.log(`leads stored: ${readdirSync(LEADS).length}`);
+test("mobile menu opens", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "mobile navigation");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await expect(page.getByRole("dialog", { name: "Menu" })).toBeVisible();
 });

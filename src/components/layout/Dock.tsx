@@ -67,7 +67,7 @@ function MiraPanel({ index, onClose, whatsappHref }: { index: ClientIndex; onClo
   const log = useRef<HTMLDivElement>(null);
   const byId = Object.fromEntries(index.products.map((p) => [p.id, p]));
 
-  useEffect(() => { fetch("/api/mira").then((r) => r.json()).then((d) => setMode(d.mode)).catch(() => setMode("guided")); }, []);
+  useEffect(() => { fetch("/api/mira/").then((r) => r.json()).then((d) => setMode(d.mode)).catch(() => setMode("guided")); }, []);
   useEffect(() => { try { sessionStorage.setItem(SKEY, JSON.stringify(msgs.slice(-20))); } catch {} log.current?.scrollTo({ top: log.current.scrollHeight, behavior: "smooth" }); }, [msgs, busy]);
 
   async function send(text: string) {
@@ -76,7 +76,7 @@ function MiraPanel({ index, onClose, whatsappHref }: { index: ClientIndex; onClo
     const next = [...msgs, { role: "user" as const, content: q }]; setMsgs(next); setBusy(true);
     track("mira_message", { length: q.length });
     try {
-      const r = await fetch("/api/mira", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })) }) });
+      const r = await fetch("/api/mira/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })) }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Mira is unavailable right now.");
       setMode(d.mode);

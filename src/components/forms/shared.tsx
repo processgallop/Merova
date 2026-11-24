@@ -71,7 +71,7 @@ export function useEnquirySubmit() {
     const sp = new URLSearchParams(window.location.search); for (const k of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) { const v = sp.get(k); if (v) fd.append(k, v); }
     for (const f of files) fd.append("files", f);
     try {
-      const res = await fetch("/api/enquiry", { method: "POST", body: fd });
+      const res = await fetch("/api/enquiry/", { method: "POST", body: fd });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json.ok) { setError(json.error ?? "We couldn't submit your enquiry. Please try again, or contact us directly."); setFieldErrors(json.fields ?? {}); track("rfq_submit_error", { code: json.code ?? res.status }); return false; }
       track("rfq_submit_success", { type: data.type, items: data.items ? JSON.parse(data.items).length : 0 });

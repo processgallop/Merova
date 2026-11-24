@@ -83,13 +83,13 @@ export function useBasket() {
   return c;
 }
 
-export function AddToEnquiry({ id, name, variant, className = "btn btn-primary", compact = false }: { id: string; name: string; variant?: string; className?: string; compact?: boolean }) {
+export function AddToEnquiry({ id, name, variant, className = "btn btn-primary", compact = false, light = false }: { id: string; name: string; variant?: string; className?: string; compact?: boolean; light?: boolean }) {
   const b = useBasket();
   const inBasket = b.ready && b.has(id);
   if (compact)
     return (
       <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!inBasket) b.add(id, variant, name); }} aria-label={inBasket ? `${name} is in your enquiry` : `Add ${name} to enquiry`} title={inBasket ? "In your enquiry" : "Add to enquiry"}
-        className={`relative z-10 grid h-11 w-11 flex-none place-items-center rounded-full transition-colors ${inBasket ? "bg-ink text-white" : "bg-red text-white hover:bg-red-700"}`}>
+        className={`relative z-10 grid h-11 w-11 flex-none place-items-center rounded-full transition-colors ${inBasket ? (light ? "bg-white text-ink" : "bg-ink text-white") : light ? "bg-white text-red hover:bg-cloud" : "bg-red text-white hover:bg-red-700"}`}>
         {inBasket ? <Check className="h-4 w-4" aria-hidden /> : <Plus className="h-5 w-5" aria-hidden />}
       </button>
     );
@@ -101,11 +101,11 @@ export function AddToEnquiry({ id, name, variant, className = "btn btn-primary",
   );
 }
 
-export function AddKit({ ids, label, industry, operator }: { ids: string[]; label: string; industry: string; operator: string }) {
+export function AddKit({ ids, label, industry, operator, light = false }: { ids: string[]; label: string; industry: string; operator: string; light?: boolean }) {
   const b = useBasket();
   const missing = ids.filter((id) => !b.has(id));
   return (
-    <button type="button" className="btn btn-primary btn-lg" onClick={() => { b.setContext({ industry, operator }); if (missing.length) b.addMany(missing, label); }} disabled={b.ready && missing.length === 0}>
+    <button type="button" className={`btn btn-lg ${light ? "btn-cloud" : "btn-primary"}`} onClick={() => { b.setContext({ industry, operator }); if (missing.length) b.addMany(missing, label); }} disabled={b.ready && missing.length === 0}>
       <ShoppingBag className="h-4 w-4" aria-hidden />
       {b.ready && missing.length === 0 ? "Complete kit in your enquiry" : `Add the complete kit (${ids.length}) to my enquiry`}
     </button>

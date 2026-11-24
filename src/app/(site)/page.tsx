@@ -62,8 +62,8 @@ export default function Home() {
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[auto_auto]">
             {[{ c: paper, cls: "lg:col-span-2 lg:row-span-2 tile-red", big: true }, { c: corr, cls: "lg:col-span-2" }, { c: plastic, cls: "" }, { c: compost, cls: "tile-dark" }].map(({ c, cls, big }, i) => (
               <Link key={c.id} href={`/products/${c.slug}/`} className={`tile reveal group ${cls}`} style={{ ["--i" as string]: i }}>
-                <div className="p-3 pb-0"><Render src={c.image} alt={`${c.name} by Merova`} label={false} className="rounded-[20px]" ratio={big ? "aspect-[4/3] lg:aspect-[5/4]" : "aspect-[16/9]"} sizes={big ? "(min-width:1024px) 50vw, 100vw" : "(min-width:1024px) 25vw, 100vw"} /></div>
-                <div className="flex flex-1 flex-col p-6">
+                <div className={`p-3 pb-0 ${big ? "lg:flex-1" : ""}`}><Render src={c.image} alt={`${c.name} by Merova`} label={false} className="rounded-[20px] lg:h-full" ratio={big ? "aspect-[4/3] lg:aspect-auto lg:min-h-[340px]" : "aspect-[16/9]"} sizes={big ? "(min-width:1024px) 50vw, 100vw" : "(min-width:1024px) 25vw, 100vw"} /></div>
+                <div className={`flex flex-col p-6 ${big ? "" : "flex-1"}`}>
                   <p className={`text-xs font-semibold uppercase tracking-[0.14em] ${cls.includes("tile-") ? "text-white/70" : "text-stone"}`}>{productsIn(c.id).length} products</p>
                   <h3 className={`mt-2 font-display font-semibold tracking-tight ${big ? "text-3xl lg:text-[40px] lg:leading-[1.05]" : "text-2xl"}`}>{c.name}</h3>
                   <p className={`mt-2 ${cls.includes("tile-") ? "text-white/85" : "text-stone"} ${big ? "text-lg" : "text-[15px]"}`}>{c.promise}{big && <> {c.intro}</>}</p>

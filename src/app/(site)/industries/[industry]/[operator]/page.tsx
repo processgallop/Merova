@@ -30,7 +30,7 @@ export default async function OperatorPage(props: Props) {
       <WhatsAppContext message={`Hello Merova team, I run a ${o.name.toLowerCase().replace(/s$/, "")} business and need packaging. Please share options and quotation details.`} label={`${o.name} packaging`} />
       {o.faqs.length > 0 && <JsonLd data={faqJsonLd(o.faqs)} />}
       <PageHero tone="red" crumbs={[{ name: "Industries", href: "/industries/" }, { name: i.name, href: i.url }, { name: o.name, href: o.url }]} eyebrow={i.name} title={o.headline} intro={o.intro} image={o.image} imageAlt={o.headline}>
-        <AddKit ids={o.primary} label={o.name} industry={i.name} operator={o.name} />
+        <AddKit ids={o.primary} label={o.name} industry={i.name} operator={o.name} light />
       </PageHero>
       {o.points.length > 0 && (
         <section className="section-tight bg-sand">

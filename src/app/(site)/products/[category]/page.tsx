@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AlertTriangle, ArrowRight, Download } from "lucide-react";
-import { CtaBand, FaqList, PageHero, ProductTile, SectionHead } from "@/components/ui/blocks";
+import { bentoSizes, CtaBand, FaqList, PageHero, ProductTile, SectionHead } from "@/components/ui/blocks";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { categories, categoryBySlug, heldProducts, industries, subcategoriesOf, type CategoryId } from "@/data/catalog";
 import { CLAIM_DEFINITIONS } from "@/data/company";
@@ -52,7 +52,7 @@ export default async function CategoryPage({ params }: Props) {
           <div className="wrap wrap-wide">
             <SectionHead eyebrow={c.short} title={s.name} intro={SUB_CONTENT[s.id]?.overview} />
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {s.products.map((p, i) => <ProductTile key={p.id} p={p} size={s.products.length >= 4 && i === 0 ? "L" : s.products.length === 2 ? "M" : s.products.length === 3 && i === 0 ? "M" : "S"} tone={i === 0 && si === 0 && c.id === "paper" ? "red" : "white"} />)}
+              {(() => { const sz = bentoSizes(s.products.length); return s.products.map((p, i) => <ProductTile key={p.id} p={p} size={sz[i]} tone={i === 0 && si === 0 && c.id === "paper" ? "red" : "white"} />); })()}
             </div>
           </div>
         </section>

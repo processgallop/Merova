@@ -49,15 +49,30 @@ export function Render({ src, alt, className = "", sizes = "(min-width: 1024px) 
   );
 }
 
-export function ProductTile({ p, size = "S", tone = "white", showCategory = false }: { p: Product; size?: "S" | "M" | "L" | "T"; tone?: "white" | "red" | "dark" | "sand"; showCategory?: boolean }) {
-  const span = size === "L" ? "sm:col-span-2 sm:row-span-2" : size === "M" ? "sm:col-span-2" : size === "T" ? "sm:row-span-2" : "";
+/** Card sizes for a 4-column bento so no row is left with a gap (L = 2×2, M = 2×1, W = 4×1, S = 1×1). */
+export function bentoSizes(n: number): ("S" | "M" | "L" | "W")[] {
+  if (n === 1) return ["W"];
+  if (n === 2) return ["M", "M"];
+  if (n === 3) return ["M", "S", "S"];
+  const out: ("S" | "M" | "L" | "W")[] = ["L"];
+  let k = n - 1;
+  const first = Math.min(k, 4); // slots to the right of L
+  out.push(...(first === 4 ? ["S", "S", "S", "S"] as const : first === 3 ? ["S", "S", "M"] as const : first === 2 ? ["M", "M"] as const : ["M"] as const));
+  if (first === 1) out[1] = "M"; // L + M leaves one row short; acceptable visual balance
+  k -= first;
+  while (k > 0) { const r = Math.min(k, 4); out.push(...(r === 4 ? ["S", "S", "S", "S"] as const : r === 3 ? ["S", "S", "M"] as const : r === 2 ? ["M", "M"] as const : ["W"] as const)); k -= r; }
+  return out;
+}
+
+export function ProductTile({ p, size = "S", tone = "white", showCategory = false }: { p: Product; size?: "S" | "M" | "L" | "T" | "W"; tone?: "white" | "red" | "dark" | "sand"; showCategory?: boolean }) {
+  const span = size === "L" ? "sm:col-span-2 sm:row-span-2" : size === "M" ? "sm:col-span-2" : size === "W" ? "sm:col-span-2 lg:col-span-4" : size === "T" ? "sm:row-span-2" : "";
   const toneCls = tone === "red" ? "tile-red" : tone === "dark" ? "tile-dark" : tone === "sand" ? "tile-sand" : "";
   const dark = tone === "red" || tone === "dark";
   const cat = categoryById[p.category];
   return (
     <article className={`tile group ${toneCls} ${span}`}>
       <div className={`p-3 pb-0 ${size === "L" || size === "T" ? "flex-1" : ""}`}>
-        <Render src={p.image} alt={p.imageAlt} label={false} className="h-full rounded-[20px]" ratio={size === "L" || size === "T" ? "aspect-[4/3] sm:aspect-auto sm:h-full sm:min-h-[260px]" : size === "M" ? "aspect-[16/9]" : "aspect-[4/3]"} sizes={size === "L" || size === "M" ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"} />
+        <Render src={p.image} alt={p.imageAlt} label={false} className="h-full rounded-[20px]" ratio={size === "L" || size === "T" ? "aspect-[4/3] sm:aspect-auto sm:h-full sm:min-h-[260px]" : size === "M" ? "aspect-[16/9]" : size === "W" ? "aspect-[16/9] lg:aspect-[21/7]" : "aspect-[4/3]"} sizes={size === "L" || size === "M" ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"} />
       </div>
       <div className="flex items-end gap-3 p-5">
         <div className="min-w-0 flex-1">
@@ -65,10 +80,10 @@ export function ProductTile({ p, size = "S", tone = "white", showCategory = fals
           <h3 className={`mt-1.5 font-display font-semibold tracking-tight ${size === "L" ? "text-2xl lg:text-[28px]" : "text-[19px]"}`}>
             <Link href={p.url} className="after:absolute after:inset-0 after:content-['']">{p.name}</Link>
           </h3>
-          {(size === "L" || size === "M" || size === "T") && <p className={`mt-2 line-clamp-2 text-[14.5px] ${dark ? "text-white/80" : "text-stone"}`}>{p.description}</p>}
+          {(size === "L" || size === "M" || size === "T" || size === "W") && <p className={`mt-2 line-clamp-2 text-[14.5px] ${dark ? "text-white/80" : "text-stone"}`}>{p.description}</p>}
           <span className={`mt-3 inline-flex items-center gap-1.5 text-sm font-semibold ${dark ? "text-white" : "text-red"}`}>Explore <ArrowRight className="tile-arrow h-4 w-4" aria-hidden /></span>
         </div>
-        <AddToEnquiry id={p.id} name={p.name} compact />
+        <AddToEnquiry id={p.id} name={p.name} compact light={dark} />
       </div>
     </article>
   );
@@ -102,7 +117,7 @@ export function CtaBand({ title = "Build your packaging enquiry.", text = "Add p
           <h2 className="h1 mt-4 text-white">{title}</h2>
           <p className="mt-5 max-w-xl text-lg text-reverse">{text}</p>
         </div>
-        <div className="reveal flex flex-wrap gap-3 lg:justify-end" style={{ ["--i" as string]: 1 }}>
+        <div className="reveal flex flex-wrap gap-3 lg:grid lg:justify-items-stretch lg:[&>*]:justify-center" style={{ ["--i" as string]: 1 }}>
           <Link href={primary.href} className="btn btn-cloud btn-lg">{primary.label} <ArrowRight className="arrow h-4 w-4" /></Link>
           <Link href={secondary.href} className="btn btn-ghost-light btn-lg">{secondary.label}</Link>
           <a href={whatsappHref(waMessage)} target="_blank" rel="noopener" className="btn btn-ghost-light btn-lg"><MessageCircle className="h-4 w-4" /> WhatsApp</a>
