@@ -25,13 +25,13 @@ export default function CapabilitiesPage() {
             const printing = Array.from(new Set(list.flatMap((p) => p.printing))).slice(0, 6);
             const custom = Array.from(new Set(list.flatMap((p) => p.customisation))).slice(0, 8);
             return (
-              <article key={v.id} className="overflow-hidden rounded-md border border-line bg-white">
+              <article key={v.id} className="overflow-hidden rounded-sm border border-line bg-white">
                 <header className="flex flex-col gap-2 border-b border-line bg-paper-2 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-                  <h2 className="font-display text-xl font-semibold text-navy-950">{v.name}</h2>
-                  <Link href={`/${v.slug}`} className="text-sm font-semibold text-navy-800 hover:text-signal-600">{list.length} product pages →</Link>
+                  <h2 className="font-display text-xl font-semibold text-char-950">{v.name}</h2>
+                  <Link href={`/${v.slug}`} className="text-sm font-semibold text-char-800 hover:text-red-600">{list.length} product pages →</Link>
                 </header>
                 <div className="grid gap-6 p-6 md:grid-cols-2 lg:grid-cols-4">
-                  <Col title="Formats">{list.map((p) => <li key={p.slug}><Link href={productUrl(p)} className="hover:text-signal-600">{p.shortName ?? p.name}</Link></li>)}</Col>
+                  <Col title="Formats">{list.map((p) => <li key={p.slug}><Link href={productUrl(p)} className="hover:text-red-600">{p.shortName ?? p.name}</Link></li>)}</Col>
                   <Col title="Material technologies">{v.technologies.map((t) => <li key={t.name}>{t.name}</li>)}</Col>
                   <Col title="Printing & finishing">{printing.map((t) => <li key={t}>{t}</li>)}</Col>
                   <Col title="Customisation">{custom.map((t) => <li key={t}>{t}</li>)}</Col>
@@ -50,7 +50,7 @@ export default function CapabilitiesPage() {
 function Col({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="font-mono text-[0.7rem] font-medium uppercase tracking-[0.14em] text-muted">{title}</h3>
+      <h3 className="font-sans tabular-nums text-[0.7rem] font-medium uppercase tracking-[0.14em] text-muted">{title}</h3>
       <ul className="mt-3 grid gap-1.5 text-[0.9rem] text-ink-2">{children}</ul>
     </div>
   );

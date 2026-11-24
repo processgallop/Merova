@@ -1,7 +1,7 @@
 import type { Article } from "./types";
 
 const PENDING = { status: "pending" as const };
-const ILL = (n: string) => `/assets/products/illustrations/${n}.svg`;
+const ILL = (n: string) => `/assets/products/renders/${n}.webp`;
 
 export const articles2: Article[] = [
   {

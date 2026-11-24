@@ -15,7 +15,7 @@ Verification is from the local production build (`next build` + `next start`).
 | Every industry displays relevant products | ✅ | `validateCatalog()`: each of the 10 industries has ≥10 mapped products, and featured products are tagged |
 | Every industry has a custom requirement route | ✅ | Industry pages → `/custom-requirement?industry=…` (e2e verifies the industry is recorded on the lead) |
 | Master catalogue downloads correctly | ✅ | 34 pages, 2.0 MB |
-| Company profile downloads correctly | ✅ | 5 pages, 0.5 MB |
+| Company profile downloads correctly | ✅ | 8 pages, redesigned in the red brand system |
 | All contact details are verified | 🟡 | Merova has supplied none, and the previous site showed placeholders. Details are env-driven and hidden until set (ISSUE-REGISTER #2) |
 | WhatsApp works on desktop and mobile | 🟡 | With a test number: contextual wa.me links verified on desktop and mobile for home, product and industry pages. Without a number: fallback panel verified (e2e). Needs the real number (#3) |
 | Mira uses approved product information | ✅ / 🟡 | Guided mode answers only from `src/data` and its links are allow-listed (e2e). AI mode is implemented with the same knowledge base and link allow-list but not exercised without `ANTHROPIC_API_KEY` (#17) |
@@ -33,6 +33,7 @@ Verification is from the local production build (`next build` + `next start`).
 | Page performance is tested | ✅ | Lighthouse mobile 93–98, desktop 100; CLS ≈ 0; Best Practices 100; SEO 100 |
 | Analytics events are verified | 🟡 | Event calls are wired to every conversion (TRACKING-PLAN.md) and consent-gated; needs GA4/GTM IDs to verify in DebugView (#16) |
 | Privacy and terms pages are functional | ✅ / 🟡 | Live pages (previously 404); legal review pending (#15) |
+| Final creative direction applied (red-led, official logos, 5-item nav, photoreal imagery, redesigned collateral) | ✅ | Logos taken unaltered from the supplied `Merova_Logo.pdf`; Sora + Inter; 44 captioned studio visualisations; every PDF page rendered and inspected, and the automated layout QA reports 0 clipped pages across 53 documents; fonts embedded; links and QR codes resolve to live URLs |
 | Central issue register maintained | ✅ | [ISSUE-REGISTER.md](ISSUE-REGISTER.md) |
 | Vercel deployment verified on a live URL | ✅ | Production: https://merova-printpack.vercel.app (Vercel project `merova-printpack`, deployment READY, build log clean). Live crawl: 119 pages, 122 assets, 0 problems, 0 console errors; sitemap, robots, canonical URLs, PDFs and Mira verified live; enquiry API correctly returns 503 until a delivery channel is configured |
 

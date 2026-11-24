@@ -25,8 +25,8 @@ export default function ResourcesPage() {
           {cards.map(({ icon: I, title, text, href }) => (
             <li key={href}>
               <Link href={href} className="card group flex h-full flex-col p-7 hover:shadow-card">
-                <I className="h-7 w-7 text-signal" strokeWidth={1.5} aria-hidden />
-                <h2 className="mt-5 font-display text-xl font-semibold text-navy-950 group-hover:text-signal-600">{title}</h2>
+                <I className="h-7 w-7 text-red-500" strokeWidth={1.5} aria-hidden />
+                <h2 className="mt-5 font-display text-xl font-semibold text-char-950 group-hover:text-red-600">{title}</h2>
                 <p className="mt-2 leading-relaxed text-ink-2">{text}</p>
                 <span className="link-arrow mt-auto pt-5">Open <ArrowRight className="h-4 w-4" aria-hidden /></span>
               </Link>

@@ -28,9 +28,9 @@ export default function DownloadsPage() {
           <h2 className="t-2">Company documents</h2>
           <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {docs.map((d) => (
-              <li key={d.href} className="flex flex-col rounded-md border border-line bg-white p-6">
-                <FileText className="h-7 w-7 text-signal" strokeWidth={1.5} aria-hidden />
-                <h3 className="mt-4 font-display text-lg font-semibold text-navy-950">{d.title}</h3>
+              <li key={d.href} className="flex flex-col rounded-sm border border-line bg-white p-6">
+                <FileText className="h-7 w-7 text-red-500" strokeWidth={1.5} aria-hidden />
+                <h3 className="mt-4 font-display text-lg font-semibold text-char-950">{d.title}</h3>
                 <p className="mt-2 flex-1 text-[0.9rem] leading-relaxed text-ink-2">{d.text}</p>
                 <TrackedLink href={d.href} download event={d.event} className="btn btn-navy btn-sm mt-5"><Download className="h-4 w-4" aria-hidden /> PDF{sizes[d.href] ? ` · ${sizes[d.href]}` : ""}</TrackedLink>
               </li>
@@ -44,12 +44,12 @@ export default function DownloadsPage() {
           <div className="mt-8 grid gap-8">
             {verticals.map((v) => (
               <div key={v.id}>
-                <h3 className="font-display text-lg font-semibold text-navy-950">{v.name}</h3>
+                <h3 className="font-display text-lg font-semibold text-char-950">{v.name}</h3>
                 <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {productsInVertical(v.id).map((p) => (
                     <li key={p.slug} className="flex items-center justify-between gap-3 rounded border border-line px-4 py-3">
-                      <Link href={productUrl(p)} className="text-[0.92rem] font-semibold text-navy-900 hover:text-signal-600">{p.name}</Link>
-                      <TrackedLink href={flyerUrl(p)} download event="flyer_download" params={{ product: p.slug }} className="inline-flex shrink-0 items-center gap-1 text-[0.82rem] font-semibold text-navy-700 hover:text-signal-600" aria-label={`Download ${p.name} flyer (PDF)`}>
+                      <Link href={productUrl(p)} className="text-[0.92rem] font-semibold text-char-900 hover:text-red-600">{p.name}</Link>
+                      <TrackedLink href={flyerUrl(p)} download event="flyer_download" params={{ product: p.slug }} className="inline-flex shrink-0 items-center gap-1 text-[0.82rem] font-semibold text-char-700 hover:text-red-600" aria-label={`Download ${p.name} flyer (PDF)`}>
                         <Download className="h-3.5 w-3.5" aria-hidden /> PDF
                       </TrackedLink>
                     </li>
@@ -58,7 +58,7 @@ export default function DownloadsPage() {
               </div>
             ))}
           </div>
-          <p className="mt-10 rounded-md bg-paper-2 p-5 text-[0.9rem] text-ink-2">
+          <p className="mt-10 rounded-sm bg-paper-2 p-5 text-[0.9rem] text-ink-2">
             <strong className="text-ink">Technical data sheets:</strong> each product flyer includes its specification table. Order-specific technical data sheets are issued with your quotation once the specification is confirmed.
           </p>
         </div>

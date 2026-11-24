@@ -1,7 +1,7 @@
 import type { Article } from "./types";
 
 const PENDING = { status: "pending" as const };
-const ILL = (n: string) => `/assets/products/illustrations/${n}.svg`;
+const ILL = (n: string) => `/assets/products/renders/${n}.webp`;
 
 export const articles1: Article[] = [
   {
@@ -86,7 +86,7 @@ export const articles1: Article[] = [
     description: "How flute profiles affect strength, cushioning and print in corrugated packaging — with typical flute heights and where B, C, E, BC and EB flutes are used.",
     category: "corrugated",
     keyword: "B flute vs C flute vs E flute",
-    image: ILL("box-3ply"),
+    image: ILL("export-carton"),
     intro: "The flute is the wavy layer inside corrugated board. Its height and frequency change how a box stacks, cushions and prints. Choosing the right flute is as important as choosing the right ply.",
     sections: [
       {

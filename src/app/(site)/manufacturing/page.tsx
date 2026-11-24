@@ -28,18 +28,18 @@ export default function ManufacturingPage() {
 
       <section className="py-14 lg:py-20">
         <div className="container-x grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-start">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-md lg:sticky lg:top-28">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-sm lg:sticky lg:top-28">
             <Image src="/assets/manufacturing/capabilities-press-hall.webp" alt="Packaging press hall with converting equipment" fill sizes="(min-width:1024px) 45vw, 100vw" className="object-cover" />
-            <span className="absolute bottom-2 left-2 rounded-sm bg-white/85 px-1.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.08em] text-muted">Representative image — not a Merova facility</span>
+            <span className="absolute bottom-2 left-2 rounded-sm bg-white/85 px-1.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.1em] text-char-600">Representative image — not a Merova facility</span>
           </div>
           <div>
             <SectionHeading eyebrow="Production journey" title="From material to dispatch" />
-            <ol className="mt-8 grid gap-px overflow-hidden rounded-md border border-line bg-line">
+            <ol className="mt-8 grid gap-px overflow-hidden rounded-sm border border-line bg-line">
               {MANUFACTURING_PROCESSES.map((p, i) => (
                 <li key={p.name} className="grid grid-cols-[3rem_1fr] gap-3 bg-white p-5">
-                  <span className="font-mono text-sm text-signal-600">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-display text-lg font-semibold text-red-500">{String(i + 1).padStart(2, "0")}</span>
                   <div>
-                    <h3 className="font-display font-semibold text-navy-950">{p.name}</h3>
+                    <h3 className="font-display font-semibold text-char-950">{p.name}</h3>
                     <p className="mt-1 text-[0.92rem] leading-relaxed text-ink-2">{p.text}</p>
                   </div>
                 </li>
@@ -55,9 +55,9 @@ export default function ManufacturingPage() {
           <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {verticals.map((v) => (
               <li key={v.id}>
-                <Link href={`/${v.slug}`} className="block h-full rounded-md border border-line p-5 hover:border-navy-900">
-                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-muted">{productsInVertical(v.id).length} formats</p>
-                  <p className="mt-2 font-display font-semibold text-navy-950">{v.name}</p>
+                <Link href={`/${v.slug}`} className="block h-full rounded-sm border border-line p-5 hover:border-red-500">
+                  <p className="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-red-600">{productsInVertical(v.id).length} formats</p>
+                  <p className="mt-2 font-display font-semibold text-char-950">{v.name}</p>
                   <span className="link-arrow mt-3 text-[0.85rem]">View <ArrowRight className="h-3.5 w-3.5" aria-hidden /></span>
                 </Link>
               </li>

@@ -31,8 +31,8 @@ export default function CareersPage() {
           <SectionHeading eyebrow="Culture" title="How we work together" intro="Clear specifications, written processes and ownership of outcomes. We value people who check their work, speak up early and keep learning." />
           <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {AREAS.map((a) => (
-              <li key={a.k} className="rounded-md border border-line bg-white p-6">
-                <h2 className="font-display text-lg font-semibold text-navy-950">{a.k}</h2>
+              <li key={a.k} className="rounded-sm border border-line bg-white p-6">
+                <h2 className="font-display text-lg font-semibold text-char-950">{a.k}</h2>
                 <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">{a.v}</p>
               </li>
             ))}

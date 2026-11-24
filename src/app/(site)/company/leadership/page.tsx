@@ -21,8 +21,8 @@ export default function LeadershipPage() {
         <div className="container-x grid gap-8">
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {TEAM_FUNCTIONS.map((t) => (
-              <li key={t.name} className="rounded-md border border-line bg-white p-6">
-                <h2 className="font-display text-lg font-semibold text-navy-950">{t.name}</h2>
+              <li key={t.name} className="rounded-sm border border-line bg-white p-6">
+                <h2 className="font-display text-lg font-semibold text-char-950">{t.name}</h2>
                 <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">{t.text}</p>
               </li>
             ))}

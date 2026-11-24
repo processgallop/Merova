@@ -24,13 +24,13 @@ export default function ClientsPage() {
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {industries.map((i) => (
               <li key={i.id}>
-                <Link href={`/industries/${i.slug}`} className="flex h-full items-center gap-3 rounded-md border border-line bg-white p-4 font-semibold text-navy-950 hover:border-navy-900">
-                  <IndustryIcon name={i.icon} className="h-5 w-5 text-navy-700" /> {i.shortName}
+                <Link href={`/industries/${i.slug}`} className="flex h-full items-center gap-3 rounded-sm border border-line bg-white p-4 font-semibold text-char-950 hover:border-red-500">
+                  <IndustryIcon name={i.icon} className="h-5 w-5 text-char-700" /> {i.shortName}
                 </Link>
               </li>
             ))}
           </ul>
-          <div className="rounded-md border border-line bg-white p-6 lg:p-8">
+          <div className="rounded-sm border border-line bg-white p-6 lg:p-8">
             <h2 className="t-3">Our reference policy</h2>
             <p className="mt-3 max-w-3xl leading-relaxed text-ink-2">Merova publishes client logos, testimonials and case studies only with each client&apos;s written permission. We never use placeholder logos or anonymous testimonials. If you need references for your evaluation, ask the team and we will arrange them where clients agree.</p>
           </div>

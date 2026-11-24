@@ -1,33 +1,53 @@
+/* eslint-disable @next/next/no-img-element */
 import QRCode from "qrcode";
-import { GLYPH_PATH, GLYPH_VIEWBOX } from "@/components/brand/glyph";
-import { site } from "@/lib/site";
-import type { SpecRow } from "@/data/types";
+import { site, absoluteUrl } from "@/lib/site";
+import type { ProductImage, SpecRow } from "@/data/types";
 
-export function PLogo({ light = false, size = 1 }: { light?: boolean; size?: number }) {
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 8 * size }}>
-      <svg viewBox={GLYPH_VIEWBOX} style={{ width: 44 * size, height: "auto" }} aria-hidden="true"><path d={GLYPH_PATH} fill={light ? "#FFFAF3" : "#D52B1E"} /></svg>
-      <span style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-        <span style={{ fontFamily: "var(--font-sora)", fontWeight: 600, fontSize: 17 * size, letterSpacing: "-0.03em", color: light ? "#fff" : "#08162a" }}>Merova</span>
-        <span style={{ fontFamily: "var(--font-plex-mono)", fontSize: 6.5 * size, letterSpacing: "0.32em", marginTop: 3 * size, color: light ? "rgba(255,255,255,.7)" : "#5b6270" }}>PRINTPACK</span>
-      </span>
-    </span>
-  );
+const LOGO = {
+  primary: { src: "/assets/brand/merova-logo-primary.svg", ratio: 843.66 / 375.16 },
+  reverse: { src: "/assets/brand/merova-logo-reverse.svg", ratio: 703.69 / 344.39 },
+  "mark-red": { src: "/assets/brand/merova-mark-red.svg", ratio: 703.69 / 344.39 },
+  "mark-cream": { src: "/assets/brand/merova-mark-cream.svg", ratio: 703.69 / 344.39 },
+};
+
+/** Official Merova artwork (unaltered), sized by height in mm. */
+export function PLogo({ variant = "primary", h = 14 }: { variant?: keyof typeof LOGO; h?: number }) {
+  const l = LOGO[variant];
+  return <img src={l.src} alt="Merova" style={{ height: `${h}mm`, width: `${h * l.ratio}mm`, display: "block" }} />;
 }
 
-export function PFooter({ label, page }: { label: string; page?: string }) {
+/** Print-optimised JPEG for raster images (scripts/print-images.mjs, scripts/process-renders.mjs). */
+export const printSrc = (src: string) => {
+  if (src.includes("/products/renders/")) return src.replace("/products/renders/", "/print/renders/").replace(/\.webp$/, ".jpg");
+  if (src.endsWith(".webp")) return `/assets/print/${src.split("/").pop()!.replace(/\.webp$/, ".jpg")}`;
+  return src;
+};
+
+export function PImg({ image, style, caption = true }: { image: ProductImage | { src: string; alt: string; kind: ProductImage["kind"] }; style?: React.CSSProperties; caption?: boolean }) {
   return (
-    <div className="pp-foot">
-      <span>{site.name} · {site.tagline}</span>
-      <span>{label}</span>
-      <span>{site.url.replace(/^https?:\/\//, "")}{page ? ` · ${page}` : ""}</span>
+    <div className="pp-img" style={style}>
+      <img src={printSrc(image.src)} alt={image.alt} />
+      {caption && <span className="pp-cap">{image.kind === "render" ? "Product visualisation" : image.kind === "illustration" ? "Illustration" : "Representative image"}</span>}
     </div>
   );
 }
 
-export async function QR({ url, size = 92 }: { url: string; size?: number }) {
-  const svg = await QRCode.toString(url, { type: "svg", margin: 0, errorCorrectionLevel: "M", color: { dark: "#0d1f38", light: "#ffffff" } });
-  return <span style={{ display: "block", width: size, height: size }} dangerouslySetInnerHTML={{ __html: svg.replace("<svg", `<svg width="${size}" height="${size}"`) }} />;
+export function PFooter({ label, page, total, red = false }: { label: string; page?: number; total?: number; red?: boolean }) {
+  return (
+    <div className={`pp-foot ${red ? "pp-foot-red" : ""}`}>
+      <span><b>Merova Printpack</b> · Packaging, Perfected.</span>
+      <span>{label}</span>
+      <span style={{ display: "flex", alignItems: "center", gap: "4mm" }}>
+        <a href={site.url}>{site.url.replace(/^https?:\/\//, "")}</a>
+        {page !== undefined && <span className="pp-num">{String(page).padStart(2, "0")}{total ? ` / ${String(total).padStart(2, "0")}` : ""}</span>}
+      </span>
+    </div>
+  );
+}
+
+export async function QR({ url, size = 24, dark = "#282525" }: { url: string; size?: number; dark?: string }) {
+  const svg = await QRCode.toString(url, { type: "svg", margin: 0, errorCorrectionLevel: "M", color: { dark, light: "#ffffff" } });
+  return <span style={{ display: "block", width: `${size}mm`, height: `${size}mm` }} dangerouslySetInnerHTML={{ __html: svg.replace("<svg", `<svg width="100%" height="100%"`) }} />;
 }
 
 const TAG: Record<string, [string, string]> = { option: ["Option", "pp-tag"], reference: ["Industry reference", "pp-tag"], confirm: ["Confirmed at quotation", "pp-tag pp-tag-c"] };
@@ -35,7 +55,7 @@ const TAG: Record<string, [string, string]> = { option: ["Option", "pp-tag"], re
 export function PSpecTable({ rows }: { rows: SpecRow[] }) {
   return (
     <table>
-      <thead><tr><th>Parameter</th><th>Specification</th><th style={{ width: "24%" }}>Status</th></tr></thead>
+      <thead><tr><th>Parameter</th><th>Specification</th><th style={{ width: "26%" }}>Status</th></tr></thead>
       <tbody>
         {rows.map((r) => (
           <tr key={r.label}>
@@ -49,20 +69,26 @@ export function PSpecTable({ rows }: { rows: SpecRow[] }) {
   );
 }
 
-export function ContactBlock({ dark = false }: { dark?: boolean }) {
+/** Contact lines: only verified details from configuration, plus working web links. */
+export function ContactLines({ light = false }: { light?: boolean }) {
   const c = site.contact;
-  const color = dark ? "rgba(255,255,255,.8)" : "#3a404c";
-  const items = [c.phone && `Tel: ${c.phone}`, c.whatsapp && `WhatsApp: +${c.whatsapp}`, c.email && `Email: ${c.email}`, c.officeAddress].filter(Boolean) as string[];
+  const color = light ? "var(--cloud)" : "var(--ink2)";
+  const lines: [string, string | undefined, string][] = [
+    ["Phone", c.phone, c.phone ? `tel:${c.phone.replace(/[^\d+]/g, "")}` : ""],
+    ["WhatsApp", c.whatsapp ? `+${c.whatsapp}` : undefined, c.whatsapp ? `https://wa.me/${c.whatsapp}` : ""],
+    ["Email", c.email, c.email ? `mailto:${c.email}` : ""],
+  ];
+  const site_ = site.url.replace(/^https?:\/\//, "");
   return (
-    <div style={{ color, fontSize: "8.4pt", lineHeight: 1.6 }}>
-      {items.length ? items.map((i) => <div key={i}>{i}</div>) : <div>Enquiries: {site.url.replace(/^https?:\/\//, "")}/contact</div>}
-      <div>Quotations: {site.url.replace(/^https?:\/\//, "")}/request-a-quote</div>
+    <div style={{ color, fontSize: "8pt", lineHeight: 1.65 }}>
+      {lines.filter(([, v]) => v).map(([k, v, href]) => (
+        <div key={k}><b>{k}</b>&nbsp; <a href={href}>{v}</a></div>
+      ))}
+      {c.officeAddress && <div>{c.officeAddress}</div>}
+      <div><b>Quotations</b>&nbsp; <a href={absoluteUrl("/request-a-quote")}>{site_}/request-a-quote</a></div>
+      <div><b>Enquiries</b>&nbsp; <a href={absoluteUrl("/contact")}>{site_}/contact</a></div>
     </div>
   );
 }
 
-export const IMG_NOTE = "Visuals are format illustrations or representative imagery. Specifications marked “Confirmed at quotation” are confirmed in writing for each order.";
-
-/** Print-optimised JPEG for raster images (see scripts/print-images.mjs); SVG illustrations stay vector. */
-export const printSrc = (src: string) =>
-  src.endsWith(".webp") ? `/assets/print/${src.split("/").pop()!.replace(/\.webp$/, ".jpg")}` : src;
+export const IMG_NOTE = "Product visuals are studio visualisations or representative imagery. Specifications marked “Confirmed at quotation” are confirmed in writing for each order.";

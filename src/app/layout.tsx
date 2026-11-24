@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, Manrope, Sora } from "next/font/google";
+import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@/components/analytics/ConsentBanner";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -7,8 +7,7 @@ import { site } from "@/lib/site";
 import { DEFAULT_OG, organizationJsonLd } from "@/lib/seo";
 
 const sora = Sora({ subsets: ["latin"], variable: "--font-sora", display: "swap", weight: ["400", "500", "600", "700"] });
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
-const plexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-plex-mono", display: "swap", weight: ["400", "500", "600"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -32,14 +31,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d1f38",
+  themeColor: "#d52b1e",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-IN" className={`${sora.variable} ${manrope.variable} ${plexMono.variable}`}>
+    <html lang="en-IN" className={`${sora.variable} ${inter.variable}`}>
       <body className="min-h-dvh antialiased">
         {children}
         <Analytics gaId={site.analytics.gaId} gtmId={site.analytics.gtmId} />

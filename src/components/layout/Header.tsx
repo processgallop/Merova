@@ -1,25 +1,26 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowRight, ChevronDown, Menu, MessageCircle, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Download, Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import { IndustryIcon } from "@/components/ui/Icon";
-import { primaryNav, type NavItem } from "@/data/navigation";
+import { aboutMenu, primaryNav, resourcesMenu, type NavKey } from "@/data/navigation";
 import type { Menus } from "@/data/menus";
+
+const CATALOGUE = "/assets/downloads/merova-product-catalogue.pdf";
+const PROFILE = "/assets/downloads/merova-company-profile.pdf";
 
 export function Header({ menus }: { menus: Menus }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<NavKey | null>(null);
   const [mobile, setMobile] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const navRef = useRef<HTMLElement>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ref = useRef<HTMLElement>(null);
 
-  // Close menus on route change. Adjusting state during render (rather than in an
-  // effect) is React's recommended pattern for resetting state when a value changes.
   const [prevPath, setPrevPath] = useState(pathname);
   if (prevPath !== pathname) {
     setPrevPath(pathname);
@@ -28,27 +29,24 @@ export function Header({ menus }: { menus: Menus }) {
   }
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 10);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpen(null);
         setMobile(false);
       }
     };
-    const onClick = (e: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(e.target as Node)) setOpen(null);
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(null);
     };
     document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onClick);
+    document.addEventListener("mousedown", onDown);
     return () => {
+      window.removeEventListener("scroll", onScroll);
       document.removeEventListener("keydown", onKey);
-      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("mousedown", onDown);
     };
   }, []);
 
@@ -59,78 +57,61 @@ export function Header({ menus }: { menus: Menus }) {
     };
   }, [mobile]);
 
-  const enter = (key: string) => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    setOpen(key);
+  const enter = (k: NavKey) => {
+    if (timer.current) clearTimeout(timer.current);
+    setOpen(k);
   };
   const leave = () => {
-    closeTimer.current = setTimeout(() => setOpen(null), 160);
+    timer.current = setTimeout(() => setOpen(null), 180);
   };
-
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
     <header
-      className={`sticky top-0 z-50 border-b bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/85 transition-shadow ${
-        scrolled ? "border-line shadow-[0_6px_20px_-14px_rgb(13_31_56/0.35)]" : "border-transparent"
+      ref={ref}
+      className={`sticky top-0 z-50 border-b bg-cloud/95 backdrop-blur supports-[backdrop-filter]:bg-cloud/90 transition-[box-shadow,border-color] duration-300 ${
+        scrolled ? "border-line shadow-[0_10px_30px_-22px_rgb(40_37_37/0.45)]" : "border-transparent"
       }`}
     >
-      <nav ref={navRef} aria-label="Primary" className="container-x flex h-[4.25rem] items-center gap-4 lg:h-[4.75rem] xl:!px-6 2xl:!px-10">
-        <Link href="/" className="shrink-0">
-          <Logo />
-          <span className="sr-only"> — home</span>
+      <nav aria-label="Primary" className="container-x flex h-[4.5rem] items-center gap-6 lg:h-[5.25rem]">
+        <Link href="/" className="shrink-0" aria-label="Merova Printpack — home">
+          <span className="hidden lg:block"><Logo height={58} /></span>
+          <span className="lg:hidden"><Logo height={44} /></span>
         </Link>
 
-        <ul className="ml-auto hidden items-center xl:flex">
+        <ul className="ml-auto hidden items-center lg:flex">
           {primaryNav.map((item) => (
-            <li key={item.label} className="relative" onMouseEnter={() => item.kind !== "link" && enter(item.label)} onMouseLeave={leave}>
-              {item.kind === "link" ? (
-                <Link
-                  href={item.href}
-                  className={`block whitespace-nowrap rounded px-2 py-2 text-[0.875rem] font-semibold transition-colors 2xl:px-3 2xl:text-[0.9rem] ${
-                    isActive(item.href) ? "text-signal-600" : "text-navy-900 hover:text-signal-600"
-                  }`}
-                >
+            <li key={item.key} onMouseEnter={() => item.key !== "contact" && enter(item.key as NavKey)} onMouseLeave={leave}>
+              {item.key === "contact" ? (
+                <Link href={item.href} data-active={active(item.href)} className="nav-link block px-3 py-3 text-[0.95rem] font-semibold text-char-900 transition-colors hover:text-red-600 xl:px-4">
                   {item.label}
                 </Link>
               ) : (
                 <button
                   type="button"
-                  aria-expanded={open === item.label}
-                  aria-controls={`menu-${item.label}`}
-                  onClick={() => setOpen(open === item.label ? null : item.label)}
-                  className={`flex items-center gap-1 whitespace-nowrap rounded px-2 py-2 text-[0.875rem] font-semibold transition-colors 2xl:px-3 2xl:text-[0.9rem] ${
-                    isActive(item.href) || open === item.label ? "text-signal-600" : "text-navy-900 hover:text-signal-600"
+                  aria-expanded={open === item.key}
+                  aria-controls={`mega-${item.key}`}
+                  data-active={active(item.href)}
+                  onClick={(e) => setOpen(open === item.key && e.detail === 0 ? null : (item.key as NavKey))}
+                  className={`nav-link flex items-center gap-1.5 px-3 py-3 text-[0.95rem] font-semibold transition-colors xl:px-4 ${
+                    open === item.key ? "text-red-600" : "text-char-900 hover:text-red-600"
                   }`}
                 >
                   {item.label}
-                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open === item.label ? "rotate-180" : ""}`} aria-hidden />
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${open === item.key ? "rotate-180" : ""}`} aria-hidden />
                 </button>
-              )}
-              {item.kind === "dropdown" && open === item.label && (
-                <div id={`menu-${item.label}`} className="absolute left-0 top-full pt-2">
-                  <ul className="card min-w-[15rem] p-2 shadow-lift">
-                    {item.items.map((s) => (
-                      <li key={s.href}>
-                        <Link href={s.href} className="block rounded px-3 py-2 text-[0.92rem] text-ink-2 hover:bg-paper-2 hover:text-navy-900">
-                          {s.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               )}
             </li>
           ))}
         </ul>
 
-        <div className="ml-auto flex items-center gap-2 xl:ml-3">
+        <div className="ml-auto flex items-center gap-2 lg:ml-2">
           <Link href="/request-a-quote" className="btn btn-primary btn-sm hidden sm:inline-flex">
-            Request a Quote
+            Request a Quote <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
           <button
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded border border-line-strong text-navy-900 xl:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-char-200 text-char-900 lg:hidden"
             aria-label={mobile ? "Close menu" : "Open menu"}
             aria-expanded={mobile}
             aria-controls="mobile-nav"
@@ -139,90 +120,163 @@ export function Header({ menus }: { menus: Menus }) {
             {mobile ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
-
-        {/* Mega menus */}
-        {(open === "Products" || open === "Industries") && (
-          <div
-            id={`menu-${open}`}
-            className="absolute inset-x-0 top-full hidden xl:block"
-            onMouseEnter={() => enter(open)}
-            onMouseLeave={leave}
-          >
-            <div className="border-y border-line bg-white shadow-lift">
-              <div className="container-x py-8">{open === "Products" ? <ProductsMega menus={menus} /> : <IndustriesMega menus={menus} />}</div>
-            </div>
-          </div>
-        )}
       </nav>
 
-      {/* Portalled to <body>: the header's backdrop-filter would otherwise trap the fixed drawer inside the header box. */}
+      {/* Mega menus are always rendered so they can animate in and out */}
+      <div className="absolute inset-x-0 top-full hidden lg:block" onMouseLeave={leave}>
+        <MegaShell id="products" open={open} onEnter={enter}>
+          <ProductsMega menus={menus} />
+        </MegaShell>
+        <MegaShell id="industries" open={open} onEnter={enter}>
+          <IndustriesMega menus={menus} />
+        </MegaShell>
+        <MegaShell id="about" open={open} onEnter={enter}>
+          <AboutMega />
+        </MegaShell>
+        <MegaShell id="resources" open={open} onEnter={enter}>
+          <ResourcesMega />
+        </MegaShell>
+      </div>
+
+      {/* Portalled to <body>: the header's backdrop-filter would otherwise trap the fixed drawer. */}
       {mobile && createPortal(<MobileNav menus={menus} />, document.body)}
     </header>
   );
 }
 
-function ProductsMega({ menus }: { menus: Menus }) {
+function MegaShell({ id, open, onEnter, children }: { id: NavKey; open: NavKey | null; onEnter: (k: NavKey) => void; children: React.ReactNode }) {
+  const isOpen = open === id;
   return (
-    <div className="grid grid-cols-[repeat(5,minmax(0,1fr))_15rem] gap-8">
-      {menus.productMenu.map((col) => (
-        <div key={col.href}>
-          <Link href={col.href} className="group flex items-center gap-1 font-display text-[0.98rem] font-semibold text-navy-950 hover:text-signal-600">
-            {col.title}
-            <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
-          </Link>
-          <ul className="mt-3 space-y-1.5 border-t border-line pt-3">
-            {col.items.map((i) => (
-              <li key={i.href}>
-                <Link href={i.href} className="text-[0.88rem] text-ink-2 hover:text-signal-600">
-                  {i.label}
-                </Link>
-              </li>
-            ))}
-            {col.count > col.items.length && (
-              <li>
-                <Link href={col.href} className="text-[0.85rem] font-semibold text-navy-700 hover:text-signal-600">
-                  View all {col.count} →
-                </Link>
-              </li>
-            )}
-          </ul>
-        </div>
-      ))}
-      <div className="rounded bg-navy-900 p-5 text-white">
-        <p className="eyebrow eyebrow-light">Not sure what you need?</p>
-        <p className="mt-2 font-display text-lg font-semibold leading-snug">Start from your industry or your product.</p>
-        <div className="mt-4 flex flex-col gap-2">
-          <Link href="/#find-your-packaging" className="btn btn-primary btn-sm">Find Your Packaging</Link>
-          <Link href="/custom-requirement" className="btn btn-ghost-light btn-sm">Discuss a Custom Requirement</Link>
-        </div>
+    <div id={`mega-${id}`} data-open={isOpen} aria-hidden={!isOpen} inert={!isOpen} className="mega absolute inset-x-0 top-0" onMouseEnter={() => onEnter(id)}>
+      <div className="border-t-2 border-red-500 bg-white shadow-lift">
+        <div className="container-x py-9">{children}</div>
       </div>
+    </div>
+  );
+}
+
+function ProductsMega({ menus }: { menus: Menus }) {
+  const [v, setV] = useState(0);
+  const cur = menus.productMenu[v];
+  return (
+    <div className="grid grid-cols-[16rem_1fr_19rem] gap-10">
+      <ul className="border-r border-line pr-6">
+        {menus.productMenu.map((m, i) => (
+          <li key={m.id}>
+            <Link
+              href={m.href}
+              onMouseEnter={() => setV(i)}
+              onFocus={() => setV(i)}
+              className={`flex items-center justify-between rounded-sm px-3 py-3 font-display text-[1rem] font-semibold transition-colors ${
+                i === v ? "bg-red-500 text-cloud" : "text-char-900 hover:bg-paper-2"
+              }`}
+            >
+              {m.short}
+              <span className={`font-sans text-xs font-semibold ${i === v ? "text-cloud" : "text-char-400"}`}>{m.count}</span>
+            </Link>
+          </li>
+        ))}
+        <li className="mt-4 border-t border-line pt-4">
+          <Link href="/products" className="link-arrow px-3 text-sm">All {menus.productCount} products <ArrowRight className="h-4 w-4" aria-hidden /></Link>
+        </li>
+      </ul>
+      <div>
+        <p className="eyebrow">{cur.title}</p>
+        <p className="mt-3 max-w-xl text-[0.93rem] leading-relaxed text-ink-2">{cur.intro}</p>
+        <ul className="mt-6 grid grid-cols-2 gap-x-8 gap-y-2.5">
+          {cur.items.map((i) => (
+            <li key={i.href}>
+              <Link href={i.href} className="group inline-flex items-center gap-2 text-[0.93rem] text-char-800 hover:text-red-600">
+                <span className="h-px w-3 bg-red-500 transition-all duration-300 group-hover:w-5" aria-hidden />
+                {i.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link href={cur.href} className="link-arrow mt-6 text-sm">Explore {cur.short} <ArrowRight className="h-4 w-4" aria-hidden /></Link>
+      </div>
+      <Link href={cur.href} className="group block overflow-hidden rounded-sm bg-paper-2">
+        <span className="block overflow-hidden">
+          <img key={cur.image} src={cur.image} alt="" className="reveal aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+        </span>
+        <span className="surface-red block p-4">
+          <span className="block font-display text-[1rem] font-semibold">{cur.title}</span>
+          <span className="mt-1 block text-[0.85rem]">{cur.count} formats · specifications, flyers and quotes</span>
+        </span>
+      </Link>
     </div>
   );
 }
 
 function IndustriesMega({ menus }: { menus: Menus }) {
   return (
-    <div className="grid grid-cols-[1fr_17rem] gap-8">
+    <div>
+      <div className="mb-6 flex items-end justify-between">
+        <div>
+          <p className="eyebrow">Solutions by industry</p>
+          <p className="mt-2 font-display text-xl font-semibold text-char-900">What are you looking to pack?</p>
+        </div>
+        <Link href="/custom-requirement" className="link-arrow text-sm">Have a different requirement? <ArrowRight className="h-4 w-4" aria-hidden /></Link>
+      </div>
       <ul className="grid grid-cols-5 gap-3">
         {menus.industryMenu.map((i) => (
           <li key={i.href}>
-            <Link href={i.href} className="group flex h-full flex-col gap-3 rounded border border-line p-4 transition-colors hover:border-navy-900 hover:bg-paper">
-              <span className="flex h-9 w-9 items-center justify-center rounded bg-navy-50 text-navy-800 group-hover:bg-navy-900 group-hover:text-white">
-                <IndustryIcon name={i.icon} className="h-[18px] w-[18px]" />
+            <Link href={i.href} className="group relative block overflow-hidden rounded-sm bg-paper-2">
+              <img src={i.image} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-char-950/90 via-char-950/45 to-transparent px-3 pb-2.5 pt-10 text-[0.88rem] font-semibold leading-tight text-cloud">
+                {i.label}
               </span>
-              <span className="text-[0.9rem] font-semibold leading-snug text-navy-950">{i.label}</span>
+              <span className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-red-500 transition-transform duration-500 group-hover:scale-x-100" aria-hidden />
             </Link>
           </li>
         ))}
       </ul>
-      <div className="flex flex-col justify-between rounded bg-paper-2 p-5">
-        <div>
-          <p className="eyebrow">Have a different requirement?</p>
-          <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">
-            Share your specifications, drawings or photographs. Our team will assess your application.
-          </p>
+    </div>
+  );
+}
+
+function AboutMega() {
+  return (
+    <div className="grid grid-cols-[1fr_1fr_1fr_20rem] gap-10">
+      {aboutMenu.map((col) => (
+        <div key={col.title}>
+          <p className="eyebrow">{col.title}</p>
+          <ul className="mt-4 grid gap-2.5">
+            {col.items.map((i) => (
+              <li key={i.href}>
+                <Link href={i.href} className="group inline-flex items-center gap-2 text-[0.95rem] font-medium text-char-800 hover:text-red-600">
+                  <span className="h-px w-3 bg-red-500 transition-all duration-300 group-hover:w-5" aria-hidden />
+                  {i.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
-        <Link href="/custom-requirement" className="btn btn-navy btn-sm mt-4">Discuss Your Requirement</Link>
+      ))}
+      <div className="surface-red-deep relative overflow-hidden rounded-sm p-6">
+        <img src="/assets/brand/merova-mark-cream.svg" alt="" className="glyph-watermark -bottom-6 -right-10 w-64" />
+        <p className="relative font-display text-lg font-semibold leading-snug">More than packaging. A manufacturing partner built around your business.</p>
+        <a href={PROFILE} download className="btn btn-cloud btn-sm relative mt-5"><Download className="h-4 w-4" aria-hidden /> Company Profile</a>
+      </div>
+    </div>
+  );
+}
+
+function ResourcesMega() {
+  return (
+    <div className="grid grid-cols-[1fr_1fr_1fr_20rem] gap-8">
+      {resourcesMenu.map((r) => (
+        <Link key={r.href} href={r.href} className="group rounded-sm border border-line p-5 transition-colors hover:border-red-500">
+          <p className="font-display text-[1.05rem] font-semibold text-char-900 group-hover:text-red-600">{r.label}</p>
+          <p className="mt-2 text-[0.9rem] leading-relaxed text-ink-2">{r.text}</p>
+          <span className="link-arrow mt-4 text-sm">Open <ArrowRight className="h-4 w-4" aria-hidden /></span>
+        </Link>
+      ))}
+      <div className="surface-red relative overflow-hidden rounded-sm p-6">
+        <img src="/assets/brand/merova-mark-cream.svg" alt="" className="glyph-watermark -bottom-4 -right-8 w-56" />
+        <p className="relative text-xs font-bold uppercase tracking-[0.16em]">Product catalogue</p>
+        <p className="relative mt-2 font-display text-lg font-semibold leading-snug">Every Merova product in one document.</p>
+        <a href={CATALOGUE} download className="btn btn-cloud btn-sm relative mt-5"><Download className="h-4 w-4" aria-hidden /> Download PDF</a>
       </div>
     </div>
   );
@@ -230,67 +284,76 @@ function IndustriesMega({ menus }: { menus: Menus }) {
 
 function MobileNav({ menus }: { menus: Menus }) {
   const [section, setSection] = useState<string | null>(null);
-  const toggle = (k: string) => setSection(section === k ? null : k);
-  const groups: Record<string, { label: string; href: string }[]> = {
-    Industries: menus.industryMenu.map((i) => ({ label: i.label, href: i.href })),
-    Products: [
-      { label: "All products", href: "/products" },
-      ...menus.productMenu.map((c) => ({ label: c.title, href: c.href })),
-    ],
+  const groups: Record<string, { title?: string; items: { label: string; href: string }[] }[]> = {
+    Products: [{ items: [{ label: "All products", href: "/products" }, ...menus.productMenu.map((m) => ({ label: m.title, href: m.href }))] }],
+    Industries: [{ items: [{ label: "All industries", href: "/industries" }, ...menus.industryMenu.map((i) => ({ label: i.label, href: i.href }))] }],
+    "About Merova": aboutMenu,
+    Resources: [{ items: [{ label: "All resources", href: "/resources" }, ...resourcesMenu] }],
   };
   return (
-    <div id="mobile-nav" className="fixed inset-x-0 bottom-0 top-[4.25rem] z-40 overflow-y-auto bg-paper xl:hidden lg:top-[4.75rem]">
-      <div className="container-x pb-28 pt-4">
-        <ul className="divide-y divide-line border-y border-line">
-          {primaryNav.map((item: NavItem) => {
-            const sub = item.kind === "link" ? null : item.kind === "mega" ? groups[item.label] : item.items;
-            if (!sub)
-              return (
-                <li key={item.label}>
-                  <Link href={item.href} className="flex min-h-[3.25rem] items-center text-[1.05rem] font-semibold text-navy-950">
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            const expanded = section === item.label;
+    <div id="mobile-nav" className="fixed inset-x-0 bottom-0 top-[4.5rem] z-40 overflow-y-auto bg-cloud lg:hidden">
+      <div className="container-x pb-32 pt-2">
+        <ul className="divide-y divide-line">
+          {Object.entries(groups).map(([label, cols]) => {
+            const ex = section === label;
             return (
-              <li key={item.label}>
+              <li key={label}>
                 <button
                   type="button"
-                  className="flex min-h-[3.25rem] w-full items-center justify-between text-left text-[1.05rem] font-semibold text-navy-950"
-                  aria-expanded={expanded}
-                  onClick={() => toggle(item.label)}
+                  className="flex min-h-[3.6rem] w-full items-center justify-between text-left font-display text-[1.2rem] font-semibold text-char-900"
+                  aria-expanded={ex}
+                  onClick={() => setSection(ex ? null : label)}
                 >
-                  {item.label}
-                  <ChevronDown className={`h-5 w-5 transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden />
+                  {label}
+                  <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${ex ? "rotate-180 text-red-500" : ""}`} aria-hidden />
                 </button>
-                {expanded && (
-                  <ul className="mb-3 grid gap-0.5 border-l-2 border-signal pl-4">
-                    <li>
-                      <Link href={item.href} className="block py-2 text-[0.95rem] font-semibold text-navy-800">
-                        {item.label} overview
-                      </Link>
-                    </li>
-                    {sub.map((s) => (
-                      <li key={s.href}>
-                        <Link href={s.href} className="block py-2 text-[0.95rem] text-ink-2">
-                          {s.label}
-                        </Link>
-                      </li>
+                {ex && (
+                  <div className="reveal mb-4 grid gap-4 border-l-2 border-red-500 pl-4">
+                    {cols.map((c, n) => (
+                      <div key={n}>
+                        {c.title && <p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-red-600">{c.title}</p>}
+                        <ul>
+                          {c.items.map((s) => (
+                            <li key={s.href}>
+                              <Link href={s.href} className="block py-2 text-[1rem] text-ink-2">{s.label}</Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 )}
               </li>
             );
           })}
+          <li>
+            <Link href="/contact" className="flex min-h-[3.6rem] items-center font-display text-[1.2rem] font-semibold text-char-900">Contact</Link>
+          </li>
         </ul>
         <div className="mt-6 grid gap-3">
-          <Link href="/request-a-quote" className="btn btn-primary">Request a Quote</Link>
+          <Link href="/request-a-quote" className="btn btn-primary">Request a Quote <ArrowRight className="h-4 w-4" aria-hidden /></Link>
           <Link href="/custom-requirement" className="btn btn-outline">Discuss a Custom Requirement</Link>
-          <Link href="/contact" className="btn btn-outline">
-            <MessageCircle className="h-4 w-4" aria-hidden /> Speak With Our Team
-          </Link>
+          <a href={CATALOGUE} download className="btn btn-outline"><Download className="h-4 w-4" aria-hidden /> Product Catalogue</a>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Red brand strip above the header (scrolls away; the header stays). */
+export function BrandStrip({ phone }: { phone?: string }) {
+  return (
+    <div className="surface-red hidden text-[0.8rem] lg:block">
+      <div className="container-x flex h-9 items-center justify-between gap-6">
+        <p className="font-semibold tracking-[0.02em]">
+          Packaging, Perfected. <span className="font-normal">· Engineered to Protect. Designed to Perform.</span>
+        </p>
+        <ul className="flex items-center gap-5 font-medium">
+          <li><Link href="/resources/downloads" className="underline-offset-4 hover:underline">Downloads</Link></li>
+          <li><Link href="/blog" className="underline-offset-4 hover:underline">Knowledge Centre</Link></li>
+          <li><Link href="/custom-requirement" className="underline-offset-4 hover:underline">Custom Requirement</Link></li>
+          {phone && <li><a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="font-semibold underline-offset-4 hover:underline">{phone}</a></li>}
+        </ul>
       </div>
     </div>
   );

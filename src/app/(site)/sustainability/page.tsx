@@ -28,8 +28,8 @@ export default function SustainabilityPage() {
           <SectionHeading eyebrow="Responsible manufacturing" title="What we do" />
           <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {SUSTAINABILITY_TOPICS.map((t) => (
-              <li key={t.name} className="rounded-md border border-line bg-white p-6">
-                <h2 className="font-display text-[1.05rem] font-semibold text-navy-950">{t.name}</h2>
+              <li key={t.name} className="rounded-sm border border-line bg-white p-6">
+                <h2 className="font-display text-[1.05rem] font-semibold text-char-950">{t.name}</h2>
                 <p className="mt-2 text-[0.9rem] leading-relaxed text-ink-2">{t.text}</p>
               </li>
             ))}
@@ -41,8 +41,8 @@ export default function SustainabilityPage() {
           <SectionHeading eyebrow="Claims, defined" title="Recyclable, recycled content, biodegradable and compostable are not the same." intro="We use these terms precisely so your own packaging claims stay credible." />
           <dl className="mt-8 grid gap-5 md:grid-cols-2">
             {CLAIM_DEFINITIONS.map((d) => (
-              <div key={d.term} className="rounded-md border border-line p-6">
-                <dt className="font-display text-lg font-semibold text-navy-950">{d.term}</dt>
+              <div key={d.term} className="rounded-sm border border-line p-6">
+                <dt className="font-display text-lg font-semibold text-char-950">{d.term}</dt>
                 <dd className="mt-2 leading-relaxed text-ink-2">{d.text}</dd>
               </div>
             ))}

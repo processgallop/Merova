@@ -55,9 +55,9 @@ export function FloatingDock({
       {mira && <MiraPanel onClose={() => setMira(false)} whatsappHref={href} />}
 
       {fallback && !href && (
-        <div role="dialog" aria-label="Contact options" className="w-[min(20rem,calc(100vw-2rem))] rounded-md border border-line bg-white p-4 shadow-lift">
+        <div role="dialog" aria-label="Contact options" className="w-[min(20rem,calc(100vw-2rem))] rounded-sm border border-line bg-white p-4 shadow-lift">
           <div className="flex items-start justify-between gap-3">
-            <p className="text-sm font-semibold text-navy-950">Chat with Merova</p>
+            <p className="text-sm font-semibold text-char-950">Chat with Merova</p>
             <button type="button" aria-label="Close" onClick={() => setFallback(false)} className="-m-1 p-1 text-muted hover:text-ink">
               <X className="h-4 w-4" />
             </button>
@@ -82,7 +82,7 @@ export function FloatingDock({
             if (!mira) track("mira_open");
           }}
           aria-expanded={mira}
-          className="inline-flex h-12 items-center gap-2 rounded-full border border-navy-800 bg-navy-900 px-4 text-sm font-semibold text-white shadow-lift transition-colors hover:bg-navy-700"
+          className="inline-flex h-12 items-center gap-2 rounded-full bg-char-900 px-4 text-sm font-semibold text-cloud shadow-lift transition-colors hover:bg-char-700"
         >
           <Sparkles className="h-4 w-4" aria-hidden />
           <span>Ask Mira</span>
@@ -93,7 +93,7 @@ export function FloatingDock({
             target="_blank"
             rel="noopener"
             onClick={() => track("whatsapp_click", { context: message.slice(0, 80) })}
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-[#177a42] px-4 text-sm font-semibold text-white shadow-lift transition-colors hover:bg-[#12643a]"
+            className="inline-flex h-12 items-center gap-2 rounded-full bg-red-500 px-4 text-sm font-semibold text-white shadow-[0_14px_30px_-12px_rgb(213_43_30/0.8)] transition-colors hover:bg-red-600"
             aria-label="Chat with Merova on WhatsApp"
           >
             <MessageCircle className="h-5 w-5" aria-hidden />
@@ -107,7 +107,7 @@ export function FloatingDock({
               track("whatsapp_click", { configured: false });
             }}
             aria-expanded={fallback}
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-[#177a42] px-4 text-sm font-semibold text-white shadow-lift transition-colors hover:bg-[#12643a]"
+            className="inline-flex h-12 items-center gap-2 rounded-full bg-red-500 px-4 text-sm font-semibold text-white shadow-[0_14px_30px_-12px_rgb(213_43_30/0.8)] transition-colors hover:bg-red-600"
             aria-label="Chat with Merova"
           >
             <MessageCircle className="h-5 w-5" aria-hidden />

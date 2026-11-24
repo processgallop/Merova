@@ -11,7 +11,7 @@ export function ShareLinks({ url, title }: { url: string; title: string }) {
     <span className="flex items-center gap-3">
       <span>Share:</span>
       {links.map((l) => (
-        <a key={l.label} href={l.href} target={l.label === "Email" ? undefined : "_blank"} rel="noopener" className="font-semibold text-navy-800 hover:text-signal-600">{l.label}</a>
+        <a key={l.label} href={l.href} target={l.label === "Email" ? undefined : "_blank"} rel="noopener" className="font-semibold text-char-800 hover:text-red-600">{l.label}</a>
       ))}
     </span>
   );

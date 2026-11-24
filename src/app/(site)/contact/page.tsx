@@ -31,20 +31,20 @@ export default function ContactPage() {
               <Link href="/custom-requirement" className="btn btn-outline">Discuss a Custom Requirement</Link>
             </div>
             <div className="mt-10">
-              <Suspense fallback={<div className="h-96 animate-pulse rounded-md border border-line bg-white" />}>
+              <Suspense fallback={<div className="h-96 animate-pulse rounded-sm border border-line bg-white" />}>
                 <ContactForm fallback={{ whatsapp: wa, email: c.email, phone: c.phone }} />
               </Suspense>
             </div>
           </div>
 
           <aside className="grid content-start gap-5">
-            <div className="rounded-md border border-line bg-white p-6">
-              <h2 className="font-display text-lg font-semibold text-navy-950">Direct contact</h2>
+            <div className="rounded-sm border border-line bg-white p-6">
+              <h2 className="font-display text-lg font-semibold text-char-950">Direct contact</h2>
               <ul className="mt-4 grid gap-3 text-[0.92rem]">
-                {wa && <li><TrackedLink href={wa} target="_blank" rel="noopener" event="whatsapp_click" className="inline-flex items-center gap-2 font-semibold text-[#177a42]"><MessageCircle className="h-4 w-4" aria-hidden /> Chat with Merova</TrackedLink></li>}
-                {c.phone && <li><TrackedLink href={telHref(c.phone)!} event="phone_click" className="inline-flex items-center gap-2 text-navy-800"><Phone className="h-4 w-4" aria-hidden /> {c.phone}</TrackedLink></li>}
-                {c.email && <li><TrackedLink href={`mailto:${c.email}`} event="email_click" className="inline-flex items-center gap-2 break-all text-navy-800"><Mail className="h-4 w-4 shrink-0" aria-hidden /> {c.email}</TrackedLink></li>}
-                {c.salesEmail && <li><TrackedLink href={`mailto:${c.salesEmail}`} event="email_click" className="inline-flex items-center gap-2 break-all text-navy-800"><Mail className="h-4 w-4 shrink-0" aria-hidden /> Sales: {c.salesEmail}</TrackedLink></li>}
+                {wa && <li><TrackedLink href={wa} target="_blank" rel="noopener" event="whatsapp_click" className="inline-flex items-center gap-2 font-semibold text-red-600"><MessageCircle className="h-4 w-4" aria-hidden /> Chat with Merova</TrackedLink></li>}
+                {c.phone && <li><TrackedLink href={telHref(c.phone)!} event="phone_click" className="inline-flex items-center gap-2 text-char-800"><Phone className="h-4 w-4" aria-hidden /> {c.phone}</TrackedLink></li>}
+                {c.email && <li><TrackedLink href={`mailto:${c.email}`} event="email_click" className="inline-flex items-center gap-2 break-all text-char-800"><Mail className="h-4 w-4 shrink-0" aria-hidden /> {c.email}</TrackedLink></li>}
+                {c.salesEmail && <li><TrackedLink href={`mailto:${c.salesEmail}`} event="email_click" className="inline-flex items-center gap-2 break-all text-char-800"><Mail className="h-4 w-4 shrink-0" aria-hidden /> Sales: {c.salesEmail}</TrackedLink></li>}
                 {c.hours && <li className="flex items-center gap-2 text-ink-2"><Clock className="h-4 w-4" aria-hidden /> {c.hours}</li>}
                 {!wa && !c.phone && !c.email && (
                   <li className="text-ink-2">Direct phone, email and WhatsApp details will appear here once confirmed. In the meantime, the form routes your message to the right team.</li>
@@ -52,20 +52,20 @@ export default function ContactPage() {
               </ul>
             </div>
             {(c.officeAddress || c.plantAddress) && (
-              <div className="rounded-md border border-line bg-white p-6">
-                <h2 className="font-display text-lg font-semibold text-navy-950">Locations</h2>
+              <div className="rounded-sm border border-line bg-white p-6">
+                <h2 className="font-display text-lg font-semibold text-char-950">Locations</h2>
                 <ul className="mt-4 grid gap-4 text-[0.92rem] text-ink-2">
                   {c.officeAddress && <li className="flex gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden /><span><strong className="block text-ink">Office</strong>{c.officeAddress}</span></li>}
                   {c.plantAddress && <li className="flex gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden /><span><strong className="block text-ink">Manufacturing facility</strong>{c.plantAddress}</span></li>}
                 </ul>
               </div>
             )}
-            <div className="rounded-md bg-paper-2 p-6">
-              <h2 className="font-display text-base font-semibold text-navy-950">Enquiry channels</h2>
+            <div className="rounded-sm bg-paper-2 p-6">
+              <h2 className="font-display text-base font-semibold text-char-950">Enquiry channels</h2>
               <ul className="mt-3 grid gap-2.5 text-[0.88rem]">
                 {CONTACT_TOPICS.map((t) => (
                   <li key={t.id}>
-                    <Link href={`/contact?topic=${t.id}`} scroll={false} className="font-semibold text-navy-800 hover:text-signal-600">{t.label}</Link>
+                    <Link href={`/contact?topic=${t.id}`} scroll={false} className="font-semibold text-char-800 hover:text-red-600">{t.label}</Link>
                     <span className="block text-ink-2">{t.hint}</span>
                   </li>
                 ))}

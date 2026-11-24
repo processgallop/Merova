@@ -20,9 +20,9 @@ export default function ProcessPage() {
       <section className="py-14 lg:py-20">
         <ol className="container-x relative grid gap-5">
           {PROCESS_STEPS.map((s, i) => (
-            <li key={s.name} className="grid gap-4 rounded-md border border-line bg-white p-6 md:grid-cols-[6rem_14rem_1fr] md:items-baseline lg:p-8">
-              <span className="font-mono text-3xl font-medium text-signal">{String(i + 1).padStart(2, "0")}</span>
-              <h2 className="font-display text-xl font-semibold text-navy-950">{s.name}</h2>
+            <li key={s.name} className="grid gap-4 rounded-sm border border-line bg-white p-6 md:grid-cols-[6rem_14rem_1fr] md:items-baseline lg:p-8">
+              <span className="font-display text-4xl font-semibold text-red-500">{String(i + 1).padStart(2, "0")}</span>
+              <h2 className="font-display text-xl font-semibold text-char-950">{s.name}</h2>
               <p className="leading-relaxed text-ink-2">{s.detail}</p>
             </li>
           ))}

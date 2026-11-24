@@ -35,7 +35,7 @@ These were observed directly on the previous build (a Next.js App Router site):
 | 4 | Taxonomy | No foodservice or plastic verticals; ranges don't match the brief | Misses cinema, QSR and FMCG film demand | Five verticals with full taxonomy | P0 | Management to confirm which products are made in-house vs partner-supplied |
 | 5 | Discovery | Industry list was static text | Visitors can't self-serve by sector | Interactive "What are you looking to pack?" engine plus 10 industry pages | P0 | — |
 | 6 | Legal | Privacy and Terms returned 404 | Compliance and trust risk | Privacy (DPDP-aware) and Terms pages | P0 | Legal review |
-| 7 | Imagery | AI-styled renders presented as if they were the company's own | Misrepresentation risk | Product formats shown as labelled illustrations; photos captioned "Representative image" | P1 | Original photography (asset register) |
+| 7 | Imagery | AI-styled renders presented as if they were the company's own | Misrepresentation risk | Product formats shown as captioned studio visualisations (renders of the packaging only); photos captioned "Representative image" | P1 | Original photography (asset register) |
 | 8 | Downloads | None | No sales collateral | Catalogue, company profile, capabilities and sustainability brochures, flyers — all real PDFs with QR codes | P1 | — |
 | 9 | Corporate | Empty milestones, leadership and certification slots | Looks incomplete | Process-based corporate pages; clearly labelled "awaiting confirmation" panels | P1 | Merova facts |
 | 10 | SEO | No product or article URLs, sitemap or schema | Little organic visibility | Indexable URL architecture, unique metadata, canonical tags, sitemap, robots, Organization/Product/FAQ/Article/Breadcrumb schema | P1 | GSC verification |
@@ -45,7 +45,7 @@ These were observed directly on the previous build (a Next.js App Router site):
 | 14 | Performance | Acceptable on the previous build | — | Static generation, AVIF/WebP, no heavy libraries; Lighthouse 93–100 | P2 | — |
 
 **Retained:** logo glyph, wordmark, Sora/Manrope/Plex Mono type system, red accent, warm-white background, the sample-first manufacturing philosophy, and the no-blanket-claims sustainability stance.
-**Improved:** colour system (navy added for structure), navigation, product presentation, quote journey.
+**Improved:** colour system (red-led, see 2.7), navigation, product presentation, quote journey.
 **Removed:** placeholder metrics and contacts, certification slots and fake dates.
 **Rebuilt:** information architecture, product system, enquiry engine, corporate section.
 
@@ -95,15 +95,27 @@ Merova Printpack brings corrugated, paperboard, foodservice, flexible and custom
 | Easy to engage | Quote in four steps, or just chat | Quote engine, WhatsApp, Mira, contact routing |
 
 ### 2.7 Visual identity, typography and colour
-- **Logo:** the original red glyph and the Merova wordmark (Sora, with ™) plus a "PRINTPACK" descriptor in Plex Mono. Proportions are unaltered. There are red, cream and white glyph variants for light and dark backgrounds. Square favicon, apple-touch icon and 512 px logo were rendered from the original glyph.
-- **Colour tokens:** Navy 950–50 for structure (`#08162a` … `#f1f4f9`); warm paper `#fbf8f3` / `#f5efe5` / `#ece3d5`; Merova red `#d52b1e` (accent only, AA on white and paper); ink `#161a22`; muted `#5b6270`.
-- **Typography:** Sora for display (600), Manrope for body, IBM Plex Mono for eyebrows and specification labels. The type scale is fluid (`clamp`). Body text is at least 16 px.
+*Updated for the final creative direction (Nov 2026).*
+- **Logo:** the official Merova artwork (`Merova_Logo.ai` / `.pdf`, kept in `public/assets/brand/source/`) is used unaltered. Vectors come straight from the PDF pages with `pdftocairo`, so the wordmark is the master glyph outline, not a re-set font. Only the artboard background is removed and the viewBox is trimmed (`scripts/brand-logos.mjs`). There are four variants, each in SVG, PNG (1×/2×/4×) and WebP:
+  - **primary** (red mark, charcoal wordmark): for cloud or white backgrounds
+  - **reverse** (cream): for red backgrounds
+  - **mark-red** and **mark-cream**
+  - Square icon versions for the favicon, apple-touch icon and 192/512 px.
+- **Colour:** Merova Red leads; navy has been removed entirely.
+  - **Merova Red** `#d52b1e` (scale 50–900, 500 = brand): CTAs, the top strip, footer, process and CTA surfaces, eyebrows, rules, table headers and covers.
+  - **Charcoal** `#454040` (scale `char-50…950`): text, secondary buttons, and one dark band per page for contrast.
+  - **Cloud Dancer** `#fffaf3` plus paper `#f6f0e7`: page and card backgrounds.
+  - White text on red-500 and red-600 meets AA for large and UI text. Body text on red uses red-600 or deeper.
+- **Typography:** **Sora** (600) for display and headings, and **Inter** for body, UI and specification tables. Both are variable fonts loaded through `next/font` and embedded in every PDF. The monospace face is no longer used. Eyebrows are Inter bold uppercase with a short red rule. The type scale is fluid (`clamp`), and body text is at least 16 px.
+- **Signature:** the Merova mark is used as a low-opacity watermark on red and charcoal surfaces. It is never recoloured beyond the official red and cream.
 
-### 2.8 Photography and illustration guidelines
-- Original Merova photography first: actual products, actual facility, actual people (with consent).
-- Product shots on neutral warm-grey or paper backgrounds, soft directional light, 4:3 crop with the product filling about 70% of the frame. Supply at 2× (minimum 2400 px on the long edge).
-- Never present stock or AI images as Merova's factory, staff or clients. Caption them "Representative image".
-- Format illustrations (isometric, paper palette, one red brand accent) stand in until photography exists. They are labelled "Format illustration".
+### 2.8 Photography and imagery guidelines
+- Original Merova photography comes first: real products, the real facility, real people (with consent).
+- Until that exists, every product image is a **studio visualisation**: a photorealistic 3D render made for this project in Blender/Cycles (`scripts/render/`), showing a neutral studio pack shot of the format.
+  - Renders show packaging only. No factories, staff or client brands.
+  - They are captioned **"Product visualisation"** on the site and in PDFs, and the Terms and FAQ explain this.
+- Earlier photographs from the previous site are still captioned **"Representative image"**. None are presented as Merova's facility.
+- Pack shots sit on a warm neutral backdrop with soft directional light, at 4:3 or 16:9. Supply at 2× (at least 2400 px on the long edge).
 
 ---
 
@@ -157,10 +169,10 @@ Four steps with a progress bar (three for custom requirements):
 Only name, email and consent are mandatory, plus either a product or a description. Product and industry are carried from any page (`?product=&industry=`). After submission, the server validates and routes the enquiry to a team, creates the CRM lead (webhook), emails the team with the files and acknowledges the customer, and the confirmation page shows the reference. **Nothing reports success unless a delivery channel accepted the lead.**
 
 ## 7. Mobile navigation
-A full-screen drawer below the header with accordion groups (Industries, Products, Manufacturing, Resources, Company), plus Request a Quote, Custom Requirement and Speak With Our Team buttons. It closes on route change and on Escape. The discovery engine becomes a native select on mobile. Quote steps stack to a single column with 44 px+ touch targets.
+The primary navigation has five items (Products, Industries, About Merova, Resources, Contact) plus a Request a Quote button. Desktop mega menus: Products (vertical list → formats → image card), Industries (10 image tiles), About Merova (Company / Capability / Work with us + profile download), Resources. On mobile, a full-screen drawer below the header holds the same groups as accordions, plus Request a Quote, Custom Requirement and Speak With Our Team buttons. It closes on route change and on Escape. The discovery engine becomes a native select on mobile. Quote steps stack to a single column with 44 px+ touch targets.
 
 ## 8. Design system
-Tokens live in `src/app/globals.css` (`@theme`). Shared components: `Header`, `Footer`, `FloatingDock`, `PageHero`, `SectionHeading`, `Breadcrumbs`, `FaqList`, `Media`, `CtaBand`, `CustomRequirementBand`, `ProductCard`/`ProductGrid`, `SpecTable`, `IndustryDiscovery`, `QuoteEngine`, `ContactForm`, `ArticleCard`, `TrackedLink`, `Pending`. Buttons: primary (red), navy, outline, ghost-light, small. Cards: 6 px radius, line border, card shadow on hover. Motion: a single 600 ms reveal and hover transitions, disabled under `prefers-reduced-motion`.
+Tokens live in `src/app/globals.css` (`@theme`). Shared components: `Header`, `Footer`, `FloatingDock`, `PageHero`, `SectionHeading`, `Breadcrumbs`, `FaqList`, `Media`, `CtaBand`, `CustomRequirementBand`, `ProductCard`/`ProductGrid`, `SpecTable`, `IndustryDiscovery`, `QuoteEngine`, `ContactForm`, `ArticleCard`, `TrackedLink`, `Pending`. Buttons: primary (red), dark (charcoal), cloud, outline, ghost-light, small. Surfaces: `surface-red`, `surface-red-deep`, `surface-charcoal`. Cards: 2 px radius, line border, red top rule and lift on hover. Motion: an entrance reveal, scroll-driven rise and parallax (`animation-timeline: view()` inside `@supports`), animated nav underlines, eased mega-menu transitions, image zoom on hover, and React `<ViewTransition>` page cross-fades. Everything is disabled under `prefers-reduced-motion`. Print collateral uses the same tokens in `src/app/print/print.css`.
 
 ## 9. Content frameworks
 - **Product page:** name · headline · summary · overview (2 paragraphs) · applications · formats · materials · spec rows (option / industry reference / confirmed at quotation) · printing · customisation · quality · industries · 3 FAQs · related products · SEO keywords. The schema is in `src/data/types.ts`.
@@ -206,7 +218,7 @@ src/app/api/…        enquiry + mira
 src/components/…     UI, forms, product, industry, blog, print, analytics
 src/data/…           products, industries, verticals, quote schemas, company, blog
 src/lib/…            site config, SEO, enquiry delivery, Mira, tracking
-scripts/…            illustrations, brand assets, PDFs, docs, QA (crawl, overflow)
+scripts/…            logos, OG image, render pipeline (Blender), PDFs, docs, QA (crawl, overflow)
 tests/e2e/…          Playwright journeys
 ```
 

@@ -15,7 +15,7 @@ const GENERAL = [
   { q: "Do you supply samples?", a: "Sampling is part of the development process for new and custom packaging. Sampling terms are confirmed with each quotation." },
   { q: "What are your minimum order quantities and lead times?", a: "They depend on the product, specification and print. The team confirms them with your quotation — share your volumes and timeline in the quote form." },
   { q: "Is my information confidential?", a: "Yes. Enquiry details and files are used only to assess and respond to your requirement. Mention it if you need a non-disclosure agreement." },
-  { q: "Are the product images photographs of Merova products?", a: "Product visuals are format illustrations or representative imagery unless captioned otherwise. They show the type of packaging; your packaging is specified and sampled to your requirement." },
+  { q: "Are the product images photographs of Merova products?", a: "No. Product visuals are studio visualisations — computer-generated renders of each packaging format — or representative imagery, and are captioned as such. They show the type of packaging; your packaging is specified and sampled to your requirement." },
   { q: "What does 'confirmed at quotation' mean on a specification?", a: "It marks a Merova-specific value — such as board grade, GSM, micron or tolerance — that is confirmed in writing for your order rather than published as a general figure." },
 ];
 

@@ -17,7 +17,7 @@ export const verticals: Vertical[] = [
       { name: "Box styles", text: "Regular slotted cartons (RSC), die-cut styles, trays, sleeves, partitions and fitments." },
       { name: "Print and finish", text: "Plain, single-colour and multi-colour print options, specified per order with the print process confirmed at quotation." },
     ],
-    image: { src: "/assets/products/corrugated-shippers.webp", alt: "Stack of brown corrugated shipping boxes with one box open", kind: "representative" },
+    image: { src: "/assets/products/renders/box-5ply.webp", alt: "Open double-wall corrugated box beside a taped shipping carton", kind: "render" },
     seo: {
       primary: "corrugated packaging",
       secondary: ["corrugated boxes manufacturer", "3 ply 5 ply 7 ply boxes", "corrugated cartons", "export cartons"],
@@ -75,7 +75,7 @@ export const verticals: Vertical[] = [
       { name: "Formed and folded formats", text: "Cups, cones, tubs, trays, clamshells and folding boxes produced to defined capacities and dimensions." },
       { name: "Brand print", text: "Branded print for multiplexes, QSR chains and food brands, with artwork proofed before production." },
     ],
-    image: { src: "/assets/products/illustrations/popcorn-tub.svg", alt: "Illustration of a printed paper popcorn tub", kind: "illustration" },
+    image: { src: "/assets/products/renders/qsr-range.webp", alt: "Merova-red QSR range: popcorn tub, fries carton, burger box and hot cup", kind: "render" },
     seo: {
       primary: "foodservice packaging",
       secondary: ["QSR packaging", "popcorn packaging", "paper cups", "food trays", "multiplex packaging"],
@@ -105,7 +105,7 @@ export const verticals: Vertical[] = [
       { name: "Laminates and barrier films", text: "Multi-layer structures combining films (and sometimes foil or metallised layers) to control oxygen, moisture and light." },
       { name: "Compostable films", text: "Films made from compostable polymers. Claims are made only against a stated standard and certificate for the specific grade." },
     ],
-    image: { src: "/assets/products/illustrations/film-roll-clear.svg", alt: "Illustration of a roll of clear packaging film", kind: "illustration" },
+    image: { src: "/assets/products/renders/film-roll-clear.webp", alt: "Rolls of clear BOPP packaging film with an unrolled sheet", kind: "render" },
     seo: {
       primary: "flexible packaging",
       secondary: ["BOPP rolls", "LDPE pouches", "POF shrink film", "PVC cling film", "compostable bags"],

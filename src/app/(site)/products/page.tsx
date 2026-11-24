@@ -27,10 +27,10 @@ export default function ProductsPage() {
         <TrackedLink href={DOWNLOADS.catalogue} download event="catalogue_download" className="btn btn-outline"><Download className="h-4 w-4" aria-hidden /> Product Catalogue (PDF)</TrackedLink>
       </PageHero>
 
-      <nav aria-label="Product verticals" className="sticky top-[4.25rem] z-30 border-b border-line bg-paper/95 backdrop-blur lg:top-[4.75rem]">
+      <nav aria-label="Product verticals" className="sticky top-[4.5rem] z-30 border-b border-line bg-paper/95 backdrop-blur lg:top-[5.25rem]">
         <ul className="container-x flex gap-2 overflow-x-auto py-3">
           {verticals.map((v) => (
-            <li key={v.id}><a href={`#${v.slug}`} className="chip whitespace-nowrap !py-1.5 !text-[0.72rem] hover:border-navy-800">{v.navName} · {productsInVertical(v.id).length}</a></li>
+            <li key={v.id}><a href={`#${v.slug}`} className="chip whitespace-nowrap !py-1.5 !text-[0.72rem] hover:border-red-500">{v.navName} · {productsInVertical(v.id).length}</a></li>
           ))}
         </ul>
       </nav>

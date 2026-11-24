@@ -9,11 +9,12 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "validate:data": "tsx scripts/validate-data.ts",
-    "illustrations": "node scripts/illustrations.mjs",
     "brand-assets": "node scripts/brand-assets.mjs",
     "pdfs": "node scripts/generate-pdfs.mjs",
     "test:e2e": "playwright test --trace off",
-    "docs": "tsx scripts/generate-docs.ts"
+    "docs": "tsx scripts/generate-docs.ts",
+    "logos": "node scripts/brand-logos.mjs",
+    "process-renders": "node scripts/process-renders.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.13.0",

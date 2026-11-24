@@ -1,40 +1,38 @@
-import { GLYPH_PATH, GLYPH_VIEWBOX } from "./glyph";
-
+/* eslint-disable @next/next/no-img-element */
 /**
- * Merova logo lockup: the existing red glyph (unaltered proportions) with the
- * "Merova" wordmark in Sora, as used on the previous site, and the
- * "PRINTPACK" descriptor.
+ * Official Merova logo artwork, exported unaltered from the master file
+ * (public/assets/brand/source/Merova_Logo.pdf) by scripts/brand-logos.mjs.
+ *  - primary: red mark + charcoal wordmark, for Cloud Dancer / white backgrounds
+ *  - reverse: cream mark + wordmark, for Merova Red / charcoal backgrounds
+ *  - mark-red / mark-cream: the mark alone
+ * Aspect ratios come from the trimmed viewBoxes and must not be changed.
  */
-export function Glyph({ className = "", color = "#D52B1E" }: { className?: string; color?: string }) {
+const ART = {
+  primary: { src: "/assets/brand/merova-logo-primary.svg", ratio: 843.66 / 375.16 },
+  reverse: { src: "/assets/brand/merova-logo-reverse.svg", ratio: 703.69 / 344.39 },
+  "mark-red": { src: "/assets/brand/merova-mark-red.svg", ratio: 703.69 / 344.39 },
+  "mark-cream": { src: "/assets/brand/merova-mark-cream.svg", ratio: 703.69 / 344.39 },
+} as const;
+
+export type LogoVariant = keyof typeof ART;
+
+export function Logo({ variant = "primary", height = 56, className = "" }: { variant?: LogoVariant; height?: number; className?: string }) {
+  const a = ART[variant];
   return (
-    <svg viewBox={GLYPH_VIEWBOX} className={className} aria-hidden="true" focusable="false">
-      <path d={GLYPH_PATH} fill={color} />
-    </svg>
+    <img
+      src={a.src}
+      alt="Merova"
+      width={Math.round(height * a.ratio)}
+      height={height}
+      className={`block h-auto max-w-none ${className}`}
+      style={{ height, width: Math.round(height * a.ratio) }}
+      decoding="async"
+    />
   );
 }
 
-export function Logo({
-  tone = "dark",
-  descriptor = true,
-  className = "",
-}: {
-  tone?: "dark" | "light";
-  descriptor?: boolean;
-  className?: string;
-}) {
-  const text = tone === "dark" ? "text-navy-950" : "text-white";
-  const sub = tone === "dark" ? "text-muted" : "text-white/70";
-  return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <Glyph className="h-[22px] w-auto shrink-0" color={tone === "dark" ? "#D52B1E" : "#FFFAF3"} />
-      <span className="flex flex-col leading-none">
-        <span className={`font-display text-[1.32rem] font-semibold tracking-[-0.03em] ${text}`}>
-          Merova<sup aria-hidden="true" className="ml-0.5 align-super text-[0.5rem] font-medium tracking-normal opacity-70">TM</sup>
-        </span>
-        {descriptor && (
-          <span className={`mt-1 font-mono text-[0.56rem] font-medium tracking-[0.32em] ${sub}`}>PRINTPACK</span>
-        )}
-      </span>
-    </span>
-  );
+/** Mark only (legacy name kept for existing imports). */
+export function Glyph({ className = "", tone = "red" }: { className?: string; tone?: "red" | "cream"; color?: string }) {
+  const a = ART[tone === "red" ? "mark-red" : "mark-cream"];
+  return <img src={a.src} alt="" aria-hidden="true" className={className} style={{ aspectRatio: String(a.ratio) }} />;
 }

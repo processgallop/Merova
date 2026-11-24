@@ -42,10 +42,35 @@ for (const { href, file } of docs) {
     failures++;
     continue;
   }
+  // Layout QA: nothing may overflow its A4 page, and the body must not clip content.
+  const layout = await page.evaluate(() => {
+    const issues = [];
+    document.querySelectorAll("section.pp").forEach((pp, n) => {
+      const box = pp.getBoundingClientRect();
+      for (const el of pp.querySelectorAll("*")) {
+        if (el.closest(".pp-watermark") || el.classList.contains("pp-watermark")) continue;
+        const r = el.getBoundingClientRect();
+        if (!r.width || !r.height) continue;
+        if (r.bottom > box.bottom + 1 || r.right > box.right + 1 || r.left < box.left - 1) {
+          issues.push(`page ${n + 1}: <${el.tagName.toLowerCase()} class="${el.className}"> overflows the page`);
+          break;
+        }
+      }
+      pp.querySelectorAll(".pp-body").forEach((b) => {
+        if (b.scrollHeight > b.clientHeight + 2) issues.push(`page ${n + 1}: body content clipped by ${b.scrollHeight - b.clientHeight}px`);
+      });
+    });
+    return { issues, pages: document.querySelectorAll("section.pp").length };
+  });
+  if (layout.issues.length) {
+    console.error(`FAIL ${href}:\n  ${layout.issues.join("\n  ")}`);
+    failures++;
+    continue;
+  }
   await page.emulateMedia({ media: "print" });
   await page.pdf({ path: target, format: "A4", printBackground: true, preferCSSPageSize: true });
   await page.emulateMedia({ media: "screen" });
-  console.log(`ok   ${file} (${Math.round(statSync(target).size / 1024)} KB)`);
+  console.log(`ok   ${file} (${layout.pages} pages, ${Math.round(statSync(target).size / 1024)} KB)`);
 }
 await browser.close();
 if (failures) {

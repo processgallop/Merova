@@ -3,6 +3,7 @@ import type { Industry } from "./types";
 export const industries: Industry[] = [
   {
     id: "pharmaceutical",
+    image: "/assets/products/renders/pharma-carton.webp",
     slug: "pharmaceutical-packaging",
     name: "Pharmaceuticals & Healthcare",
     shortName: "Pharma & Healthcare",
@@ -30,6 +31,7 @@ export const industries: Industry[] = [
   },
   {
     id: "automotive",
+    image: "/assets/products/renders/heavy-duty.webp",
     slug: "automotive-packaging",
     name: "Automotive & Auto Components",
     shortName: "Automotive",
@@ -57,6 +59,7 @@ export const industries: Industry[] = [
   },
   {
     id: "food-beverage",
+    image: "/assets/products/renders/takeaway-box.webp",
     slug: "food-packaging",
     name: "Food & Beverage",
     shortName: "Food & Beverage",
@@ -84,6 +87,7 @@ export const industries: Industry[] = [
   },
   {
     id: "retail",
+    image: "/assets/products/renders/display-unit.webp",
     slug: "retail-packaging",
     name: "Retail & Consumer Goods",
     shortName: "Retail",
@@ -111,6 +115,7 @@ export const industries: Industry[] = [
   },
   {
     id: "gifts-premium",
+    image: "/assets/products/renders/gift-box.webp",
     slug: "gift-packaging",
     name: "Gifts & Premium Packaging",
     shortName: "Gifts & Premium",
@@ -138,6 +143,7 @@ export const industries: Industry[] = [
   },
   {
     id: "industrial",
+    image: "/assets/products/renders/export-carton.webp",
     slug: "industrial-packaging",
     name: "Manufacturing & Industrial",
     shortName: "Industrial",
@@ -165,6 +171,7 @@ export const industries: Industry[] = [
   },
   {
     id: "ecommerce",
+    image: "/assets/products/renders/ecommerce-mailer.webp",
     slug: "ecommerce-packaging",
     name: "E-commerce & Logistics",
     shortName: "E-commerce",
@@ -192,6 +199,7 @@ export const industries: Industry[] = [
   },
   {
     id: "cinema",
+    image: "/assets/products/renders/popcorn-tub.webp",
     slug: "cinema-multiplex-packaging",
     name: "Multiplexes & Cinemas",
     shortName: "Multiplexes",
@@ -219,6 +227,7 @@ export const industries: Industry[] = [
   },
   {
     id: "fmcg",
+    image: "/assets/products/renders/laminate-roll.webp",
     slug: "fmcg-packaging",
     name: "FMCG & Consumer Packaging",
     shortName: "FMCG",
@@ -246,6 +255,7 @@ export const industries: Industry[] = [
   },
   {
     id: "electronics",
+    image: "/assets/products/protective-inserts.webp",
     slug: "electronics-packaging",
     name: "Electronics & Appliances",
     shortName: "Electronics",

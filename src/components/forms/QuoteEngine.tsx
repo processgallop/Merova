@@ -157,18 +157,18 @@ export function QuoteEngine({
       <ol className="mb-8 grid gap-2" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0,1fr))` }} aria-label="Progress">
         {steps.map((label, i) => (
           <li key={label} aria-current={i === step ? "step" : undefined}>
-            <div className={`h-1.5 rounded-full ${i <= step ? "bg-signal" : "bg-line"}`} />
-            <p className={`mt-2 hidden text-[0.78rem] font-semibold sm:block ${i === step ? "text-navy-950" : "text-muted"}`}>
-              <span className="font-mono">{String(i + 1).padStart(2, "0")}</span> {label}
+            <div className={`h-1.5 rounded-full ${i <= step ? "bg-red-500" : "bg-line"}`} />
+            <p className={`mt-2 hidden text-[0.78rem] font-semibold sm:block ${i === step ? "text-char-950" : "text-muted"}`}>
+              <span className="font-sans tabular-nums">{String(i + 1).padStart(2, "0")}</span> {label}
             </p>
           </li>
         ))}
       </ol>
       <p className="mb-6 text-sm text-muted sm:hidden">
-        Step {step + 1} of {steps.length}: <span className="font-semibold text-navy-950">{steps[step]}</span>
+        Step {step + 1} of {steps.length}: <span className="font-semibold text-char-950">{steps[step]}</span>
       </p>
 
-      <form ref={formRef} onSubmit={submit} noValidate className="rounded-md border border-line bg-white p-5 sm:p-8">
+      <form ref={formRef} onSubmit={submit} noValidate className="rounded-sm border border-line bg-white p-5 sm:p-8">
         <input type="hidden" name="type" value={mode} />
         <input type="hidden" name="startedAt" value={startedAt} />
         <input type="hidden" name="category" value={category} />
@@ -181,7 +181,7 @@ export function QuoteEngine({
         {/* ---------- QUOTE: Step 1 ---------- */}
         {mode === "quote" && (
           <fieldset hidden={step !== 0} className="grid gap-5">
-            <legend className="mb-1 font-display text-xl font-semibold text-navy-950">What do you need?</legend>
+            <legend className="mb-1 font-display text-xl font-semibold text-char-950">What do you need?</legend>
             <div className="grid gap-5 md:grid-cols-2">
               <div>
                 <label htmlFor="industry" className="field-label">Industry <span className="font-normal text-muted">(optional)</span></label>
@@ -222,7 +222,7 @@ export function QuoteEngine({
         {/* ---------- CUSTOM: Step 1 ---------- */}
         {mode === "custom" && (
           <fieldset hidden={step !== 0} className="grid gap-5">
-            <legend className="mb-1 font-display text-xl font-semibold text-navy-950">Tell us about your requirement</legend>
+            <legend className="mb-1 font-display text-xl font-semibold text-char-950">Tell us about your requirement</legend>
             <div>
               <label htmlFor="message" className="field-label">What are you looking for?</label>
               <textarea id="message" name="message" rows={6} className="field" placeholder="Describe the product, its size and weight, how it is shipped and sold, and what the packaging needs to do." {...aria("message")} />
@@ -249,7 +249,7 @@ export function QuoteEngine({
 
         {/* ---------- Specifications ---------- */}
         <fieldset hidden={step !== 1} className="grid gap-5">
-          <legend className="mb-1 font-display text-xl font-semibold text-navy-950">
+          <legend className="mb-1 font-display text-xl font-semibold text-char-950">
             {mode === "quote" ? (selected ? `${selected.name}: specifications` : "Your requirement") : "Specifications"}
           </legend>
           <p className="-mt-2 text-sm text-muted">Fill in what you know — the team will help with the rest.</p>
@@ -267,7 +267,7 @@ export function QuoteEngine({
 
         {/* ---------- Delivery & files ---------- */}
         <fieldset hidden={step !== (mode === "quote" ? 2 : 1)} className={`grid gap-5 ${mode === "custom" && step === 1 ? "mt-8 border-t border-line pt-8" : ""}`}>
-          <legend className="mb-1 font-display text-xl font-semibold text-navy-950">Delivery, timeline & reference files</legend>
+          <legend className="mb-1 font-display text-xl font-semibold text-char-950">Delivery, timeline & reference files</legend>
           <div className="grid gap-5 md:grid-cols-2">
             <div>
               <label htmlFor="delivery" className="field-label">Delivery location</label>
@@ -290,9 +290,9 @@ export function QuoteEngine({
           )}
           <div>
             <p className="field-label">Upload photographs, drawings, artwork, dielines or specifications</p>
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-line-strong bg-paper px-4 py-7 text-center hover:border-navy-700">
-              <Paperclip className="h-5 w-5 text-navy-700" aria-hidden />
-              <span className="text-sm font-semibold text-navy-900">Choose files</span>
+            <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed border-line-strong bg-paper px-4 py-7 text-center hover:border-char-700">
+              <Paperclip className="h-5 w-5 text-char-700" aria-hidden />
+              <span className="text-sm font-semibold text-char-900">Choose files</span>
               <span className="text-xs text-muted">Up to {UPLOAD_LIMITS.maxFiles} files, 4 MB total · PDF, images, AI, EPS, DXF, DWG, ZIP, Office</span>
               <input type="file" name="files_picker" multiple accept={UPLOAD_LIMITS.accept.join(",")} className="sr-only" onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
             </label>
@@ -314,7 +314,7 @@ export function QuoteEngine({
 
         {/* ---------- Contact ---------- */}
         <fieldset hidden={step !== last} className="grid gap-5">
-          <legend className="mb-1 font-display text-xl font-semibold text-navy-950">Your details</legend>
+          <legend className="mb-1 font-display text-xl font-semibold text-char-950">Your details</legend>
           <div className="grid gap-5 md:grid-cols-2">
             <div>
               <label htmlFor="name" className="field-label">Contact person</label>
@@ -342,7 +342,7 @@ export function QuoteEngine({
           </div>
           <label className="flex items-start gap-3 text-sm text-ink-2">
             <input type="checkbox" name="consent" value="yes" className="mt-1 h-4 w-4 accent-[#0d1f38]" {...aria("consent")} />
-            <span>I agree that Merova may contact me about this enquiry. My information will be handled as described in the <a href="/privacy-policy" target="_blank" className="font-semibold text-navy-800 underline">privacy policy</a>.</span>
+            <span>I agree that Merova may contact me about this enquiry. My information will be handled as described in the <a href="/privacy-policy" target="_blank" className="font-semibold text-char-800 underline">privacy policy</a>.</span>
           </label>
           {err("consent")}
           {turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} />}
@@ -350,11 +350,11 @@ export function QuoteEngine({
         </fieldset>
 
         {banner && (
-          <div role="alert" className="mt-6 rounded-md border border-signal/40 bg-signal-50 p-4 text-sm text-signal-700">
+          <div role="alert" className="mt-6 rounded-sm border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             <p className="flex items-start gap-2 font-semibold"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />{banner.text}</p>
             {banner.offline && (
               <ul className="mt-3 flex flex-wrap gap-2">
-                {fallback.whatsapp && <li><a href={fallback.whatsapp} target="_blank" rel="noopener" className="btn btn-sm bg-[#177a42] text-white">WhatsApp</a></li>}
+                {fallback.whatsapp && <li><a href={fallback.whatsapp} target="_blank" rel="noopener" className="btn btn-sm btn-primary">WhatsApp</a></li>}
                 {fallback.email && <li><a href={`mailto:${fallback.email}`} className="btn btn-outline btn-sm">Email {fallback.email}</a></li>}
                 {fallback.phone && <li><a href={`tel:${fallback.phone.replace(/[^\d+]/g, "")}`} className="btn btn-outline btn-sm">Call {fallback.phone}</a></li>}
                 {!fallback.whatsapp && !fallback.email && !fallback.phone && <li className="text-ink-2">Direct contact details will be published here once confirmed.</li>}

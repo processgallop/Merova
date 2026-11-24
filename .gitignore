@@ -46,3 +46,7 @@ next-env.d.ts
 /playwright-report/
 !.env.example
 /.next-qa/
+
+# Blender render pipeline caches
+scripts/render/__pycache__/
+scripts/render/_tex/

@@ -5,10 +5,14 @@ export function buildMenus() {
   const productMenu = verticals.map((v) => {
     const items = products.filter((p) => p.vertical === v.id);
     return {
-      title: v.navName,
+      id: v.id,
+      title: v.name,
+      short: v.navName,
       href: `/${v.slug}`,
+      intro: v.intro,
+      image: v.image.src,
       count: items.length,
-      items: items.slice(0, 7).map((p) => ({ label: p.shortName ?? p.name, href: productUrl(p) })),
+      items: items.slice(0, 10).map((p) => ({ label: p.shortName ?? p.name, href: productUrl(p) })),
     };
   });
   const industryMenu = industries.map((i) => ({
@@ -16,8 +20,9 @@ export function buildMenus() {
     short: i.shortName,
     href: `/industries/${i.slug}`,
     icon: i.icon,
+    image: i.image,
   }));
-  return { productMenu, industryMenu };
+  return { productMenu, industryMenu, productCount: products.length };
 }
 
 export type Menus = ReturnType<typeof buildMenus>;

@@ -44,9 +44,9 @@ export default function AboutPage() {
               <p><strong>Our manufacturing philosophy:</strong> prove it on a sample, write it on the specification, then run it. Nothing goes to full production on an assumption.</p>
             </div>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-md">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-sm">
             <Image src="/assets/manufacturing/about-production-floor.webp" alt="Packaging production floor with stacked corrugated board" fill sizes="(min-width:1024px) 40vw, 100vw" className="object-cover" />
-            <span className="absolute bottom-2 left-2 rounded-sm bg-white/85 px-1.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.08em] text-muted">Representative image</span>
+            <span className="absolute bottom-2 left-2 rounded-sm bg-white/85 px-1.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.1em] text-char-600">Representative image</span>
           </div>
         </div>
       </section>
@@ -58,9 +58,9 @@ export default function AboutPage() {
             { k: "Vision", v: "Packaging that is specified rather than guessed, so every pack is only as heavy, as printed and as costly as the job requires." },
             { k: "Brand promise", v: "Packaging, Perfected: engineered to protect your product, designed to perform on your line, on the shelf and in transit." },
           ].map((x) => (
-            <div key={x.k} className="rounded-md border border-line p-7">
+            <div key={x.k} className="rounded-sm border border-line p-7">
               <p className="eyebrow">{x.k}</p>
-              <p className="mt-3 font-display text-[1.15rem] font-medium leading-snug text-navy-950">{x.v}</p>
+              <p className="mt-3 font-display text-[1.15rem] font-medium leading-snug text-char-950">{x.v}</p>
             </div>
           ))}
         </div>
@@ -69,10 +69,10 @@ export default function AboutPage() {
       <section className="py-14 lg:py-20">
         <div className="container-x">
           <SectionHeading eyebrow="Values" title="How we work" />
-          <dl className="mt-8 grid gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+          <dl className="mt-8 grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
             {VALUES.map((v) => (
               <div key={v.name} className="bg-white p-6">
-                <dt className="font-display font-semibold text-navy-950">{v.name}</dt>
+                <dt className="font-display font-semibold text-char-950">{v.name}</dt>
                 <dd className="mt-2 text-[0.9rem] leading-relaxed text-ink-2">{v.text}</dd>
               </div>
             ))}
@@ -86,7 +86,7 @@ export default function AboutPage() {
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[...companyMenu.slice(1), { label: "Manufacturing", href: "/manufacturing" }, { label: "Quality Assurance", href: "/quality" }, { label: "Sustainability", href: "/sustainability" }].map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="flex items-center justify-between rounded border border-line bg-white px-5 py-4 font-semibold text-navy-900 hover:border-navy-900">
+                <Link href={l.href} className="flex items-center justify-between rounded border border-line bg-white px-5 py-4 font-semibold text-char-900 hover:border-red-500">
                   {l.label} <ArrowRight className="h-4 w-4" aria-hidden />
                 </Link>
               </li>

@@ -16,11 +16,11 @@ export function ArticleCard({ article }: { article: Article }) {
         />
       </Link>
       <div className="flex flex-1 flex-col p-5">
-        <p className="font-mono text-[0.66rem] uppercase tracking-[0.12em] text-signal-600">
+        <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-red-600">
           {CATEGORIES[article.category].name} · {readingMinutes(article)} min read
         </p>
-        <h3 className="mt-2 font-display text-[1.08rem] font-semibold leading-snug text-navy-950">
-          <Link href={href} className="hover:text-signal-600">{article.title}</Link>
+        <h3 className="mt-2 font-display text-[1.08rem] font-semibold leading-snug text-char-950">
+          <Link href={href} className="hover:text-red-600">{article.title}</Link>
         </h3>
         <p className="mt-2 line-clamp-3 text-[0.9rem] leading-relaxed text-ink-2">{article.description}</p>
         <Link href={href} className="link-arrow mt-auto pt-4 text-[0.88rem]">Read article →</Link>

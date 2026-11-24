@@ -16,7 +16,7 @@ Central register of open items. **Owner:** M = Merova management, D = developmen
 | 10 | Client logos, testimonials and case studies (with written permission) | M | P2 | Open | Clients and Case Studies pages (case studies noindex until published) | Reference policy published; nothing invented |
 | 11 | Sustainability evidence (recycled-content %, waste data, compostability certificates) | M | P1 | Open | Sustainability page, `CLAIM_DEFINITIONS`, compostable product specs | Claims defined precisely; no figures shown |
 | 12 | Technical review of the 20 knowledge-centre articles (named reviewer) | M | P1 | Open | `review` field in `src/data/blog/*.ts` | Articles live but `noindex` and out of the sitemap until reviewed |
-| 13 | Original product photography for 49 products | M | P2 | Open | `public/assets/products`, product `image` fields | Labelled format illustrations and representative photos in use (see ASSET-REGISTER) |
+| 13 | Original product photography for 49 products | M | P2 | Open | `public/assets/products`, product `image` fields | Captioned studio product visualisations (3D renders) and representative photos in use (see ASSET-REGISTER) |
 | 14 | Provenance of the 18 previous-site images unverified (appear AI-generated) | M | P1 | Open | ASSET-REGISTER | Always captioned "Representative image"; never presented as Merova's own |
 | 15 | Privacy Policy and Terms need legal review | L | P0 | Open | `src/app/(site)/privacy-policy`, `terms` | Drafted, DPDP-aware; review before launch |
 | 16 | GA4 / GTM / Search Console IDs | M | P1 | Open | Vercel env | Consent-gated loader implemented |
@@ -26,3 +26,6 @@ Central register of open items. **Owner:** M = Merova management, D = developmen
 | 20 | Custom domain and regenerating PDFs for it; the old merova.vercel.app prototype lives in a different Vercel account and still shows placeholders | M + D | P1 | Open | `NEXT_PUBLIC_SITE_URL`, `npm run pdfs` | PDFs and canonical URLs point to merova-printpack.vercel.app |
 | 21 | Uploaded files are emailed, not stored; add object storage if CRM file storage is needed | D | P2 | Open | `deliverLead()` in `src/lib/enquiry.ts` | 4 MB attachment limit enforced |
 | 22 | In-memory rate limiter is per instance | D | P2 | Open | Vercel Firewall rule on `/api/enquiry` | Documented |
+| 23 | Final creative direction: red-led system, official logo artwork, 5-item nav, redesigned collateral | D | P0 | Resolved | `globals.css`, `Header`, `Footer`, `src/app/print/*`, `public/assets/brand/` | Logos extracted unaltered from `Merova_Logo.pdf`; Sora + Inter; all 53 PDFs regenerated with the layout QA showing 0 clipping |
+| 24 | Product imagery is studio visualisations (3D renders), not photography | M | P1 | Open | `public/assets/products/renders/` | Captioned "Product visualisation"; replace with original photography when available (ASSET-REGISTER shot list) |
+| 25 | Confirm ™ / ® usage on the wordmark and any brand-usage rules (clear space, minimum size) | M | P2 | Open | `public/assets/brand/` | Artwork used as supplied; clear space applied visually |

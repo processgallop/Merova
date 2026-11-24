@@ -43,10 +43,10 @@ export default async function VerticalPage({ params }: Props) {
       <section className="border-b border-line bg-white py-14 lg:py-16">
         <div className="container-x">
           <h2 className="t-3">{isCustom ? "How custom development works" : "Material technologies and options"}</h2>
-          <dl className="mt-6 grid gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+          <dl className="mt-6 grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
             {v.technologies.map((t) => (
               <div key={t.name} className="bg-white p-5">
-                <dt className="font-display text-[1rem] font-semibold text-navy-950">{t.name}</dt>
+                <dt className="font-display text-[1rem] font-semibold text-char-950">{t.name}</dt>
                 <dd className="mt-2 text-[0.9rem] leading-relaxed text-ink-2">{t.text}</dd>
               </div>
             ))}
@@ -67,7 +67,7 @@ export default async function VerticalPage({ params }: Props) {
           <ul className="mt-6 flex flex-wrap gap-2">
             {inds.map((id) => (
               <li key={id}>
-                <Link href={`/industries/${industryById[id].slug}`} className="inline-flex items-center gap-2 rounded-full border border-line-strong bg-white px-4 py-2 text-[0.9rem] font-semibold text-navy-900 hover:border-navy-900">
+                <Link href={`/industries/${industryById[id].slug}`} className="inline-flex items-center gap-2 rounded-full border border-line-strong bg-white px-4 py-2 text-[0.9rem] font-semibold text-char-900 hover:border-red-500">
                   <IndustryIcon name={industryById[id].icon} className="h-4 w-4" /> {industryById[id].name}
                 </Link>
               </li>

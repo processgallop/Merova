@@ -27,8 +27,8 @@ export default function PartnershipsPage() {
       <section className="py-14 lg:py-20">
         <ul className="container-x grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {TYPES.map((t) => (
-            <li key={t.k} className="rounded-md border border-line bg-white p-6">
-              <h2 className="font-display text-lg font-semibold text-navy-950">{t.k}</h2>
+            <li key={t.k} className="rounded-sm border border-line bg-white p-6">
+              <h2 className="font-display text-lg font-semibold text-char-950">{t.k}</h2>
               <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">{t.v}</p>
             </li>
           ))}

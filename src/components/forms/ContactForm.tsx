@@ -65,7 +65,7 @@ export function ContactForm({ defaultTopic, fallback }: { defaultTopic?: string;
   const t = CONTACT_TOPICS.find((x) => x.id === topic)!;
 
   return (
-    <form ref={ref} onSubmit={submit} noValidate className="rounded-md border border-line bg-white p-5 sm:p-8">
+    <form ref={ref} onSubmit={submit} noValidate className="rounded-sm border border-line bg-white p-5 sm:p-8">
       <input type="hidden" name="startedAt" value={startedAt} />
       <input type="hidden" name="type" value={topic} />
       {product && <input type="hidden" name="product" value={product} />}
@@ -77,7 +77,7 @@ export function ContactForm({ defaultTopic, fallback }: { defaultTopic?: string;
         <legend className="field-label">What is your enquiry about?</legend>
         <div className="mt-1 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {CONTACT_TOPICS.map((x) => (
-            <label key={x.id} className={`flex cursor-pointer items-center gap-2 rounded border px-3 py-2.5 text-sm font-semibold ${topic === x.id ? "border-navy-900 bg-navy-50 text-navy-950" : "border-line text-ink-2 hover:border-navy-700"}`}>
+            <label key={x.id} className={`flex cursor-pointer items-center gap-2 rounded border px-3 py-2.5 text-sm font-semibold ${topic === x.id ? "border-char-900 bg-char-50 text-char-950" : "border-line text-ink-2 hover:border-char-700"}`}>
               <input type="radio" name="topic" value={x.id} checked={topic === x.id} onChange={() => setTopic(x.id)} className="accent-[#0d1f38]" />
               {x.label}
             </label>
@@ -120,7 +120,7 @@ export function ContactForm({ defaultTopic, fallback }: { defaultTopic?: string;
         {(topic === "careers" || topic === "suppliers" || topic === "technical") && (
           <div className="md:col-span-2">
             <label htmlFor="c-file" className="field-label">{topic === "careers" ? "CV / résumé" : "Attachment"} <span className="font-normal text-muted">(optional, max 4 MB)</span></label>
-            <input id="c-file" name="files" type="file" accept={UPLOAD_LIMITS.accept.join(",")} className="block w-full text-sm file:mr-3 file:rounded file:border-0 file:bg-navy-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white" />
+            <input id="c-file" name="files" type="file" accept={UPLOAD_LIMITS.accept.join(",")} className="block w-full text-sm file:mr-3 file:rounded file:border-0 file:bg-char-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white" />
             {err("files")}
           </div>
         )}
@@ -128,15 +128,15 @@ export function ContactForm({ defaultTopic, fallback }: { defaultTopic?: string;
 
       <label className="mt-5 flex items-start gap-3 text-sm text-ink-2">
         <input type="checkbox" name="consent" value="yes" className="mt-1 h-4 w-4 accent-[#0d1f38]" {...aria("consent")} />
-        <span>I agree that Merova may contact me about this enquiry, as described in the <a href="/privacy-policy" target="_blank" className="font-semibold text-navy-800 underline">privacy policy</a>.</span>
+        <span>I agree that Merova may contact me about this enquiry, as described in the <a href="/privacy-policy" target="_blank" className="font-semibold text-char-800 underline">privacy policy</a>.</span>
       </label>
       {err("consent")}
 
       {banner && (
-        <div role="alert" className="mt-5 rounded-md border border-signal/40 bg-signal-50 p-4 text-sm text-signal-700">
+        <div role="alert" className="mt-5 rounded-sm border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           <p className="flex items-start gap-2 font-semibold"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />{banner}</p>
           <ul className="mt-3 flex flex-wrap gap-2">
-            {fallback.whatsapp && <li><a href={fallback.whatsapp} target="_blank" rel="noopener" className="btn btn-sm bg-[#177a42] text-white">WhatsApp</a></li>}
+            {fallback.whatsapp && <li><a href={fallback.whatsapp} target="_blank" rel="noopener" className="btn btn-sm btn-primary">WhatsApp</a></li>}
             {fallback.email && <li><a href={`mailto:${fallback.email}`} className="btn btn-outline btn-sm">Email</a></li>}
             {fallback.phone && <li><a href={`tel:${fallback.phone.replace(/[^\d+]/g, "")}`} className="btn btn-outline btn-sm">Call</a></li>}
             {!fallback.whatsapp && !fallback.email && !fallback.phone && <li className="text-ink-2">Direct contact details will be published here once confirmed.</li>}

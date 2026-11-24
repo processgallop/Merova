@@ -8,7 +8,7 @@ const LABEL: Record<NonNullable<SpecRow["status"]>, { text: string; cls: string 
 
 export function SpecTable({ rows, caption }: { rows: SpecRow[]; caption: string }) {
   return (
-    <div className="overflow-x-auto rounded-md border border-line bg-white">
+    <div className="overflow-x-auto rounded-sm border border-line bg-white">
       <table className="table-spec min-w-[34rem]">
         <caption className="sr-only">{caption}</caption>
         <thead>

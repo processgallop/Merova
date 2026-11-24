@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowRight, Check, MessageCircle } from "lucide-react";
 import { Breadcrumbs, CtaBand, CustomRequirementBand, FaqList, SectionHeading } from "@/components/ui/blocks";
@@ -33,19 +34,30 @@ export default async function IndustryPage({ params }: Props) {
 
   return (
     <>
-      <section className="border-b border-line bg-navy-950 text-white">
-        <div className="container-x grid-bg py-10 lg:py-16">
-          <div className="[&_a]:text-white/70 [&_span]:text-white/90 [&_nav]:text-white/60"><Breadcrumbs items={[{ name: "Industries", href: "/industries" }, { name: i.name, href: `/industries/${i.slug}` }]} /></div>
-          <div className="mt-8 flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded bg-white/10"><IndustryIcon name={i.icon} className="h-5 w-5" /></span>
-            <p className="eyebrow eyebrow-light">{i.name} packaging</p>
+      <section className="surface-red-deep relative overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/brand/merova-mark-cream.svg" alt="" aria-hidden="true" className="glyph-watermark -left-24 -bottom-16 w-[44rem] max-w-none" />
+        <div className="container-x relative grid gap-10 py-12 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:py-16">
+          <div className="reveal">
+            <div className="[&_a]:text-cloud [&_span]:text-cloud [&_nav]:text-cloud"><Breadcrumbs items={[{ name: "Industries", href: "/industries" }, { name: i.name, href: `/industries/${i.slug}` }]} /></div>
+            <div className="mt-8 flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-sm bg-cloud text-red-600"><IndustryIcon name={i.icon} className="h-5 w-5" /></span>
+              <p className="eyebrow eyebrow-light">{i.name} packaging</p>
+            </div>
+            <h1 className="t-1 mt-6 max-w-4xl">{i.headline}</h1>
+            <p className="mt-6 max-w-3xl text-lg leading-relaxed">{i.intro}</p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link href="#solutions" className="btn btn-cloud">View {list.length} solutions <ArrowRight className="h-4 w-4" aria-hidden /></Link>
+              <Link href={quote} className="btn btn-ghost-light">Request a Quote for {i.shortName}</Link>
+              {wa && <TrackedLink href={wa} target="_blank" rel="noopener" event="whatsapp_click" params={{ industry: i.id }} className="btn btn-ghost-light"><MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp</TrackedLink>}
+            </div>
           </div>
-          <h1 className="t-1 mt-5 max-w-4xl !text-white">{i.headline}</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-relaxed text-white/75">{i.intro}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="#solutions" className="btn btn-primary">View {list.length} solutions</Link>
-            <Link href={quote} className="btn btn-ghost-light">Request a Quote for {i.shortName}</Link>
-            {wa && <TrackedLink href={wa} target="_blank" rel="noopener" event="whatsapp_click" params={{ industry: i.id }} className="btn btn-ghost-light"><MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp</TrackedLink>}
+          <div className="relative">
+            <div className="absolute -bottom-4 -right-4 left-10 top-10 hidden bg-red-800/60 lg:block" aria-hidden />
+            <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-paper-2">
+              <Image src={i.image} alt={`Packaging for ${i.name.toLowerCase()}`} fill priority sizes="(min-width:1024px) 45vw, 100vw" className="object-cover" />
+              <span className="absolute bottom-2 left-2 rounded-sm bg-white/85 px-1.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.1em] text-char-600">{i.image.includes("/renders/") ? "Product visualisation" : "Representative image"}</span>
+            </div>
           </div>
         </div>
       </section>
@@ -55,18 +67,18 @@ export default async function IndustryPage({ params }: Props) {
           <SectionHeading eyebrow="What matters" title={`Packaging challenges in ${i.shortName.toLowerCase()}`} />
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {i.challenges.map((c, n) => (
-              <div key={c.title} className="rounded-md border border-line bg-white p-6">
-                <span className="font-mono text-[0.72rem] text-signal-600">{String(n + 1).padStart(2, "0")}</span>
-                <h3 className="mt-2 font-display text-[1.08rem] font-semibold text-navy-950">{c.title}</h3>
+              <div key={c.title} className="rounded-sm border border-line bg-white p-6">
+                <span className="font-display text-2xl font-semibold text-red-500">{String(n + 1).padStart(2, "0")}</span>
+                <h3 className="mt-2 font-display text-[1.08rem] font-semibold text-char-950">{c.title}</h3>
                 <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">{c.text}</p>
               </div>
             ))}
           </div>
-          <div className="mt-6 rounded-md border border-line bg-paper-2 p-6">
-            <h3 className="font-display text-[1.02rem] font-semibold text-navy-950">What we consider when specifying</h3>
+          <div className="mt-6 rounded-sm border border-line bg-paper-2 p-6">
+            <h3 className="font-display text-[1.02rem] font-semibold text-char-950">What we consider when specifying</h3>
             <ul className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
               {i.considerations.map((c) => (
-                <li key={c} className="flex gap-2.5 text-[0.93rem] text-ink-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-ok" aria-hidden />{c}</li>
+                <li key={c} className="flex gap-2.5 text-[0.93rem] text-ink-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-red-500" aria-hidden />{c}</li>
               ))}
             </ul>
           </div>

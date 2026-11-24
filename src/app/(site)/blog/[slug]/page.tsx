@@ -72,7 +72,7 @@ export default async function ArticlePage({ params }: Props) {
 
       <div className="container-x grid max-w-6xl gap-12 py-12 lg:grid-cols-[1fr_17rem]">
         <div className="min-w-0">
-          <Media image={{ src: a.image, alt: "", kind: a.image.endsWith(".svg") ? "illustration" : "representative" }} sizes="(min-width:1024px) 720px, 100vw" aspect="aspect-[16/9]" className="rounded-md border border-line" />
+          <Media image={{ src: a.image, alt: "", kind: a.image.endsWith(".svg") ? "illustration" : "representative" }} sizes="(min-width:1024px) 720px, 100vw" aspect="aspect-[16/9]" className="rounded-sm border border-line" />
           <div className="prose-merova mt-10">
             {a.sections.map((s) => (
               <section key={s.heading}>
@@ -82,7 +82,7 @@ export default async function ArticlePage({ params }: Props) {
             ))}
             <h2>Practical recommendations</h2>
             <ul className="!list-none !pl-0">
-              {a.recommendations.map((r) => <li key={r} className="flex gap-3"><Check className="mt-1.5 h-4 w-4 shrink-0 text-ok" aria-hidden /><span>{r}</span></li>)}
+              {a.recommendations.map((r) => <li key={r} className="flex gap-3"><Check className="mt-1.5 h-4 w-4 shrink-0 text-red-500" aria-hidden /><span>{r}</span></li>)}
             </ul>
             <h2>Industry applications</h2>
             <ul>{a.applications.map((x) => <li key={x}>{x}</li>)}</ul>
@@ -93,23 +93,23 @@ export default async function ArticlePage({ params }: Props) {
             <div className="mt-4"><FaqList faqs={a.faqs} /></div>
           </section>
 
-          <aside className="mt-12 rounded-md bg-navy-900 p-7 text-white">
+          <aside className="surface-red-deep mt-12 rounded-sm p-8">
             <p className="font-display text-xl font-semibold">{a.cta.title}</p>
             <Link href={a.cta.href} className="btn btn-primary mt-5">{a.cta.label} <ArrowRight className="h-4 w-4" aria-hidden /></Link>
           </aside>
         </div>
 
         <aside className="grid content-start gap-5 lg:sticky lg:top-28">
-          <div className="rounded-md border border-line bg-white p-5">
-            <p className="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-muted">In this guide</p>
+          <div className="rounded-sm border border-line bg-white p-5">
+            <p className="font-sans tabular-nums text-[0.7rem] uppercase tracking-[0.12em] text-muted">In this guide</p>
             <ul className="mt-3 grid gap-2 text-[0.88rem]">
               {a.sections.map((s) => <li key={s.heading} className="text-ink-2">{s.heading}</li>)}
               <li className="text-ink-2">Practical recommendations</li>
               <li className="text-ink-2">FAQs</li>
             </ul>
           </div>
-          <div className="rounded-md border border-line bg-paper-2 p-5">
-            <p className="font-display font-semibold text-navy-950">Need advice for your application?</p>
+          <div className="rounded-sm border border-line bg-paper-2 p-5">
+            <p className="font-display font-semibold text-char-950">Need advice for your application?</p>
             <Link href="/request-a-quote" className="btn btn-primary btn-sm mt-4 w-full">Request a Quote</Link>
             <Link href="/contact?topic=technical" className="btn btn-outline btn-sm mt-2 w-full">Ask a specialist</Link>
           </div>

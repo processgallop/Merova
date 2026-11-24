@@ -1,28 +1,61 @@
+/*
+ * Merova print system (A4). Shared by flyers, catalogue, company profile and brochures.
+ * Brand: Merova Red #d52b1e, Charcoal #454040, Cloud Dancer #fffaf3. Type: Sora + Inter.
+ * Grid: 16 mm outer margins, 12-column, 5 mm gutters.
+ */
 @page { size: A4; margin: 0; }
-.print-root { background: #8a8f99; padding: 24px 0; }
+.print-root { background: #77706e; padding: 24px 0; }
 @media print { .print-root { background: none; padding: 0; } }
+
 .pp {
+  --red: #d52b1e; --red-d: #b8241a; --red-dd: #961d15; --char: #454040; --ink: #282525; --ink2: #4d4747;
+  --muted: #6d6665; --line: #e8e0d5; --cloud: #fffaf3; --paper2: #f6f0e7;
   width: 210mm; height: 297mm; margin: 0 auto 24px; background: #fff; position: relative; overflow: hidden;
   display: flex; flex-direction: column; box-sizing: border-box; page-break-after: always; break-after: page;
-  font-family: var(--font-manrope), sans-serif; color: #161a22; font-size: 9.6pt; line-height: 1.5;
+  font-family: var(--font-inter), sans-serif; color: var(--ink); font-size: 9.2pt; line-height: 1.5;
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
+.pp *, .pp *::before, .pp *::after { box-sizing: border-box; }
 @media print { .pp { margin: 0; } }
 .pp:last-child { page-break-after: auto; break-after: auto; }
-.pp h1, .pp h2, .pp h3 { font-family: var(--font-sora), sans-serif; color: #08162a; letter-spacing: -0.02em; margin: 0; }
-.pp-body { flex: 1; padding: 13mm 15mm 0; display: flex; flex-direction: column; min-height: 0; }
-.pp-eyebrow { font-family: var(--font-plex-mono), monospace; font-size: 7.2pt; letter-spacing: .14em; text-transform: uppercase; color: #b4231a; font-weight: 500; }
-.pp-muted { color: #5b6270; }
-.pp-list { margin: 4pt 0 0; padding: 0; list-style: none; }
-.pp-list li { position: relative; padding-left: 9pt; margin-top: 2.2pt; }
-.pp-list li::before { content: ""; position: absolute; left: 0; top: 6pt; width: 3.2pt; height: 3.2pt; border-radius: 50%; background: #d52b1e; }
-.pp-h { font-family: var(--font-plex-mono), monospace; font-size: 7pt; letter-spacing: .14em; text-transform: uppercase; color: #5b6270; font-weight: 500; margin: 0; }
-.pp table { width: 100%; border-collapse: collapse; font-size: 8.6pt; }
-.pp th, .pp td { text-align: left; padding: 4.2pt 6pt; border-bottom: .6pt solid #e2d9cb; vertical-align: top; }
-.pp thead th { font-family: var(--font-plex-mono), monospace; font-size: 6.6pt; letter-spacing: .1em; text-transform: uppercase; color: #5b6270; background: #f5efe5; font-weight: 500; }
-.pp tbody th { font-weight: 700; width: 34%; }
-.pp-tag { display: inline-block; font-family: var(--font-plex-mono), monospace; font-size: 6.2pt; letter-spacing: .06em; text-transform: uppercase; padding: 1pt 4pt; border-radius: 2pt; border: .6pt solid #e2d9cb; background: #f5efe5; color: #3a404c; white-space: nowrap; }
-.pp-tag-c { background: #fff8e8; border-color: #efd9a6; color: #8a5a00; }
-.pp-foot { padding: 5mm 15mm; display: flex; justify-content: space-between; align-items: center; font-size: 7pt; color: #5b6270; border-top: .6pt solid #e2d9cb; }
-.pp-band { background: #0d1f38; color: #fff; padding: 9mm 15mm; display: flex; align-items: center; justify-content: space-between; }
-.pp-grid { background-image: linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 36px 36px; }
+.pp h1, .pp h2, .pp h3, .pp h4 { font-family: var(--font-sora), sans-serif; color: var(--ink); letter-spacing: -0.025em; margin: 0; font-weight: 600; }
+.pp p { margin: 0; }
+.pp a { color: inherit; text-decoration: none; }
+.pp-red { background: var(--red); color: var(--cloud); }
+.pp-red h1, .pp-red h2, .pp-red h3 { color: var(--cloud); }
+.pp-red-deep { background: linear-gradient(150deg, #b8241a 0%, #d52b1e 50%, #a51f16 100%); color: var(--cloud); }
+.pp-red-deep h1, .pp-red-deep h2, .pp-red-deep h3 { color: var(--cloud); }
+
+.pp-body { flex: 1; padding: 14mm 16mm 0; display: flex; flex-direction: column; min-height: 0; }
+.pp-body > * { flex-shrink: 0; }
+.pp-label { font-size: 6.8pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--red); display: flex; align-items: center; gap: 2.2mm; }
+.pp-label::before { content: ""; width: 6mm; height: .7mm; background: currentColor; }
+.pp-red .pp-label, .pp-red-deep .pp-label { color: var(--cloud); }
+.pp-h { font-size: 6.8pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); padding-bottom: 1.6mm; border-bottom: .6mm solid var(--red); margin-bottom: 2.4mm; }
+.pp-muted { color: var(--muted); }
+
+.pp-list { margin: 0; padding: 0; list-style: none; }
+.pp-list li { position: relative; padding-left: 4.2mm; margin-top: 1.3mm; line-height: 1.42; }
+.pp-list li:first-child { margin-top: 0; }
+.pp-list li::before { content: ""; position: absolute; left: 0; top: 1.9mm; width: 2.2mm; height: .5mm; background: var(--red); }
+
+.pp table { width: 100%; border-collapse: collapse; font-size: 8.3pt; }
+.pp th, .pp td { text-align: left; padding: 1.8mm 3mm; border-bottom: .3mm solid var(--line); vertical-align: top; }
+.pp thead th { font-size: 6.4pt; letter-spacing: .12em; text-transform: uppercase; color: var(--cloud); background: var(--red); font-weight: 700; border-bottom: 0; }
+.pp tbody th { font-weight: 600; width: 33%; color: var(--ink); }
+.pp tbody tr:nth-child(even) td, .pp tbody tr:nth-child(even) th { background: #fffbf6; }
+.pp-tag { display: inline-block; font-size: 5.8pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .5mm 1.6mm; border-radius: .6mm; border: .25mm solid var(--line); background: var(--paper2); color: var(--ink2); white-space: nowrap; }
+.pp-tag-c { background: #fdf3f1; border-color: #f5bdb5; color: #961d15; }
+.pp-chip { display: inline-block; font-size: 7pt; font-weight: 600; padding: 1mm 2.6mm; border: .3mm solid var(--red); color: var(--red-d); border-radius: 5mm; }
+
+.pp-img { position: relative; overflow: hidden; background: #ece6de; }
+.pp-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pp-cap { position: absolute; left: 2mm; bottom: 2mm; font-size: 5.2pt; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; background: rgba(255,255,255,.85); color: #575151; padding: .5mm 1.4mm; border-radius: .5mm; }
+
+.pp-foot { height: 13mm; padding: 0 16mm; display: flex; justify-content: space-between; align-items: center; font-size: 6.6pt; color: var(--muted); border-top: .3mm solid var(--line); flex-shrink: 0; }
+.pp-foot b { color: var(--red); font-weight: 700; }
+.pp-foot-red { border-top: 0; color: var(--cloud); background: var(--red-dd); }
+.pp-foot-red b { color: var(--cloud); }
+.pp-num { font-family: var(--font-sora), sans-serif; font-weight: 600; font-size: 8pt; color: var(--ink); letter-spacing: .02em; }
+.pp-foot-red .pp-num { color: var(--cloud); }
+.pp-watermark { position: absolute; pointer-events: none; opacity: .09; }

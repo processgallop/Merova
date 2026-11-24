@@ -84,13 +84,13 @@ export function MiraPanel({ onClose, whatsappHref }: { onClose: () => void; what
       aria-label="Mira, Merova's AI packaging assistant"
       className="flex h-[min(36rem,calc(100dvh-7rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-line bg-white shadow-lift"
     >
-      <header className="flex items-center gap-3 bg-navy-900 px-4 py-3 text-white">
+      <header className="flex items-center gap-3 bg-red-500 px-4 py-3 text-cloud">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
           <Sparkles className="h-4 w-4" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
           <p className="font-display text-[0.98rem] font-semibold leading-tight">Mira</p>
-          <p className="text-[0.72rem] text-white/70">Merova Intelligent Requirements Assistant · AI</p>
+          <p className="text-[0.72rem] text-cloud">Merova Intelligent Requirements Assistant · AI</p>
         </div>
         <button type="button" onClick={onClose} aria-label="Close Mira" className="rounded p-1.5 text-white/80 hover:bg-white/10 hover:text-white">
           <X className="h-5 w-5" />
@@ -102,7 +102,7 @@ export function MiraPanel({ onClose, whatsappHref }: { onClose: () => void; what
           <div key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
             <div
               className={`max-w-[88%] rounded-lg px-3.5 py-2.5 text-[0.9rem] leading-relaxed ${
-                m.role === "user" ? "bg-navy-900 text-white" : "border border-line bg-white text-ink"
+                m.role === "user" ? "bg-red-500 text-white" : "border border-line bg-white text-ink"
               }`}
             >
               <p className="whitespace-pre-line">{m.content}</p>
@@ -115,11 +115,11 @@ export function MiraPanel({ onClose, whatsappHref }: { onClose: () => void; what
                     return (
                       <li key={l.href + l.label}>
                         {isFile ? (
-                          <a href={href} download className="inline-flex items-center gap-1 rounded border border-line-strong px-2 py-1 text-[0.78rem] font-semibold text-navy-800 hover:border-navy-800">
+                          <a href={href} download className="inline-flex items-center gap-1 rounded border border-line-strong px-2 py-1 text-[0.78rem] font-semibold text-char-800 hover:border-red-500">
                             {l.label} <ArrowUpRight className="h-3 w-3" aria-hidden />
                           </a>
                         ) : (
-                          <Link href={href} className="inline-flex items-center gap-1 rounded border border-line-strong px-2 py-1 text-[0.78rem] font-semibold text-navy-800 hover:border-navy-800">
+                          <Link href={href} className="inline-flex items-center gap-1 rounded border border-line-strong px-2 py-1 text-[0.78rem] font-semibold text-char-800 hover:border-red-500">
                             {l.label} <ArrowUpRight className="h-3 w-3" aria-hidden />
                           </Link>
                         )}
@@ -135,7 +135,7 @@ export function MiraPanel({ onClose, whatsappHref }: { onClose: () => void; what
           <ul className="flex flex-wrap gap-2 pt-1">
             {STARTERS.map((s) => (
               <li key={s}>
-                <button type="button" onClick={() => send(s)} className="rounded-full border border-line-strong bg-white px-3 py-1.5 text-left text-[0.8rem] text-ink-2 hover:border-navy-800 hover:text-navy-900">
+                <button type="button" onClick={() => send(s)} className="rounded-full border border-line-strong bg-white px-3 py-1.5 text-left text-[0.8rem] text-ink-2 hover:border-red-500 hover:text-red-600">
                   {s}
                 </button>
               </li>
@@ -184,7 +184,7 @@ export function MiraPanel({ onClose, whatsappHref }: { onClose: () => void; what
           {whatsappHref && (
             <>
               {" "}
-              <a href={whatsappHref} target="_blank" rel="noopener" className="font-semibold text-navy-800 underline">Chat on WhatsApp</a>
+              <a href={whatsappHref} target="_blank" rel="noopener" className="font-semibold text-char-800 underline">Chat on WhatsApp</a>
             </>
           )}
         </p>

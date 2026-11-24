@@ -13,7 +13,7 @@ export default function TermsPage() {
           <h2>Website information</h2>
           <p>Content on this website is provided for general information about Merova&apos;s packaging products and services. Specifications marked as industry reference are general technical information. Specifications marked &ldquo;confirmed at quotation&rdquo; are confirmed for each order and are not offers or guarantees until stated in a written quotation.</p>
           <h2>Images</h2>
-          <p>Product visuals are format illustrations or representative imagery unless stated otherwise, and may not show the exact appearance, colour or construction of the packaging you order.</p>
+          <p>Product visuals are studio visualisations (computer-generated renders of packaging formats) or representative imagery unless stated otherwise, and may not show the exact appearance, colour or construction of the packaging you order.</p>
           <h2>Quotations and orders</h2>
           <p>Submitting an enquiry does not create a contract. Prices, specifications, quantities, lead times and delivery terms apply only when confirmed in a written quotation and accepted order.</p>
           <h2>AI assistant</h2>

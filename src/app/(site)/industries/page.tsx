@@ -25,12 +25,12 @@ export default function IndustriesPage() {
           {industries.map((i) => (
             <li key={i.id}>
               <Link href={`/industries/${i.slug}`} className="card group flex h-full flex-col p-6 transition-shadow hover:shadow-card">
-                <span className="flex h-11 w-11 items-center justify-center rounded bg-navy-900 text-white">
+                <span className="flex h-11 w-11 items-center justify-center rounded-sm bg-red-500 text-white">
                   <IndustryIcon name={i.icon} className="h-5 w-5" />
                 </span>
-                <h2 className="mt-5 font-display text-xl font-semibold text-navy-950 group-hover:text-signal-600">{i.name}</h2>
+                <h2 className="mt-5 font-display text-xl font-semibold text-char-950 group-hover:text-red-600">{i.name}</h2>
                 <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">{i.intro}</p>
-                <p className="mt-4 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-muted">{productsForIndustry(i.id).length} packaging solutions</p>
+                <p className="mt-4 font-sans tabular-nums text-[0.7rem] uppercase tracking-[0.12em] text-muted">{productsForIndustry(i.id).length} packaging solutions</p>
                 <span className="link-arrow mt-auto pt-4 text-[0.9rem]">Explore {i.shortName} <ArrowRight className="h-4 w-4" aria-hidden /></span>
               </Link>
             </li>

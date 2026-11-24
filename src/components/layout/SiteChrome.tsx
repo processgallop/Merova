@@ -1,4 +1,5 @@
-import { Header } from "./Header";
+import { ViewTransition } from "react";
+import { BrandStrip, Header } from "./Header";
 import { Footer } from "./Footer";
 import { FloatingDock } from "./FloatingDock";
 import { buildMenus } from "@/data/menus";
@@ -18,11 +19,14 @@ function whatsappContext(): Record<string, string> {
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded focus:bg-navy-900 focus:px-4 focus:py-2 focus:text-white">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded focus:bg-char-900 focus:px-4 focus:py-2 focus:text-white">
         Skip to content
       </a>
+      <BrandStrip phone={site.contact.phone} />
       <Header menus={buildMenus()} />
-      <main id="main">{children}</main>
+      <ViewTransition>
+        <main id="main">{children}</main>
+      </ViewTransition>
       <Footer />
       <FloatingDock whatsapp={site.contact.whatsapp} contextMap={whatsappContext()} phone={site.contact.phone} email={site.contact.email} />
     </>

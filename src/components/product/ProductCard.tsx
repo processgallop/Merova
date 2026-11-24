@@ -10,14 +10,15 @@ const quoteHref = (slug: string, industry?: string) =>
 /** Presentational card — no catalogue imports, so it is safe inside client components. */
 export function ProductCard({ card, industry, compact = false }: { card: ProductCardData; industry?: string; compact?: boolean }) {
   return (
-    <article className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-card">
-      <Link href={card.url} aria-hidden="true" tabIndex={-1} className="block overflow-hidden">
-        <Media image={card.image} sizes="(min-width:1280px) 25vw, (min-width:640px) 45vw, 100vw" caption={false} className="transition-transform duration-500 group-hover:scale-[1.02]" />
+    <article className="card group relative flex h-full flex-col overflow-hidden transition-[box-shadow,transform] duration-500 hover:-translate-y-1 hover:shadow-lift">
+      <span className="absolute inset-x-0 top-0 z-10 h-[3px] origin-left scale-x-0 bg-red-500 transition-transform duration-500 group-hover:scale-x-100" aria-hidden />
+      <Link href={card.url} aria-hidden="true" tabIndex={-1} className="zoom-img block overflow-hidden">
+        <Media image={card.image} sizes="(min-width:1280px) 25vw, (min-width:640px) 45vw, 100vw" caption={false} />
       </Link>
       <div className="flex flex-1 flex-col p-5">
-        <p className="font-mono text-[0.66rem] uppercase tracking-[0.12em] text-muted">{card.vertical}</p>
-        <h3 className="mt-1.5 font-display text-[1.08rem] font-semibold leading-snug text-navy-950">
-          <Link href={card.url} className="hover:text-signal-600">{card.name}</Link>
+        <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-red-600">{card.vertical}</p>
+        <h3 className="mt-2 font-display text-[1.12rem] font-semibold leading-snug text-char-900">
+          <Link href={card.url} className="transition-colors hover:text-red-600">{card.name}</Link>
         </h3>
         <p className="mt-2 text-[0.9rem] leading-relaxed text-ink-2">{card.summary}</p>
         {!compact && (
@@ -40,7 +41,7 @@ export function ProductCard({ card, industry, compact = false }: { card: Product
             download
             event="flyer_download"
             params={{ product: card.slug }}
-            className="inline-flex items-center gap-1 px-1 py-2 text-[0.82rem] font-semibold text-navy-700 hover:text-signal-600"
+            className="inline-flex items-center gap-1 px-1 py-2 text-[0.82rem] font-semibold text-char-700 hover:text-red-600"
             aria-label={`Download ${card.name} flyer (PDF)`}
           >
             <Download className="h-3.5 w-3.5" aria-hidden /> Flyer
@@ -55,7 +56,7 @@ export function ProductGrid({ cards, industry }: { cards: ProductCardData[]; ind
   return (
     <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4">
       {cards.map((c) => (
-        <li key={c.slug}><ProductCard card={c} industry={industry} /></li>
+        <li key={c.slug} className="rise"><ProductCard card={c} industry={industry} /></li>
       ))}
     </ul>
   );

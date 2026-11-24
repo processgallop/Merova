@@ -30,11 +30,11 @@ export function EnquiryReceived() {
   return (
     <section className="py-16 lg:py-24">
       <div className="container-x max-w-3xl">
-        <div className="rounded-md border border-line bg-white p-8 text-center sm:p-12">
+        <div className="rounded-sm border border-line bg-white p-8 text-center sm:p-12">
           <Glyph className="mx-auto h-8 w-auto" />
-          <CheckCircle2 className="mx-auto mt-8 h-12 w-12 text-ok" aria-hidden />
+          <CheckCircle2 className="mx-auto mt-8 h-12 w-12 text-red-500" aria-hidden />
           <h1 className="t-2 mt-5">Thank you — your enquiry has been received.</h1>
-          <p className="mt-6 inline-block rounded bg-paper-2 px-4 py-2 font-mono text-sm text-navy-900">Reference: <strong>{ref}</strong></p>
+          <p className="mt-6 inline-block rounded bg-paper-2 px-4 py-2 font-sans tabular-nums text-sm text-char-900">Reference: <strong>{ref}</strong></p>
           <p className="lede mx-auto mt-6 max-w-xl">
             It has been routed to our <strong>{team || "sales"}</strong> team, who will review your requirement and contact you to confirm details and next steps.
           </p>

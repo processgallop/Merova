@@ -37,8 +37,8 @@ export interface Faq {
 export interface ProductImage {
   src: string;
   alt: string;
-  /** illustration = Merova-drawn format illustration; representative = non-Merova representative imagery */
-  kind: "illustration" | "representative";
+  /** render = original Merova product visualisation (3D studio render); representative = non-Merova representative imagery; illustration = diagram */
+  kind: "render" | "illustration" | "representative";
 }
 
 export interface Product {
@@ -93,6 +93,8 @@ export interface Industry {
   /** product slugs in display priority; any product tagged with the industry is also included */
   featured: string[];
   icon: string;
+  /** Representative product visual for the sector */
+  image: string;
   faqs: Faq[];
   seo: { primary: string; secondary: string[]; title: string; description: string };
 }

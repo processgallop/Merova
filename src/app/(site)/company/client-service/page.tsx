@@ -20,9 +20,9 @@ export default function ClientServicePage() {
       <section className="py-14 lg:py-20">
         <ul className="container-x grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {CLIENT_SERVICE.map((c, i) => (
-            <li key={c.name} className="rounded-md border border-line bg-white p-6">
-              <span className="font-mono text-[0.72rem] text-signal-600">{String(i + 1).padStart(2, "0")}</span>
-              <h2 className="mt-2 font-display text-lg font-semibold text-navy-950">{c.name}</h2>
+            <li key={c.name} className="rounded-sm border border-line bg-white p-6">
+              <span className="font-display text-2xl font-semibold text-red-500">{String(i + 1).padStart(2, "0")}</span>
+              <h2 className="mt-2 font-display text-lg font-semibold text-char-950">{c.name}</h2>
               <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">{c.text}</p>
             </li>
           ))}

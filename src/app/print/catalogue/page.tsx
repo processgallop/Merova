@@ -1,111 +1,108 @@
-import { productsInVertical, productUrl, verticals, flyerUrl, industryById } from "@/data/catalog";
-import { Cover, BackCover } from "@/components/print/Cover";
-import { IMG_NOTE, PFooter, PLogo, printSrc } from "@/components/print/PrintKit";
+import { productsInVertical, productUrl, verticals, industryById } from "@/data/catalog";
+import { Cover, BackCover, Divider } from "@/components/print/Cover";
+import { IMG_NOTE, PFooter, PImg, PLogo } from "@/components/print/PrintKit";
 import { absoluteUrl, site } from "@/lib/site";
 import type { Product } from "@/data/types";
 
 const chunk = <T,>(a: T[], n: number) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
 
 export default function CataloguePrint() {
+  // Page plan: 1 cover, 2 contents, then per vertical: divider + product pages (2 per page), then back cover.
+  let page = 2;
+  const plan = verticals.map((v) => {
+    const items = productsInVertical(v.id);
+    const divider = ++page;
+    const pages = chunk(items, 2).map((pair) => ({ pair, page: ++page }));
+    return { v, items, divider, pages };
+  });
+
   return (
     <>
-      <Cover eyebrow="Product catalogue" title="Packaging solutions across five material verticals." subtitle={site.description} image="/assets/manufacturing/hero-factory-packaging.webp" />
+      <Cover eyebrow="Product catalogue" title="Packaging solutions across five material verticals." subtitle={site.description} image="/assets/products/renders/hero.webp" />
+
       <section className="pp">
-        <div className="pp-body">
-          <PLogo />
-          <h2 style={{ fontSize: "20pt", marginTop: "12mm" }}>Contents</h2>
-          <div style={{ marginTop: "6mm", display: "grid", gap: "6mm" }}>
-            {verticals.map((v) => (
-              <div key={v.id} style={{ borderTop: ".6pt solid #e2d9cb", paddingTop: "4mm" }}>
-                <div style={{ fontFamily: "var(--font-sora)", fontWeight: 600, fontSize: "12pt", color: "#08162a" }}>{v.name}</div>
-                <div className="pp-muted" style={{ fontSize: "8.6pt", marginTop: 3 }}>{productsInVertical(v.id).map((p) => p.shortName ?? p.name).join(" · ")}</div>
-              </div>
+        <div className="pp-body" style={{ paddingTop: "16mm" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <PLogo h={13} />
+            <span className="pp-label">Product catalogue</span>
+          </div>
+          <h2 style={{ fontSize: "28pt", marginTop: "18mm" }}>Contents</h2>
+          <div style={{ marginTop: "8mm", display: "grid", gap: "5mm" }}>
+            {plan.map(({ v, items, divider }, i) => (
+              <a key={v.id} href={`#v-${v.id}`} style={{ display: "grid", gridTemplateColumns: "14mm 1fr 14mm", gap: "4mm", borderTop: ".3mm solid var(--line)", paddingTop: "4mm" }}>
+                <span style={{ fontFamily: "var(--font-sora)", fontSize: "16pt", fontWeight: 600, color: "var(--red)" }}>{String(i + 1).padStart(2, "0")}</span>
+                <span>
+                  <span style={{ display: "block", fontFamily: "var(--font-sora)", fontWeight: 600, fontSize: "12pt" }}>{v.name}</span>
+                  <span className="pp-muted" style={{ display: "block", fontSize: "7.8pt", marginTop: "1mm" }}>{items.map((p) => p.shortName ?? p.name).join(" · ")}</span>
+                </span>
+                <span className="pp-num" style={{ textAlign: "right", fontSize: "10pt" }}>{String(divider).padStart(2, "0")}</span>
+              </a>
             ))}
           </div>
-          <div style={{ marginTop: "auto", marginBottom: "8mm", background: "#f5efe5", borderRadius: 4, padding: "6mm" }}>
-            <div className="pp-h">How to use this catalogue</div>
-            <p style={{ margin: "4pt 0 0", color: "#3a404c" }}>Each product lists its applications, formats, materials and key specifications. Individual product flyers with full specification tables are available at {absoluteUrl("/resources/downloads").replace(/^https?:\/\//, "")}. {IMG_NOTE}</p>
+          <div style={{ marginTop: "auto", marginBottom: "8mm", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8mm" }}>
+            <div style={{ background: "var(--paper2)", padding: "6mm" }}>
+              <div className="pp-h">How to use this catalogue</div>
+              <p style={{ color: "var(--ink2)" }}>Each product lists applications, variants, materials and key specifications. Full specification tables are in the individual product flyers at <a href={absoluteUrl("/resources/downloads")} style={{ color: "var(--red)", fontWeight: 600 }}>{absoluteUrl("/resources/downloads").replace(/^https?:\/\//, "")}</a>.</p>
+            </div>
+            <div className="pp-red" style={{ padding: "6mm" }}>
+              <div className="pp-label">Request a quote</div>
+              <p style={{ marginTop: "2mm" }}>Every product page has a quote form that adapts to the product.</p>
+              <a href={absoluteUrl("/request-a-quote")} style={{ display: "block", marginTop: "2mm", fontWeight: 700, textDecoration: "underline" }}>{absoluteUrl("/request-a-quote").replace(/^https?:\/\//, "")}</a>
+            </div>
           </div>
+          <p className="pp-muted" style={{ fontSize: "6.4pt", marginBottom: "3mm" }}>{IMG_NOTE}</p>
         </div>
-        <PFooter label="Product catalogue" />
+        <PFooter label="Contents" page={2} />
       </section>
 
-      {verticals.map((v) => (
-        <VerticalSection key={v.id} vertical={v} items={productsInVertical(v.id)} />
+      {plan.map(({ v, divider, pages }, i) => (
+        <div key={v.id} id={`v-${v.id}`} style={{ display: "contents" }}>
+          <Divider index={String(i + 1).padStart(2, "0")} title={v.name} intro={v.intro} image={v.image.src} page={divider} label="Product catalogue" />
+          {pages.map(({ pair, page: pg }) => (
+            <section className="pp" key={pg}>
+              <div className="pp-body" style={{ paddingTop: "11mm", gap: "8mm" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "3mm", borderBottom: ".6mm solid var(--red)" }}>
+                  <span style={{ fontFamily: "var(--font-sora)", fontWeight: 600, fontSize: "9.5pt" }}>{v.name}</span>
+                  <PLogo variant="mark-red" h={6} />
+                </div>
+                {pair.map((p) => <ProductBlock key={p.slug} p={p} />)}
+              </div>
+              <PFooter label="Product catalogue" page={pg} />
+            </section>
+          ))}
+        </div>
       ))}
       <BackCover />
     </>
   );
 }
 
-function VerticalSection({ vertical: v, items }: { vertical: (typeof verticals)[number]; items: Product[] }) {
-  return (
-    <>
-      <section className="pp">
-        <div className="pp-band pp-grid" style={{ padding: "16mm 15mm" }}>
-          <div>
-            <div className="pp-eyebrow" style={{ color: "#f3b1aa" }}>{items.length} formats</div>
-            <h2 style={{ color: "#fff", fontSize: "24pt", marginTop: 6 }}>{v.name}</h2>
-          </div>
-        </div>
-        <div className="pp-body">
-          <p style={{ fontFamily: "var(--font-sora)", fontSize: "13pt", color: "#142c4d", lineHeight: 1.35, margin: 0 }}>{v.headline}</p>
-          <p style={{ color: "#3a404c", margin: "8pt 0 0" }}>{v.intro}</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5mm", marginTop: "8mm" }}>
-            {v.technologies.map((t) => (
-              <div key={t.name} style={{ border: ".6pt solid #e2d9cb", borderRadius: 3, padding: "4mm" }}>
-                <div style={{ fontFamily: "var(--font-sora)", fontWeight: 600, color: "#08162a" }}>{t.name}</div>
-                <div style={{ color: "#3a404c", marginTop: 3, fontSize: "8.8pt" }}>{t.text}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: "8mm", borderRadius: 4, overflow: "hidden", flex: 1, minHeight: 0, maxHeight: "95mm", background: "#f5efe5" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={printSrc(v.image.src)} alt={v.image.alt} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          </div>
-          <div style={{ height: "8mm" }} />
-        </div>
-        <PFooter label={v.name} />
-      </section>
-      {chunk(items, 2).map((pair, i) => (
-        <section className="pp" key={i}>
-          <div className="pp-body" style={{ gap: "7mm" }}>
-            {pair.map((p) => <ProductBlock key={p.slug} p={p} />)}
-          </div>
-          <PFooter label={v.name} />
-        </section>
-      ))}
-    </>
-  );
-}
-
 function ProductBlock({ p }: { p: Product }) {
   const keySpecs = p.specs.slice(0, 4);
+  const url = absoluteUrl(productUrl(p));
   return (
-    <article style={{ flex: 1, display: "grid", gridTemplateColumns: "62mm 1fr", gap: "6mm", borderBottom: ".6pt solid #e2d9cb", paddingBottom: "6mm" }}>
-      <div>
-        <div style={{ borderRadius: 3, overflow: "hidden", aspectRatio: "4/3", background: "#f5efe5", border: ".6pt solid #e2d9cb" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={printSrc(p.image.src)} alt={p.image.alt} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        </div>
+    <article style={{ flex: "0 0 auto", height: "118mm", display: "grid", gridTemplateColumns: "74mm 1fr", gap: "7mm" }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <PImg image={p.image} style={{ height: "74mm" }} />
         <div style={{ marginTop: "4mm" }}>
           <div className="pp-h">Industries</div>
-          <div className="pp-muted" style={{ fontSize: "7.8pt", marginTop: 2 }}>{p.industries.map((i) => industryById[i].shortName).join(", ")}</div>
+          <div className="pp-muted" style={{ fontSize: "7.6pt", lineHeight: 1.45 }}>{p.industries.map((i) => industryById[i].shortName).join(" · ")}</div>
         </div>
       </div>
-      <div>
-        <h3 style={{ fontSize: "13pt" }}>{p.name}</h3>
-        <p style={{ margin: "3pt 0 0", color: "#3a404c" }}>{p.summary}</p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4mm", marginTop: "4mm" }}>
-          <div><div className="pp-h">Formats</div><ul className="pp-list" style={{ fontSize: "8.4pt" }}>{p.formats.slice(0, 4).map((f) => <li key={f}>{f}</li>)}</ul></div>
-          <div><div className="pp-h">Materials</div><ul className="pp-list" style={{ fontSize: "8.4pt" }}>{p.materials.slice(0, 4).map((f) => <li key={f}>{f}</li>)}</ul></div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <h3 style={{ fontSize: "15pt", lineHeight: 1.1 }}>{p.name}</h3>
+        <p style={{ marginTop: "2mm", color: "var(--red-d)", fontFamily: "var(--font-sora)", fontSize: "8.8pt", lineHeight: 1.35 }}>{p.headline}</p>
+        <p style={{ marginTop: "2mm", color: "var(--ink2)" }}>{p.summary}</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5mm", marginTop: "4mm" }}>
+          <div><div className="pp-h">Variants</div><ul className="pp-list" style={{ fontSize: "8pt" }}>{p.formats.slice(0, 4).map((f) => <li key={f}>{f}</li>)}</ul></div>
+          <div><div className="pp-h">Applications</div><ul className="pp-list" style={{ fontSize: "8pt" }}>{p.applications.slice(0, 4).map((f) => <li key={f}>{f}</li>)}</ul></div>
         </div>
-        <table style={{ marginTop: "4mm", fontSize: "7.8pt" }}>
-          <tbody>{keySpecs.map((s) => <tr key={s.label}><th style={{ padding: "2.5pt 5pt" }}>{s.label}</th><td style={{ padding: "2.5pt 5pt" }}>{s.value}</td></tr>)}</tbody>
+        <table style={{ marginTop: "4mm", fontSize: "7.4pt" }}>
+          <tbody>{keySpecs.map((s) => <tr key={s.label}><th style={{ padding: "1.5mm 2mm" }}>{s.label}</th><td style={{ padding: "1.5mm 2mm" }}>{s.value}</td></tr>)}</tbody>
         </table>
-        <div className="pp-muted" style={{ fontSize: "7.4pt", marginTop: "3mm" }}>
-          Product page: {absoluteUrl(productUrl(p)).replace(/^https?:\/\//, "")} · Flyer: {absoluteUrl(flyerUrl(p)).replace(/^https?:\/\//, "")}
-        </div>
+        <a href={url} style={{ marginTop: "auto", fontSize: "7.4pt", color: "var(--red)", fontWeight: 600 }}>
+          Specifications, flyer & quote → {url.replace(/^https?:\/\//, "")}
+        </a>
       </div>
     </article>
   );

@@ -1,48 +1,56 @@
 import { productsInVertical, verticals } from "@/data/catalog";
 import { MANUFACTURING_PROCESSES, QUALITY_STAGES } from "@/data/company";
 import { Cover, BackCover } from "@/components/print/Cover";
-import { PFooter, PLogo } from "@/components/print/PrintKit";
+import { PFooter, PImg, PLogo } from "@/components/print/PrintKit";
+
+const L = "Manufacturing capabilities";
 
 export default function CapabilitiesPrint() {
   return (
     <>
-      <Cover eyebrow="Manufacturing capabilities" title="The Right Infrastructure. The Right Processes. The Right Packaging Outcome." subtitle="How Merova takes packaging from material to dispatch, and what can be specified in each vertical." image="/assets/manufacturing/capabilities-press-hall.webp" />
+      <Cover eyebrow="Manufacturing capabilities" title="The Right Infrastructure. The Right Processes. The Right Packaging Outcome." subtitle="How Merova takes packaging from material to dispatch, and what can be specified in each vertical." image="/assets/products/renders/partitions.webp" />
       <section className="pp">
-        <div className="pp-body">
-          <PLogo />
-          <div className="pp-eyebrow" style={{ marginTop: "10mm" }}>Production journey</div>
-          <div style={{ display: "grid", gap: "3mm", marginTop: "4mm" }}>
+        <div className="pp-body" style={{ paddingTop: "16mm" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><PLogo h={11} /><span className="pp-label">Production journey</span></div>
+          <h2 style={{ fontSize: "22pt", lineHeight: 1.08, marginTop: "13mm" }}>From material to dispatch.</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4mm", marginTop: "8mm" }}>
             {MANUFACTURING_PROCESSES.map((p, i) => (
-              <div key={p.name} style={{ display: "grid", gridTemplateColumns: "10mm 1fr", borderTop: ".6pt solid #e2d9cb", paddingTop: "3mm" }}>
-                <span style={{ fontFamily: "var(--font-plex-mono)", color: "#b4231a" }}>{String(i + 1).padStart(2, "0")}</span>
-                <div><strong style={{ color: "#08162a" }}>{p.name}</strong><div className="pp-muted" style={{ fontSize: "8.6pt" }}>{p.text}</div></div>
+              <div key={p.name} style={{ background: "var(--paper2)", padding: "5mm", minHeight: "30mm" }}>
+                <span style={{ fontFamily: "var(--font-sora)", fontSize: "15pt", fontWeight: 600, color: "var(--red)" }}>{String(i + 1).padStart(2, "0")}</span>
+                <div style={{ fontFamily: "var(--font-sora)", fontWeight: 600, marginTop: "1.5mm" }}>{p.name}</div>
+                <div className="pp-muted" style={{ fontSize: "7.8pt", marginTop: "1mm", lineHeight: 1.45 }}>{p.text}</div>
               </div>
             ))}
           </div>
-          <div className="pp-eyebrow" style={{ marginTop: "9mm" }}>Quality stages</div>
-          <ul className="pp-list" style={{ columns: 2, columnGap: "8mm" }}>{QUALITY_STAGES.map((q) => <li key={q.name} style={{ breakInside: "avoid" }}><strong>{q.name}</strong></li>)}</ul>
-          <div style={{ marginTop: "auto", marginBottom: "6mm", background: "#fff8e8", border: ".6pt solid #efd9a6", borderRadius: 3, padding: "4mm", fontSize: "8.4pt", color: "#6b4a00" }}>
-            Equipment models, plant details and capacity figures are confirmed per enquiry and will be added to this brochure once verified.
+          <div className="pp-red" style={{ marginTop: "8mm", padding: "6mm" }}>
+            <div className="pp-label">Quality at every stage</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5mm 7mm", marginTop: "3mm", fontSize: "8pt" }}>
+              {QUALITY_STAGES.map((q) => <div key={q.name}>— {q.name}</div>)}
+            </div>
+          </div>
+          <div style={{ marginTop: "auto", marginBottom: "8mm", border: ".3mm dashed #b3aba7", padding: "4mm", fontSize: "7.8pt", color: "var(--ink2)" }}>
+            Equipment models, plant details and capacity figures are confirmed per enquiry and added to this brochure once verified.
           </div>
         </div>
-        <PFooter label="Manufacturing capabilities" page="2" />
+        <PFooter label={L} page={2} />
       </section>
       <section className="pp">
-        <div className="pp-body">
-          <div className="pp-eyebrow">Capabilities by vertical</div>
-          <div style={{ display: "grid", gap: "4mm", marginTop: "4mm" }}>
-            {verticals.map((v) => (
-              <div key={v.id} style={{ border: ".6pt solid #e2d9cb", borderRadius: 3, padding: "4mm" }}>
-                <div style={{ fontFamily: "var(--font-sora)", fontWeight: 600, color: "#08162a", fontSize: "11pt" }}>{v.name}</div>
-                <div className="pp-muted" style={{ fontSize: "8.2pt", marginTop: 2 }}>{productsInVertical(v.id).map((p) => p.shortName ?? p.name).join(" · ")}</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3mm", marginTop: "2mm", fontSize: "8.2pt" }}>
-                  {v.technologies.map((t) => <div key={t.name}><strong>{t.name}:</strong> <span className="pp-muted">{t.text}</span></div>)}
+        <div className="pp-body" style={{ paddingTop: "16mm" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><PLogo h={11} /><span className="pp-label">Capabilities by vertical</span></div>
+          <div style={{ display: "grid", gap: "4.5mm", marginTop: "10mm" }}>
+            {verticals.map((v, i) => (
+              <div key={v.id} style={{ display: "grid", gridTemplateColumns: "40mm 1fr", gap: "5mm", borderTop: i ? ".3mm solid var(--line)" : undefined, paddingTop: i ? "4.5mm" : 0 }}>
+                <PImg image={v.image} caption={false} style={{ height: "30mm" }} />
+                <div>
+                  <div style={{ fontFamily: "var(--font-sora)", fontWeight: 600, fontSize: "11pt" }}>{v.name}</div>
+                  <div className="pp-muted" style={{ fontSize: "7.4pt", marginTop: "1mm" }}>{productsInVertical(v.id).map((p) => p.shortName ?? p.name).join(" · ")}</div>
+                  <div style={{ fontSize: "7.4pt", marginTop: "1.5mm", color: "var(--ink2)" }}>{v.technologies.map((t) => t.name).join(" · ")}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-        <PFooter label="Manufacturing capabilities" page="3" />
+        <PFooter label={L} page={3} />
       </section>
       <BackCover title="Have a production requirement to discuss?" />
     </>

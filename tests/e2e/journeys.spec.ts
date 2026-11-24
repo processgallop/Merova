@@ -158,10 +158,10 @@ test("mobile and desktop navigation reach products", async ({ page, isMobile }) 
   if (isMobile) {
     await page.getByRole("button", { name: "Open menu" }).click();
     await page.locator("#mobile-nav").getByRole("button", { name: "Products" }).click();
-    await page.locator("#mobile-nav").getByRole("link", { name: "Plastic & Flexible" }).click();
+    await page.locator("#mobile-nav").getByRole("link", { name: /^Plastic & Flexible/ }).first().click();
   } else {
     await page.getByRole("button", { name: "Products" }).click();
-    await page.locator("#menu-Products").getByRole("link", { name: /Plastic & Flexible/ }).click();
+    await page.locator("#mega-products").getByRole("link", { name: /Plastic & Flexible/ }).first().click();
   }
   await expect(page).toHaveURL(/\/plastic-packaging$/);
   await expect(page.getByRole("link", { name: "BOPP Film Rolls", exact: true })).toBeVisible();

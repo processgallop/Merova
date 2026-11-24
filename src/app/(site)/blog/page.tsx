@@ -17,8 +17,8 @@ export default function BlogIndex() {
       <PageHero eyebrow="Packaging knowledge centre" title="Practical guidance for packaging buyers and engineers." intro={`${articles.length} technical guides on materials, formats, specification and procurement — written to help you specify packaging with confidence.`} crumbs={[{ name: "Knowledge Centre", href: "/blog" }]} />
       <nav aria-label="Categories" className="border-b border-line bg-white">
         <ul className="container-x flex gap-2 overflow-x-auto py-3">
-          <li><Link href="/blog" className="chip whitespace-nowrap !border-navy-900 !bg-navy-900 !py-1.5 !text-white">All</Link></li>
-          {used.map(([, c]) => <li key={c.slug}><Link href={`/blog/category/${c.slug}`} className="chip whitespace-nowrap !py-1.5 hover:border-navy-800">{c.name}</Link></li>)}
+          <li><Link href="/blog" className="chip whitespace-nowrap !border-red-500 !bg-red-500 !py-1.5 !text-white">All</Link></li>
+          {used.map(([, c]) => <li key={c.slug}><Link href={`/blog/category/${c.slug}`} className="chip whitespace-nowrap !py-1.5 hover:border-red-500">{c.name}</Link></li>)}
         </ul>
       </nav>
       <section className="py-14 lg:py-20">

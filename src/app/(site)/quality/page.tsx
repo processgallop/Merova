@@ -23,9 +23,9 @@ export default function QualityPage() {
         <div className="container-x">
           <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {QUALITY_STAGES.map((q, i) => (
-              <li key={q.name} className="rounded-md border border-line bg-white p-6">
-                <span className="font-mono text-[0.72rem] text-signal-600">{String(i + 1).padStart(2, "0")}</span>
-                <h2 className="mt-2 font-display text-[1.08rem] font-semibold text-navy-950">{q.name}</h2>
+              <li key={q.name} className="rounded-sm border border-line bg-white p-6">
+                <span className="font-display text-2xl font-semibold text-red-500">{String(i + 1).padStart(2, "0")}</span>
+                <h2 className="mt-2 font-display text-[1.08rem] font-semibold text-char-950">{q.name}</h2>
                 <p className="mt-2 text-[0.9rem] leading-relaxed text-ink-2">{q.text}</p>
               </li>
             ))}

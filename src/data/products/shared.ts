@@ -1,9 +1,10 @@
 import type { ProductImage, SpecRow } from "../types";
 
+/** Original studio render of the product format (scripts/render). */
 export const ill = (name: string, alt: string): ProductImage => ({
-  src: `/assets/products/illustrations/${name}.svg`,
-  alt,
-  kind: "illustration",
+  src: `/assets/products/renders/${name}.webp`,
+  alt: ((t: string) => t.charAt(0).toUpperCase() + t.slice(1))(alt.replace(/^Illustration of (an? )?/i, "")),
+  kind: "render",
 });
 
 export const photo = (file: string, alt: string): ProductImage => ({
