@@ -37,7 +37,7 @@ test("product → basket → RFQ submission is confirmed by the server", async (
   await page.getByRole("button", { name: /Add to enquiry/ }).first().click();
   await expect(page.getByRole("button", { name: /Added to enquiry/ }).first()).toBeVisible();
   await page.goto("/request-a-quote/");
-  await expect(page.getByRole("link", { name: "Popcorn Tubs" })).toBeVisible();
+  await expect(page.locator("#main").getByRole("link", { name: "Popcorn Tubs" })).toBeVisible();
   // Validation: quantity required
   await page.getByRole("button", { name: /Continue/ }).click();
   await expect(page.getByText("Add an approximate quantity.")).toBeVisible();
@@ -66,8 +66,8 @@ test("operator kit adds products from several categories to one enquiry", async 
   await page.getByRole("button", { name: /Add the complete kit/ }).first().click();
   await page.goto("/request-a-quote/");
   await expect(page.getByText("Kit for Multiplexes & Cinemas.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "3-Ply Corrugated Boxes" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Popcorn Cones" })).toBeVisible();
+  await expect(page.locator("#main").getByRole("link", { name: "3-Ply Corrugated Boxes" })).toBeVisible();
+  await expect(page.locator("#main").getByRole("link", { name: "Popcorn Cones" })).toBeVisible();
 });
 
 test("enquiry API rejects invalid submissions", async ({ request }) => {
@@ -103,7 +103,7 @@ test("WhatsApp link carries product context", async ({ page, isMobile }) => {
 test("mega menu opens and links to a category", async ({ page, isMobile }) => {
   test.skip(isMobile, "desktop navigation");
   await page.goto("/");
-  await page.getByRole("button", { name: "Products" }).click();
+  await page.getByRole("button", { name: "Products", exact: true }).click();
   await page.locator("#panel-products").getByRole("link", { name: "Corrugated & Fluted Products" }).click();
   await expect(page).toHaveURL(/corrugated-fluted-products\/$/);
 });
