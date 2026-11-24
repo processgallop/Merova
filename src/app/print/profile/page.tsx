@@ -30,8 +30,8 @@ export default function ProfilePrint() {
             <p>{site.name} brings corrugated, paperboard, foodservice, flexible and custom packaging together under one accountable partner — {verticals.length} material verticals and {products.length} product formats serving {industries.length} industries.</p>
             <p>Recommendations start from your product and its route, not from a single process. Where nothing standard fits, packaging is developed from your drawings, photographs or samples. <b style={{ color: "var(--ink)" }}>Prove it on a sample, write it on the specification, then run it.</b></p>
           </div>
-          <PImg image={{ src: "/assets/products/renders/qsr-range.webp", alt: "", kind: "render" }} style={{ height: "74mm", marginTop: "9mm" }} />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "5mm", marginTop: "auto", marginBottom: "10mm" }}>
+          <PImg image={{ src: "/assets/products/renders/qsr-range.webp", alt: "", kind: "render" }} style={{ flex: "1 1 0", minHeight: "74mm", marginTop: "9mm" }} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "5mm", marginTop: "8mm", marginBottom: "10mm" }}>
             {[
               ["Mission", "To supply every packaging format a customer needs through one accountable partner — on one agreed specification, to a date we have committed to."],
               ["Vision", "Packaging that is specified rather than guessed, so every pack is only as heavy, as printed and as costly as the job requires."],
@@ -75,13 +75,13 @@ export default function ProfilePrint() {
         <div className="pp-body" style={{ paddingTop: "16mm" }}>
           <PageHead label="Industries served" />
           <h2 style={{ fontSize: "22pt", marginTop: "12mm" }}>Packaging that understands your industry.</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5mm", marginTop: "8mm" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6mm", marginTop: "10mm" }}>
             {industries.map((i) => (
-              <div key={i.id} style={{ display: "grid", gridTemplateColumns: "30mm 1fr", gap: "4mm", alignItems: "center", background: "var(--paper2)" }}>
-                <PImg image={{ src: i.image, alt: "", kind: "render" }} caption={false} style={{ height: "30mm" }} />
+              <div key={i.id} style={{ display: "grid", gridTemplateColumns: "40mm 1fr", gap: "5mm", alignItems: "center", background: "var(--paper2)" }}>
+                <PImg image={{ src: i.image, alt: "", kind: "render" }} caption={false} style={{ height: "38mm" }} />
                 <div style={{ paddingRight: "3mm" }}>
-                  <div style={{ fontFamily: "var(--font-sora)", fontWeight: 600, fontSize: "9.6pt" }}>{i.name}</div>
-                  <div className="pp-muted" style={{ fontSize: "7.2pt", marginTop: "1mm", lineHeight: 1.4 }}>{i.headline}</div>
+                  <div style={{ fontFamily: "var(--font-sora)", fontWeight: 600, fontSize: "10.4pt" }}>{i.name}</div>
+                  <div className="pp-muted" style={{ fontSize: "7.8pt", marginTop: "1mm", lineHeight: 1.4 }}>{i.headline}</div>
                 </div>
               </div>
             ))}
@@ -101,10 +101,10 @@ export default function ProfilePrint() {
           <h2 style={{ fontSize: "24pt", lineHeight: 1.08, marginTop: "14mm", maxWidth: "160mm" }}>From your first brief to final delivery. Every stage has a purpose.</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "4mm", marginTop: "10mm" }}>
             {PROCESS_STEPS.map((s, i) => (
-              <div key={s.name} style={{ background: "rgba(150,29,21,.45)", padding: "5mm", minHeight: "52mm" }}>
+              <div key={s.name} style={{ background: "rgba(150,29,21,.45)", padding: "6mm", minHeight: "68mm" }}>
                 <div style={{ fontFamily: "var(--font-sora)", fontSize: "18pt", fontWeight: 600 }}>{String(i + 1).padStart(2, "0")}</div>
                 <div style={{ fontFamily: "var(--font-sora)", fontWeight: 600, fontSize: "10pt", marginTop: "2mm" }}>{s.name}</div>
-                <p style={{ fontSize: "7.6pt", marginTop: "1.5mm", lineHeight: 1.45 }}>{s.detail}</p>
+                <p style={{ fontSize: "8.2pt", marginTop: "2mm", lineHeight: 1.5 }}>{s.detail}</p>
               </div>
             ))}
           </div>
@@ -121,7 +121,7 @@ export default function ProfilePrint() {
             <div>
               <div className="pp-h">Production journey</div>
               {MANUFACTURING_PROCESSES.map((p, i) => (
-                <div key={p.name} style={{ display: "grid", gridTemplateColumns: "7mm 1fr", marginTop: i ? "2.6mm" : 0 }}>
+                <div key={p.name} style={{ display: "grid", gridTemplateColumns: "7mm 1fr", marginTop: i ? "4.2mm" : 0 }}>
                   <span style={{ fontFamily: "var(--font-sora)", fontWeight: 600, color: "var(--red)" }}>{String(i + 1).padStart(2, "0")}</span>
                   <div><b>{p.name}</b><div className="pp-muted" style={{ fontSize: "7.6pt", lineHeight: 1.4 }}>{p.text}</div></div>
                 </div>
@@ -130,7 +130,7 @@ export default function ProfilePrint() {
             <div>
               <div className="pp-h">Quality assurance</div>
               {QUALITY_STAGES.map((q, i) => (
-                <div key={q.name} style={{ marginTop: i ? "2.6mm" : 0 }}>
+                <div key={q.name} style={{ marginTop: i ? "4.2mm" : 0 }}>
                   <b>{q.name}</b>
                   <div className="pp-muted" style={{ fontSize: "7.6pt", lineHeight: 1.4 }}>{q.text}</div>
                 </div>
@@ -149,7 +149,7 @@ export default function ProfilePrint() {
         <div className="pp-body" style={{ paddingTop: "16mm" }}>
           <PageHead label="Partnership" />
           <h2 style={{ fontSize: "20pt", lineHeight: 1.1, marginTop: "12mm" }}>A responsive partner — before, during and after production.</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4mm", marginTop: "7mm" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6mm 8mm", marginTop: "9mm" }}>
             {CLIENT_SERVICE.map((c) => (
               <div key={c.name} style={{ borderLeft: ".8mm solid var(--red)", paddingLeft: "3.5mm" }}>
                 <b>{c.name}</b>
@@ -157,12 +157,12 @@ export default function ProfilePrint() {
               </div>
             ))}
           </div>
-          <div className="pp-red" style={{ marginTop: "9mm", padding: "7mm" }}>
+          <div className="pp-red" style={{ marginTop: "12mm", padding: "9mm 8mm" }}>
             <div className="pp-label">Sustainability</div>
             <h3 style={{ fontSize: "14pt", marginTop: "2.5mm" }}>Better packaging decisions begin with better material choices.</h3>
             <div style={{ columns: 2, columnGap: "7mm", marginTop: "4mm", fontSize: "7.8pt" }}>
               {SUSTAINABILITY_TOPICS.slice(0, 8).map((t) => (
-                <p key={t.name} style={{ breakInside: "avoid", marginBottom: "2mm" }}><b>{t.name}.</b> {t.text}</p>
+                <p key={t.name} style={{ breakInside: "avoid", marginBottom: "3.2mm" }}><b>{t.name}.</b> {t.text}</p>
               ))}
             </div>
           </div>
