@@ -1,28 +1,19 @@
 @page { size: A4; margin: 0; }
-.print-root { background: #8a8f99; padding: 24px 0; }
-@media print { .print-root { background: none; padding: 0; } }
-.pp {
-  width: 210mm; height: 297mm; margin: 0 auto 24px; background: #fff; position: relative; overflow: hidden;
-  display: flex; flex-direction: column; box-sizing: border-box; page-break-after: always; break-after: page;
-  font-family: var(--font-manrope), sans-serif; color: #161a22; font-size: 9.6pt; line-height: 1.5;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-@media print { .pp { margin: 0; } }
-.pp:last-child { page-break-after: auto; break-after: auto; }
-.pp h1, .pp h2, .pp h3 { font-family: var(--font-sora), sans-serif; color: #08162a; letter-spacing: -0.02em; margin: 0; }
-.pp-body { flex: 1; padding: 13mm 15mm 0; display: flex; flex-direction: column; min-height: 0; }
-.pp-eyebrow { font-family: var(--font-plex-mono), monospace; font-size: 7.2pt; letter-spacing: .14em; text-transform: uppercase; color: #b4231a; font-weight: 500; }
-.pp-muted { color: #5b6270; }
-.pp-list { margin: 4pt 0 0; padding: 0; list-style: none; }
-.pp-list li { position: relative; padding-left: 9pt; margin-top: 2.2pt; }
-.pp-list li::before { content: ""; position: absolute; left: 0; top: 6pt; width: 3.2pt; height: 3.2pt; border-radius: 50%; background: #d52b1e; }
-.pp-h { font-family: var(--font-plex-mono), monospace; font-size: 7pt; letter-spacing: .14em; text-transform: uppercase; color: #5b6270; font-weight: 500; margin: 0; }
-.pp table { width: 100%; border-collapse: collapse; font-size: 8.6pt; }
-.pp th, .pp td { text-align: left; padding: 4.2pt 6pt; border-bottom: .6pt solid #e2d9cb; vertical-align: top; }
-.pp thead th { font-family: var(--font-plex-mono), monospace; font-size: 6.6pt; letter-spacing: .1em; text-transform: uppercase; color: #5b6270; background: #f5efe5; font-weight: 500; }
-.pp tbody th { font-weight: 700; width: 34%; }
-.pp-tag { display: inline-block; font-family: var(--font-plex-mono), monospace; font-size: 6.2pt; letter-spacing: .06em; text-transform: uppercase; padding: 1pt 4pt; border-radius: 2pt; border: .6pt solid #e2d9cb; background: #f5efe5; color: #3a404c; white-space: nowrap; }
-.pp-tag-c { background: #fff8e8; border-color: #efd9a6; color: #8a5a00; }
-.pp-foot { padding: 5mm 15mm; display: flex; justify-content: space-between; align-items: center; font-size: 7pt; color: #5b6270; border-top: .6pt solid #e2d9cb; }
-.pp-band { background: #0d1f38; color: #fff; padding: 9mm 15mm; display: flex; align-items: center; justify-content: space-between; }
-.pp-grid { background-image: linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 36px 36px; }
+.print-root { background: #8a8380; display: grid; gap: 24px; justify-content: center; padding: 24px 0; }
+@media print { .print-root { background: none; padding: 0; gap: 0; display: block; } }
+.page { width: 210mm; height: 297mm; overflow: hidden; position: relative; background: #fffaf3; color: #1e1b1b; break-after: page; page-break-after: always; display: flex; flex-direction: column; font-family: var(--font-inter), Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page.landscape { width: 297mm; height: 210mm; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+.pd { font-family: var(--font-sora), Arial, sans-serif; letter-spacing: -0.03em; }
+.p-eyebrow { font: 700 7.5pt/1.2 var(--font-inter), Arial, sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.p-body { font-size: 9pt; line-height: 1.5; color: #454040; }
+.p-small { font-size: 7.5pt; line-height: 1.45; color: #6f6866; }
+.p-table { width: 100%; border-collapse: collapse; font-size: 8pt; }
+.p-table th { text-align: left; font-weight: 500; color: #6f6866; padding: 4.5pt 8pt 4.5pt 0; width: 38%; vertical-align: top; }
+.p-table td { padding: 4.5pt 0; vertical-align: top; color: #1e1b1b; }
+.p-table tr + tr { border-top: 0.6pt solid #e6ddd1; }
+.p-chip { display: inline-block; border: 0.6pt solid #d6cabb; border-radius: 99pt; padding: 2pt 7pt; font-size: 7.5pt; margin: 0 3pt 3pt 0; color: #454040; background: #fff; }
+.p-list { margin: 0; padding: 0; list-style: none; }
+.p-list li { position: relative; padding-left: 10pt; font-size: 8.5pt; line-height: 1.45; margin-bottom: 3pt; color: #454040; }
+.p-list li::before { content: ""; position: absolute; left: 0; top: 5pt; width: 4pt; height: 4pt; border-radius: 99pt; background: #d52b1e; }
+.p-folio { position: absolute; bottom: 9mm; font-size: 7pt; color: #6f6866; }

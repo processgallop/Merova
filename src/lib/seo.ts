@@ -24,7 +24,7 @@ export function pageMetadata({
     title: { absolute: title },
     description,
     alternates: { canonical: url },
-    robots: noindex ? { index: false, follow: true } : undefined,
+    robots: noindex || !site.indexable ? { index: false, follow: true } : undefined,
     openGraph: {
       type,
       url,
@@ -50,9 +50,7 @@ export function organizationJsonLd() {
     logo: absoluteUrl("/assets/brand/merova-logo-512.png"),
     slogan: site.tagline,
     description: site.description,
-    ...(c.email ? { email: c.email } : {}),
-    ...(c.phone ? { telephone: c.phone } : {}),
-    ...(c.officeAddress ? { address: { "@type": "PostalAddress", streetAddress: c.officeAddress } } : {}),
+    ...(site.sample ? {} : { email: c.email, telephone: c.phone, address: { "@type": "PostalAddress", streetAddress: c.officeAddress, addressCountry: "IN" } }),
     sameAs: [site.social.linkedin, site.social.instagram].filter(Boolean),
   };
 }

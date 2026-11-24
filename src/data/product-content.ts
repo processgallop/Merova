@@ -1,0 +1,203 @@
+/**
+ * Product page content. Specification values are INDICATIVE sample ranges, typical of the trade, used until
+ * Merova confirms its own (verification item V-07). They are labelled "Indicative" on every page and flyer.
+ */
+import type { Faq, SpecRow } from "./catalog";
+
+const I = (label: string, value: string): SpecRow => ({ label, value, kind: "indicative" });
+const O = (label: string, value: string): SpecRow => ({ label, value, kind: "option" });
+
+export const SUB_CONTENT: Record<string, { overview: string; materials: string[]; quality: string[]; faqs?: Faq[] }> = {
+  "PA-A": {
+    overview: "Every carton starts from the product it holds: its weight, the packing line, the shelf and the brand. We specify the board, carton style and finish together, supply a dieline, and confirm fit and print on a sample before the run.",
+    materials: ["Folding boxboard (FBB)", "Solid bleached sulphate (SBS)", "Duplex board (grey or white back)", "Kraft-back board"],
+    quality: ["Dimensions checked against the approved sample", "Colour and registration checked against the signed proof", "Crease and glue integrity checked in-process", "Count and packing condition checked before release"],
+    faqs: [{ q: "Do you supply the dieline?", a: "Yes. Share the product dimensions or a sample and we will propose a style and send a dieline for your artwork." }, { q: "Can I see a sample before the full run?", a: "Yes. A plain or printed sample is produced for fit and approval before production starts." }],
+  },
+  "PA-B": {
+    overview: "Rigid boxes are built, not folded: greyboard is cut, wrapped in printed or specialty paper and assembled, so the box keeps its shape and its premium feel. We specify the board, wrap, closure and insert together, and approve them on a prototype.",
+    materials: ["Greyboard 1.5–2.5 mm", "Art paper, specialty and textured wraps", "Inserts in board, EVA foam or fabric"],
+    quality: ["Wrap alignment and corner finish inspected per box", "Lid fit checked against the prototype", "Foil and emboss registration checked", "Packed with protective sleeves for transit"],
+    faqs: [{ q: "How long do rigid boxes take?", a: "Rigid boxes are hand-finished, so they take longer than cartons. Indicatively 3–4 weeks after artwork approval; confirmed at quotation." }],
+  },
+  "PA-C": {
+    overview: "Foodservice packaging has to hold heat, grease and moisture, survive the counter and the delivery rider, and still carry the brand. We match board, coating and format to the food and the service, and supply food-contact documentation per material.",
+    materials: ["Food-grade paperboard and cupstock", "PE or aqueous barrier coatings", "Kraft and white board options"],
+    quality: ["Food-contact documentation per material", "Seal, seam and leak checks on cups and containers", "Print checked for set-off and odour", "Hygienic packing in sleeves or cartons"],
+    faqs: [{ q: "Is the packaging food safe?", a: "Materials are specified as food-contact grade for the application, with supplier documentation shared at quotation." }, { q: "Can you print our brand?", a: "Yes. Formats can be printed in brand colours; minimum quantities depend on the format and print method." }],
+  },
+  "PA-D": {
+    overview: "A carry bag is a moving advertisement. We specify paper weight, gusset and handle to the load it must carry, and print the brand so it holds up from the counter to the customer's door.",
+    materials: ["Brown and white kraft paper", "Art paper and board for premium bags", "Twisted paper, flat paper, rope and ribbon handles"],
+    quality: ["Load test on handles and base", "Glue and fold inspection", "Print colour checked against proof"],
+    faqs: [{ q: "How much weight can a paper bag carry?", a: "It depends on paper weight, size and handle. Tell us the heaviest load and we will specify the bag to suit." }],
+  },
+  "PA-E": {
+    overview: "Labels carry the information buyers and regulators read first. We match facestock, adhesive and finish to the surface, the temperature and the application method, and supply rolls wound for your applicator or printer.",
+    materials: ["Paper facestocks (uncoated, semi-gloss, kraft)", "Synthetic facestocks (BOPP, PE) on enquiry", "Permanent, removable and freezer-grade adhesives"],
+    quality: ["Die-cut and matrix-strip inspection", "Colour and legibility checked against proof", "Core size and winding direction checked"],
+    faqs: [{ q: "Which way should labels be wound?", a: "Tell us your applicator or printer model, or the winding direction (e.g. outside wound, label leading edge first) and we will supply to match." }],
+  },
+  "PA-F": {
+    overview: "Food wraps and specialty papers are the quiet workhorses of a kitchen or sweet counter. We supply them in the grade, weight and format your team actually uses, plain or printed.",
+    materials: ["Butter paper (MG / translucent grades)", "Greaseproof paper", "Kraft and specialty papers"],
+    quality: ["GSM and grease-resistance checked per batch", "Sheet size and cut quality inspected", "Food-contact documentation per grade"],
+  },
+  "PA-G": {
+    overview: "Printed literature should look as considered as the products it sells. We advise on paper, size, binding and finish, proof every job, and deliver ready for your sales team or your packing line.",
+    materials: ["Art paper (matte, gloss)", "Uncoated and bond papers", "Board covers for catalogues"],
+    quality: ["Colour proof approval before print", "Imposition and page order check", "Binding and trim inspection"],
+    faqs: [{ q: "Do you design brochures?", a: "We work from your print-ready artwork and can advise on layout, paper and finish. Design support can be discussed with the team." }],
+  },
+  "PL-A": {
+    overview: "BOPP film is chosen for clarity, stiffness and machinability. We specify grade, thickness, width and core to your machine and seal window, and supply rolls wound to run without interruption.",
+    materials: ["Biaxially oriented polypropylene (BOPP)", "Heat-sealable coated grades", "Plain, matte and metallised finishes on enquiry"],
+    quality: ["Thickness and width checked per roll", "Winding tension and edge alignment inspected", "Seal strength checked against the specified window"],
+    faqs: [{ q: "Which core size do you supply?", a: "76 mm (3-inch) cores are standard; other cores on request. Tell us your machine and we will match it." }],
+  },
+  "PL-B": {
+    overview: "Shrink film should leave a tight, clear pack with no dog-ears and no burn-through. We specify film type, thickness and format to your sealer and tunnel, and to how the pack is handled after.",
+    materials: ["Polyolefin (POF)", "PVC (where available)", "Polyethylene (PE) for collation"],
+    quality: ["Thickness and width checked per roll", "Shrink ratio verified per batch", "Seal quality checked on the specified machine type"],
+  },
+  "PL-C": {
+    overview: "Wrapping films protect food in the kitchen, loads on the pallet and fragile goods in the carton. We match film type and gauge to the job, so you use less film and lose less product.",
+    materials: ["PVC cling film", "LLDPE stretch film", "LDPE air bubble film"],
+    quality: ["Gauge and width checked per roll", "Cling and stretch performance checked per batch", "Rolls wrapped and palletised for clean handling"],
+  },
+  "PL-D": {
+    overview: "Flexible packaging puts barrier, print and convenience in a few microns. We specify structure, dimensions and closure to the product and the filling method, then confirm on samples.",
+    materials: ["LDPE and LLDPE", "PET/PE, BOPP/CPP and metallised laminates", "Co-extruded films for courier bags"],
+    quality: ["Seal strength and leak checks", "Print and lamination bond inspection", "Dimension and zip function checks"],
+    faqs: [{ q: "What is the minimum order for printed pouches?", a: "It depends on the print method and the number of designs. Indicative minimums are shown on each product; exact quantities are confirmed at quotation." }],
+  },
+  "PL-E": {
+    overview: "Rigid plastic containers keep food secure from the pass to the customer. We match capacity, lid and temperature performance to the menu and the delivery time.",
+    materials: ["Polypropylene (PP)", "PET (for clarity)"],
+    quality: ["Lid fit and leak checks", "Temperature suitability per grade", "Food-contact documentation per material"],
+  },
+  "PL-F": {
+    overview: "Clear and translucent cups for cold beverages, sized to your menu and lids.",
+    materials: ["PET", "PP"],
+    quality: ["Rim and lid fit checks", "Food-contact documentation per material"],
+  },
+  "CO-A": {
+    overview: "Compostable bags are sold on one claim, so the claim has to be exact. Each grade we supply is published with its certification (industrial or home compostable) and, for India, its CPCB certificate number.",
+    materials: ["Certified compostable polymer blends (e.g. PBAT/PLA/starch-based)"],
+    quality: ["Certificate matched to the exact grade supplied", "Thickness and dimensions checked per batch", "Mandatory marking and labelling printed per regulation"],
+    faqs: [{ q: "Is compostable the same as biodegradable?", a: "No. Compostable means the material breaks down under defined composting conditions within a defined time, verified to a standard. 'Biodegradable' on its own sets no conditions or timeframe." }, { q: "Will it compost in a home bin?", a: "Only home-compostable certified grades are designed for that. Industrially compostable grades need a commercial composting facility. Each product states which applies." }],
+  },
+  "CO-B": {
+    overview: "Compostable flexible packaging replaces conventional films where the product, shelf life and end-of-life route allow it. We confirm barrier and machinability on samples before you commit.",
+    materials: ["Certified compostable films and laminates", "Kraft-paper compostable laminates (on enquiry)"],
+    quality: ["Certificate matched to structure", "Seal and barrier checks on samples", "Shelf-life suitability agreed per product"],
+    faqs: [{ q: "Is compostable packaging suitable for long shelf life?", a: "Barrier is usually lower than conventional laminates. We test with your product before recommending it." }],
+  },
+  "CO-C": {
+    overview: "Compostable shrink and cling films for applications where a certified alternative is required. Performance differs from conventional film, so we trial on your equipment first.",
+    materials: ["Certified compostable film grades"],
+    quality: ["Certificate matched to grade", "Machine trial before supply", "Thickness checked per roll"],
+  },
+  "CO-D": {
+    overview: "Compostable foodservice formats for operators moving away from conventional plastic. We specify the material to the food's heat and oil content, and supply only certified grades.",
+    materials: ["Moulded fibre (e.g. bagasse)", "Compostable-lined paperboard", "Certified compostable bioplastics (e.g. CPLA)"],
+    quality: ["Heat and oil resistance checked against the menu", "Certificate per item", "Hygienic sleeve packing"],
+    faqs: [{ q: "Can compostable containers hold hot, oily food?", a: "Moulded-fibre containers handle most hot food; very oily dishes may need a barrier grade. Share your menu and we will recommend." }],
+  },
+  "CR-A": {
+    overview: "A corrugated box is specified to its load, its stack and its route. We confirm the ply, flute and paper grades against what goes inside and how far it travels, then sample before production.",
+    materials: ["Kraft liners and fluting medium", "B, C, E and combination flutes", "White-top liners for print"],
+    quality: ["Bursting strength and ECT checked per batch (values agreed per order)", "Dimensions and scoring checked", "Print and stitching or glue inspection"],
+    faqs: [{ q: "How do I choose between 3, 5 and 7-ply?", a: "It depends on weight, stacking height and transit. As a guide, 3-ply suits light goods, 5-ply heavier or stacked loads, and 7-ply heavy industrial loads. We confirm by the load." }, { q: "What is BF?", a: "Bursting Factor (BF) indicates the strength of the kraft paper used. Higher BF papers make stronger boxes; we specify BF together with GSM for each layer." }],
+  },
+  "CR-B": {
+    overview: "Corrugated sheets and rolls protect, separate and wrap. We cut to size and supply in the flute and grade that suit your packing or conversion.",
+    materials: ["Single-wall and double-wall board", "Single-face (2-ply) rolls"],
+    quality: ["Sheet size and squareness checked", "Board grade checked per batch"],
+  },
+  "CR-C": {
+    overview: "Inserts, partitions and trays stop products moving. We design them around the product's geometry, so fewer items break and packing is faster.",
+    materials: ["Corrugated board in single and double wall", "Kraft and white liners"],
+    quality: ["Fit checked against the product and outer carton", "Die-cut and slotting accuracy inspected"],
+  },
+  "CR-D": {
+    overview: "Retail-ready packaging moves from the truck to the shelf in one step. We engineer the opening feature and graphics together so stores can replenish fast and products are seen.",
+    materials: ["Corrugated board with printable white-top liners", "Micro-flute for high-graphics displays"],
+    quality: ["Opening feature tested for clean tear", "Load and stacking checked", "Print checked against proof"],
+  },
+};
+
+type PC = { headline?: string; overview?: string; specs?: SpecRow[]; faqs?: Faq[]; materials?: string[]; quality?: string[]; keywords?: string[] };
+const MOQ = (v: string) => I("Indicative minimum order", v);
+const LEAD = (v: string) => I("Indicative lead time", v);
+
+export const PRODUCT_CONTENT: Record<string, PC> = {
+  "PA-01": { headline: "Cartons that protect the product and sell it on the shelf.", specs: [I("Board", "FBB / SBS / duplex, 250–450 GSM"), O("Styles", "Straight & reverse tuck end, crash-lock, sleeve & tray"), I("Print", "Offset CMYK + up to 2 spot colours"), O("Finishes", "Aqueous / UV varnish, matte or gloss lamination, foil, emboss"), MOQ("5,000 cartons per design"), LEAD("12–18 working days after proof approval")], faqs: [{ q: "What is the difference between tuck-end and crash-lock?", a: "Tuck-end cartons close with a tucked flap at each end. Crash-lock cartons have a pre-glued base that locks when the carton is opened, which is faster to pack and stronger for heavier products." }], keywords: ["printed boxes", "retail boxes", "product boxes", "carton box"] },
+  "PA-02": { headline: "Single-unit cartons with consistent dimensions for fast packing lines.", specs: [I("Board", "SBS / FBB, 250–350 GSM"), O("Styles", "Tuck end, crash-lock, with partition"), O("Coding panel", "Unvarnished area for batch, expiry and MRP"), O("Braille", "On enquiry"), MOQ("10,000 cartons per SKU"), LEAD("12–15 working days")], faqs: [{ q: "Can mono cartons run on automatic cartoners?", a: "Yes, if dimensions, board and glue are specified for the machine. Share your cartoner make and format." }], keywords: ["pharma carton", "pharmaceutical carton", "medicine box", "single unit carton"] },
+  "PA-03": { headline: "Mithai boxes that look like a gift and keep sweets fresh.", specs: [I("Board", "Duplex / FBB, 300–400 GSM, food-contact inner"), O("Sizes", "250 g, 500 g, 1 kg and custom"), O("Options", "Window, inner tray, butter-paper liner, partition"), O("Finishes", "Gold foil, metallic inks, emboss, lamination"), MOQ("2,000 boxes per design"), LEAD("10–15 working days; book early for festive season")], faqs: [{ q: "Can you deliver before Diwali?", a: "Yes, with early booking. Festive demand peaks 6–8 weeks before the festival, so place orders and approve artwork early." }, { q: "Are sweet box wrapping films allowed?", a: "Plastic wrapping or packing films around sweet boxes are prohibited in India. We seal boxes with paper stickers or tape instead." }], keywords: ["mithai box", "sweet box", "sweet packaging", "diwali box"] },
+  "PA-04": { headline: "Cake and pastry boxes that arrive as good as they left the counter.", specs: [I("Board", "White FBB / SBS, 300–350 GSM"), O("Sizes", "½ kg, 1 kg, 2 kg cakes; 1–12 cavity pastry boxes"), O("Options", "PET or compostable window, inserts, grease-resistant coating"), MOQ("2,000 boxes per size"), LEAD("10–15 working days")], keywords: ["cake box", "pastry box", "cupcake box", "bakery box"] },
+  "PA-05": { headline: "Presentation boxes that make the unboxing part of the product.", specs: [I("Greyboard", "1.5–2.5 mm"), I("Wrap", "120–157 GSM art paper or specialty paper"), O("Constructions", "Lid & base, shoulder, hinged, magnetic, drawer, collapsible"), O("Embellishments", "Foil, emboss, deboss, spot UV, soft-touch lamination"), MOQ("500 boxes"), LEAD("18–25 working days")], keywords: ["luxury box", "magnetic box", "premium box", "presentation box"] },
+  "PA-06": { headline: "Gift boxes and hampers for the season, the client and the celebration.", specs: [O("Construction", "Folding board, rigid, tray & sleeve"), O("Inserts", "Partitioned for mixed contents"), I("Board", "Duplex 350–450 GSM or 2 mm rigid"), MOQ("500 hampers"), LEAD("15–25 working days")], keywords: ["hamper box", "diwali gift box", "corporate gift box"] },
+  "PA-07": { headline: "Branded cups for every hot and cold serve.", specs: [I("Capacities", "65 ml – 500 ml (2.5–16 oz)"), I("Cupstock", "180–300 GSM, PE-lined (aqueous-lined on enquiry)"), O("Walls", "Single wall, double wall, ripple"), I("Print", "Flexo up to 6 colours"), MOQ("25,000 cups per size and design"), LEAD("15–20 working days")], faqs: [{ q: "Do you supply matching lids?", a: "Compatible lids can be sourced to match rim size; confirm requirements at quotation." }], keywords: ["paper glass", "coffee cup", "tea cup", "disposable cup"] },
+  "PA-08": { headline: "Cups and tubs that keep scoops cold and brands visible.", specs: [I("Capacities", "60 ml – 1 L"), I("Stock", "210–300 GSM, PE-coated both sides"), O("Lids", "Paper or plastic (on enquiry)"), MOQ("25,000 cups"), LEAD("15–20 working days")], keywords: ["ice cream cup", "ice cream tub", "dessert cup"] },
+  "PA-09": { headline: "The tub that defines the cinema experience.", specs: [I("Capacities", "32 oz – 170 oz (≈1–5 L)"), I("Board", "300–400 GSM, grease-resistant"), O("Shapes", "Round and octagonal; lids on enquiry"), I("Print", "Up to 6 colours, full wrap"), MOQ("10,000 tubs per size"), LEAD("15–20 working days")], faqs: [{ q: "Can you print a film promotion on tubs?", a: "Yes. Short promotional runs are possible; minimums depend on print method." }], keywords: ["popcorn bucket", "popcorn box", "cinema popcorn"] },
+  "PA-10": { headline: "Quick-serve cones for popcorn, fries and snacks.", specs: [I("Sizes", "6\" – 9\" height"), I("Board", "220–280 GSM, grease-resistant"), MOQ("20,000 cones"), LEAD("12–15 working days")], keywords: ["paper cone", "snack cone"] },
+  "PA-11": { headline: "Nachos trays with a dip well built in.", specs: [I("Size", "≈180 × 120 mm (other sizes on request)"), I("Board", "300–350 GSM, PE-coated"), O("Dip well", "Integrated; sized to standard dip cups"), MOQ("20,000 trays"), LEAD("12–15 working days")], keywords: ["nachos tray", "chips tray"] },
+  "PA-12": { headline: "Fries cartons that stand up and serve clean.", specs: [O("Sizes", "Small, medium, large"), I("Board", "240–300 GSM, grease-resistant"), MOQ("25,000 cartons"), LEAD("12–15 working days")], keywords: ["fries box", "french fries box", "fry scoop"] },
+  "PA-13": { headline: "Clamshells that keep burgers hot and intact.", specs: [I("Sizes", "100–130 mm"), I("Board", "Kraft or white, 300–350 GSM, grease-resistant"), O("Vents", "Optional for steam release"), MOQ("20,000 boxes"), LEAD("12–15 working days")], keywords: ["burger box", "clamshell box"] },
+  "PA-14": { headline: "Wedge boxes that show the sandwich and protect it.", specs: [I("Board", "300 GSM kraft or white"), O("Window", "PET or compostable film"), MOQ("20,000 boxes"), LEAD("12–15 working days")], keywords: ["sandwich box", "wedge box", "wrap box"] },
+  "PA-15": { headline: "Serving trays for snacks, street food and combos.", specs: [I("Board", "300–350 GSM kraft or white, PE-coated"), O("Shapes", "Boat, rectangular, compartment"), MOQ("25,000 trays"), LEAD("12–15 working days")], keywords: ["paper tray", "boat tray", "food tray"] },
+  "PA-16": { headline: "Round bowls and containers for hot meals and soups.", specs: [I("Capacities", "500 ml – 1,300 ml"), I("Stock", "PE-lined, 280–340 GSM"), O("Lids", "Paper or PP lids"), MOQ("20,000 pieces"), LEAD("15–20 working days")], keywords: ["paper bowl", "soup container", "salad bowl", "paper container"] },
+  "PA-17": { headline: "Folded meal boxes built for delivery.", specs: [I("Sizes", "16 oz, 26 oz, 32 oz noodle boxes; meal boxes to size"), I("Board", "300–350 GSM, PE-coated"), MOQ("20,000 boxes"), LEAD("12–15 working days")], keywords: ["takeaway box", "noodle box", "meal box", "lunch box"] },
+  "PA-18": { headline: "Sleeves that protect hands and promote brands.", specs: [I("Fit", "8 oz – 16 oz cups"), O("Material", "300 GSM board or E-flute"), MOQ("20,000 sleeves"), LEAD("10–12 working days")], keywords: ["cup sleeve", "cup jacket"] },
+  "PA-19": { headline: "Pizza boxes that hold heat, shape and brand.", specs: [I("Sizes", "7\" – 16\""), O("Board", "350–400 GSM paperboard or E-flute micro-flute"), O("Print", "1–3 colour flexo"), MOQ("5,000 boxes per size"), LEAD("10–15 working days")], keywords: ["pizza box"] },
+  "PA-20": { headline: "Carry bags that carry the load and the brand.", specs: [I("Paper", "80–140 GSM kraft (brown or white)"), O("Handles", "Twisted paper, flat paper"), I("Load", "3–8 kg depending on size"), I("Print", "Flexo 1–4 colours"), MOQ("5,000 bags"), LEAD("10–15 working days")], keywords: ["paper bag", "kraft bag", "shopping bag"] },
+  "PA-21": { headline: "Bakery and takeaway bags that keep grease in and branding out front.", specs: [I("Paper", "40–80 GSM MG / kraft, grease-resistant options"), O("Styles", "SOS, flat, satchel, with handles"), MOQ("10,000 bags"), LEAD("10–12 working days")], keywords: ["bread bag", "takeaway bag", "sos bag"] },
+  "PA-22": { headline: "Luxury paper bags finished like the product inside.", specs: [I("Paper", "170–250 GSM art or specialty paper"), O("Finish", "Matte / gloss / soft-touch lamination"), O("Handles", "Rope, ribbon, cotton tape"), MOQ("1,000 bags"), LEAD("15–20 working days")], keywords: ["luxury bag", "rope handle bag", "boutique bag"] },
+  "PA-23": { headline: "Labels that stick, survive and sell.", specs: [O("Facestocks", "Paper, kraft, BOPP, PE"), O("Adhesives", "Permanent, removable, freezer"), I("Cores", "25 / 40 / 76 mm"), I("Print", "Flexo / digital, up to 8 colours"), MOQ("5,000 labels per design"), LEAD("7–10 working days")], keywords: ["sticker label", "product sticker", "jar label", "bottle label"] },
+  "PA-24": { headline: "Barcode and shipping labels that scan first time.", specs: [O("Types", "Direct thermal, thermal transfer, pre-printed"), I("Sizes", "50 × 25 mm – 100 × 150 mm"), I("Cores", "25 / 40 / 76 mm"), MOQ("10 rolls"), LEAD("5–7 working days")], keywords: ["thermal label", "shipping label", "barcode sticker"] },
+  "PA-25": { headline: "Stickers and seals that finish the pack.", specs: [I("Sizes", "20–100 mm"), O("Materials", "Paper, kraft, BOPP"), O("Shapes", "Round, square, custom die-cut"), MOQ("2,000 stickers"), LEAD("5–7 working days")], keywords: ["seal sticker", "logo sticker"] },
+  "PA-26": { headline: "Butter and greaseproof papers for every counter.", specs: [I("GSM", "30–45 GSM"), O("Formats", "Sheets (e.g. 10\" × 10\", 12\" × 12\"), rolls"), O("Print", "Plain or 1–2 colour printed"), MOQ("50 kg"), LEAD("7–10 working days")], keywords: ["butter paper", "greaseproof paper", "baking paper", "wax paper"] },
+  "PA-27": { headline: "Branded wraps for burgers, rolls and sandwiches.", specs: [I("Base", "30–40 GSM greaseproof or MG paper"), I("Sheet size", "300 × 300 mm and custom"), I("Print", "1–3 colours, food-safe inks"), MOQ("100 kg"), LEAD("10–12 working days")], keywords: ["burger wrap", "food wrapping paper", "printed wrap"] },
+  "PA-28": { headline: "Kraft wrap for retail, void fill and protection.", specs: [I("GSM", "60–150 GSM"), I("Reel width", "600–1,500 mm"), O("Formats", "Reels, sheets, printed"), MOQ("500 kg"), LEAD("7–10 working days")], keywords: ["kraft paper roll", "brown paper", "wrapping paper"] },
+  "PA-29": { headline: "Brochures and catalogues that look as good as the product.", specs: [O("Sizes", "A4, A5, square and custom"), I("Paper", "130–300 GSM art; 300–350 GSM covers"), O("Binding", "Saddle-stitched, perfect-bound, wiro"), O("Finishes", "Lamination, spot UV, foil"), MOQ("500 copies"), LEAD("7–12 working days")], keywords: ["brochure printing", "catalogue printing", "company profile printing"] },
+  "PA-30": { headline: "Flyers, leaflets and inserts printed to brief.", specs: [I("Paper", "70–170 GSM"), O("Folds", "Half, tri-fold, Z-fold, map folds for inserts"), MOQ("1,000 copies"), LEAD("5–7 working days")], keywords: ["flyer printing", "leaflet printing", "package insert", "patient information leaflet"] },
+  "PA-31": { headline: "Carriers that get four drinks out of the door safely.", specs: [O("Formats", "2-cup, 4-cup"), O("Material", "Moulded fibre or paperboard"), MOQ("5,000 carriers"), LEAD("10–15 working days")], keywords: ["cup holder", "drink carrier"] },
+  "PL-01": { headline: "Heat-sealable BOPP that runs clean on your line.", specs: [I("Thickness", "12–40 µm"), I("Width", "100–1,200 mm"), I("Core", "76 mm"), O("Sealability", "One-side or two-side"), I("Roll length", "1,000–4,000 m"), MOQ("500 kg"), LEAD("7–12 working days")], faqs: [{ q: "What does HST mean?", a: "Heat-sealable (HST) BOPP has a sealable coating so it can be sealed on overwrap and form-fill-seal machines. Plain BOPP does not seal on its own." }], keywords: ["bopp roll", "bopp hst", "heat sealable film", "overwrap film"] },
+  "PL-02": { headline: "BOPP film for lamination, bags and conversion.", specs: [I("Thickness", "12–50 µm"), I("Width", "Slit to requirement"), O("Finishes", "Transparent, matte, pearlised, metallised (to confirm)"), MOQ("500 kg"), LEAD("7–12 working days")], keywords: ["bopp film", "lamination film"] },
+  "PL-03": { headline: "Crystal-clear shrink for retail packs.", specs: [I("Thickness", "12–25 µm"), I("Width", "200–800 mm (centre-folded)"), O("Formats", "Centre-folded, single-wound"), MOQ("200 kg"), LEAD("7–10 working days")], keywords: ["pof shrink", "polyolefin shrink film", "shrink wrap"] },
+  "PL-04": { headline: "PVC shrink for economical retail bundling.", specs: [I("Thickness", "15–50 µm"), O("Formats", "Centre-folded, single-wound, sleeves"), MOQ("200 kg"), LEAD("7–10 working days")], keywords: ["pvc shrink", "shrink sleeve"] },
+  "PL-05": { headline: "Collation shrink that holds bottles and cans together.", specs: [I("Thickness", "30–100 µm"), I("Width", "Per bundle size"), O("Print", "Plain or printed"), MOQ("500 kg"), LEAD("10–12 working days")], keywords: ["pe shrink", "collation shrink", "bottle shrink"] },
+  "PL-06": { headline: "Stretch film that holds the load and saves film.", specs: [I("Thickness", "17–35 µm"), I("Hand rolls", "500 mm, 2–3 kg"), I("Machine rolls", "500 mm, 15–20 kg"), MOQ("100 rolls"), LEAD("5–7 working days")], keywords: ["stretch wrap", "pallet wrap", "lldpe stretch"] },
+  "PL-07": { headline: "Catering cling film that cuts clean and seals tight.", specs: [I("Thickness", "8–12 µm"), I("Width", "300 / 450 mm"), I("Length", "300–1,500 m"), O("Pack", "Catering roll or cutter box"), MOQ("50 rolls"), LEAD("5–7 working days")], faqs: [{ q: "Can cling film be used on sweet boxes?", a: "No. Plastic wrapping or packing films around sweet boxes are prohibited in India. Use paper seals or tape instead." }], keywords: ["cling wrap", "food wrap film", "kitchen film"] },
+  "PL-08": { headline: "Cushioning that keeps fragile goods intact.", specs: [I("Bubble", "10 mm / 20 mm"), I("Width", "1,000–1,500 mm"), O("Formats", "Rolls, bags"), MOQ("50 rolls"), LEAD("5–7 working days")], keywords: ["bubble wrap", "air bubble roll"] },
+  "PL-09": { headline: "LDPE in the format you pack with.", specs: [I("Thickness", "25–200 µm"), O("Formats", "Flat pouches, zip pouches, tubing, sheets, liners"), O("Print", "Plain or 1–4 colours"), MOQ("200 kg"), LEAD("7–10 working days")], keywords: ["ldpe bag", "poly bag", "zip lock pouch", "liner bag"] },
+  "PL-10": { headline: "Tamper-evident courier bags that seal once.", specs: [I("Thickness", "50–60 µm, co-extruded"), I("Sizes", "A5 to 16\" × 20\" and custom"), O("Options", "POD jacket, printed branding"), MOQ("10,000 bags"), LEAD("7–10 working days")], keywords: ["courier bag", "mailer bag", "tamper proof bag"] },
+  "PL-11": { headline: "Printed pouches with barrier and shelf presence.", specs: [I("Total thickness", "80–150 µm"), O("Styles", "Stand-up zip, three-side seal, centre seal, gusseted"), O("Structures", "PET/PE, BOPP/CPP, metallised"), MOQ("10,000 pouches per design"), LEAD("18–25 working days")], keywords: ["stand up pouch", "zip pouch", "printed pouch", "laminated pouch"] },
+  "PL-12": { headline: "Printed laminate rolls for form-fill-seal lines.", specs: [O("Structures", "2 and 3 layer laminates"), I("Width", "Per machine former"), MOQ("500 kg per design"), LEAD("18–25 working days")], keywords: ["laminated roll", "ffs film", "printed laminate"] },
+  "PL-13": { headline: "Leak-resistant containers for takeaway and delivery.", specs: [I("Capacities", "250 ml – 1,000 ml"), O("Material", "PP (microwave-safe grades on enquiry)"), O("Lids", "Snap-fit, tamper-evident"), MOQ("10,000 pieces"), LEAD("7–10 working days")], keywords: ["plastic container", "takeaway container", "microwave container"] },
+  "CO-01": { headline: "Certified compostable carry bags for counters and checkouts.", specs: [O("Styles", "W-cut, D-cut, loop handle"), I("Thickness", "Per grade, typically 20–50 µm"), O("Certification", "Industrial or home compostable, per grade"), MOQ("100 kg"), LEAD("10–15 working days")], keywords: ["biodegradable bag", "compostable bag", "eco bag"] },
+  "CO-02": { headline: "Compostable bin liners for food and organic waste.", specs: [O("Sizes", "Small kitchen caddy to commercial bins"), I("Thickness", "Per grade"), O("Format", "Perforated rolls"), MOQ("100 kg"), LEAD("10–15 working days")], keywords: ["compostable garbage bag", "bin liner"] },
+  "CO-03": { headline: "Compostable mailers for e-commerce dispatch.", specs: [O("Styles", "Courier bags with seal, zip pouches"), I("Thickness", "Per grade"), O("Print", "1–2 colours"), MOQ("10,000 bags"), LEAD("10–15 working days")], keywords: ["compostable mailer", "eco courier bag"] },
+  "CO-04": { headline: "Grow bags that go into the ground with the sapling.", specs: [O("Sizes", "By sapling size"), O("Options", "Perforated"), I("Field life", "Agreed per grade"), MOQ("50 kg"), LEAD("10–15 working days")], keywords: ["grow bag", "nursery bag", "plant bag"] },
+  "CO-05": { headline: "Compostable laundry bags for hotels and institutions.", specs: [O("Styles", "Drawstring, printed list panel"), MOQ("5,000 bags"), LEAD("10–15 working days")], keywords: ["hotel laundry bag"] },
+  "CO-06": { headline: "Compostable pouches for dry food and retail.", specs: [O("Styles", "Stand-up, flat, zip (to confirm)"), O("Structures", "Compostable film and kraft laminates"), MOQ("10,000 pouches"), LEAD("20–25 working days")], keywords: ["compostable pouch", "eco pouch"] },
+  "CO-07": { headline: "Compostable film on rolls for converting and wrapping.", specs: [O("Formats", "Flat film, tubing, sleeves"), I("Thickness", "Per grade"), MOQ("200 kg"), LEAD("10–15 working days")], keywords: ["compostable film", "biodegradable film roll"] },
+  "CO-08": { headline: "Compostable shrink film for certified bundling.", specs: [O("Formats", "Centre-folded, single-wound"), I("Thickness", "Per grade"), MOQ("200 kg"), LEAD("15–20 working days")], keywords: ["compostable shrink"] },
+  "CO-09": { headline: "Compostable cling wrap for kitchens and food service.", specs: [O("Formats", "Catering roll, cutter box"), I("Width", "300 / 450 mm"), MOQ("50 rolls"), LEAD("10–15 working days")], keywords: ["compostable cling film", "eco cling wrap"] },
+  "CO-10": { headline: "Moulded-fibre containers for hot meals.", specs: [O("Formats", "Clamshells, bowls with lids, tubs, meal boxes"), I("Capacities", "500 ml – 1,000 ml; 6\"–9\" clamshells"), O("Material", "Moulded fibre (e.g. bagasse), per certificate"), MOQ("10,000 pieces"), LEAD("10–15 working days")], keywords: ["bagasse container", "eco container", "sugarcane container", "biodegradable container"] },
+  "CO-11": { headline: "Compostable trays and plates for meals and events.", specs: [O("Formats", "3–8 compartment trays, plates 6\"–12\""), O("Material", "Moulded fibre"), MOQ("10,000 pieces"), LEAD("10–15 working days")], keywords: ["bagasse plate", "compartment tray", "thali plate"] },
+  "CO-12": { headline: "Cups with a compostable lining, certified.", specs: [I("Capacities", "150–500 ml"), O("Lining", "Compostable lining, per certificate"), MOQ("25,000 cups"), LEAD("15–20 working days")], keywords: ["pla cup", "compostable cup", "eco cup"] },
+  "CO-13": { headline: "Compostable cutlery for takeaway and events.", specs: [O("Items", "Spoon, fork, knife, stirrer"), I("Length", "140–165 mm"), O("Material", "Per certificate (e.g. CPLA)"), MOQ("20,000 pieces"), LEAD("10–15 working days")], keywords: ["compostable spoon", "eco cutlery", "biodegradable cutlery"] },
+  "CR-01": { headline: "Single-wall boxes for everyday shipping and storage.", specs: [I("Construction", "3-ply (single wall), B / C / E flute"), I("Paper", "120–180 GSM, 16–22 BF kraft"), O("Style", "RSC (default), half-slotted"), O("Print", "Flexo 1–3 colours"), I("Typical load", "Up to ≈10 kg (confirmed by test)"), MOQ("500 boxes per size"), LEAD("5–8 working days")], keywords: ["3 ply box", "corrugated box", "carton box", "shipping box"] },
+  "CR-02": { headline: "Double-wall boxes for heavier and stacked loads.", specs: [I("Construction", "5-ply (double wall), BC / BB flute"), I("Paper", "140–200 GSM, 18–28 BF kraft"), O("Style", "RSC, half-slotted"), O("Print", "Flexo 1–3 colours"), I("Typical load", "≈10–25 kg (confirmed by test)"), MOQ("500 boxes per size"), LEAD("7–10 working days")], keywords: ["5 ply box", "double wall box", "heavy carton"] },
+  "CR-03": { headline: "Triple-wall boxes for heavy industrial loads.", specs: [I("Construction", "7-ply (triple wall)"), I("Paper", "180–250 GSM, 22–35 BF kraft"), I("Typical load", "≈25–60 kg (confirmed by test)"), MOQ("200 boxes per size"), LEAD("10–12 working days")], keywords: ["7 ply box", "triple wall box"] },
+  "CR-04": { headline: "Die-cut boxes that lock without glue or tape.", specs: [O("Styles", "Roll-end tuck front, crash-lock, tray & lid"), I("Flute", "E / B / micro-flute"), O("Print", "Flexo or litho-laminated (to confirm)"), MOQ("1,000 boxes"), LEAD("10–12 working days")], keywords: ["die cut box", "self locking box"] },
+  "CR-05": { headline: "Heavy-duty and export cartons built for the long haul.", specs: [I("Construction", "5-ply and 7-ply"), O("Options", "Moisture-resistant coatings, liners, shipping marks"), I("Typical load", "Up to ≈60 kg"), MOQ("200 cartons"), LEAD("10–12 working days")], keywords: ["export box", "export carton", "heavy duty box"] },
+  "CR-06": { headline: "Shipping boxes sized for couriers and branded for unboxing.", specs: [O("Styles", "Mailer, shipper RSC, tear strip (to confirm)"), I("Flute", "E / B"), O("Print", "Outside and inside print"), MOQ("1,000 boxes"), LEAD("8–12 working days")], keywords: ["mailer box", "ecommerce box", "shipping box", "subscription box"] },
+  "CR-07": { headline: "Inserts and pads that hold products still.", specs: [O("Types", "Die-cut fitments, pads, layer sheets"), I("Board", "Single or double wall"), MOQ("1,000 pieces"), LEAD("7–10 working days")], keywords: ["corrugated insert", "box insert", "fitment"] },
+  "CR-08": { headline: "Corrugated sheets and rolls cut to your need.", specs: [O("Formats", "Single-wall, double-wall sheets; 2-ply rolls (to confirm)"), I("Roll width", "Up to 1,800 mm"), MOQ("500 sheets / 10 rolls"), LEAD("5–7 working days")], keywords: ["corrugated sheet", "corrugated roll", "2 ply roll"] },
+  "CR-09": { headline: "Partitions that stop bottles touching.", specs: [O("Cells", "4 to 48 cells"), I("Board", "3-ply or 5-ply"), MOQ("1,000 sets"), LEAD("7–10 working days")], keywords: ["box partition", "bottle divider"] },
+  "CR-10": { headline: "Open trays for produce, bundles and bulk handling.", specs: [O("Types", "Open trays, shrink trays, produce trays"), I("Board", "3-ply or 5-ply"), MOQ("1,000 trays"), LEAD("7–10 working days")], keywords: ["corrugated tray", "shrink tray", "fruit tray"] },
+  "CR-11": { headline: "Retail-ready packs that go from truck to shelf in one move.", specs: [O("Types", "Shelf-ready cases, counter displays, floor displays (to confirm)"), O("Print", "High-graphics flexo or litho-lam"), MOQ("1,000 units"), LEAD("12–18 working days")], keywords: ["shelf ready packaging", "display box", "counter display"] },
+};

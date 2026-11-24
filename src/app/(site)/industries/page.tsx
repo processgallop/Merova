@@ -1,44 +1,42 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { CtaBand, CustomRequirementBand, PageHero } from "@/components/ui/blocks";
-import { IndustryIcon } from "@/components/ui/Icon";
-import { industries, productsForIndustry } from "@/data/catalog";
+import { CtaBand, PageHero, Render, SectionHead } from "@/components/ui/blocks";
+import { IndustryFinder, type FinderData } from "@/components/industry/Finder";
+import { categories, industries, products } from "@/data/catalog";
 import { pageMetadata } from "@/lib/seo";
 
-export const metadata = pageMetadata({
-  title: "Packaging Solutions by Industry | Merova Printpack",
-  description: "Packaging solutions for pharmaceuticals, automotive, food and beverage, retail, gifting, industrial, e-commerce, multiplexes, FMCG and electronics.",
-  path: "/industries",
-});
+export const metadata = pageMetadata({ title: "Packaging by Industry | Food, Pharma, Retail, E-commerce, Industrial | Merova", description: "Find packaging for your business: sweet shops, bakeries, cinemas, restaurants, QSR, cloud kitchens, pharma, retail, e-commerce, automotive and more, by material.", path: "/industries/" });
+
+const finder: FinderData = {
+  industries: industries.map((i) => ({ id: i.id, name: i.name, url: i.url, ops: i.operators.map((o) => ({ id: o.id, name: o.name, url: o.url, primary: o.primary, secondary: o.secondary })) })),
+  products: Object.fromEntries(products.map((p) => [p.id, { n: p.name, u: p.url, i: p.image, c: p.category }])),
+  cats: categories.map((c) => ({ id: c.id, name: c.short, accent: c.accent })),
+};
 
 export default function IndustriesPage() {
   return (
     <>
-      <PageHero
-        eyebrow="Solutions by industry"
-        title="Packaging that understands your industry."
-        intro="Every industry has its own handling, regulatory and presentation demands. Choose yours to see the packaging formats that fit, the considerations that matter and a direct route to a quotation."
-        crumbs={[{ name: "Industries", href: "/industries" }]}
-      />
-      <section className="py-14 lg:py-20">
-        <ul className="container-x grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {industries.map((i) => (
-            <li key={i.id}>
-              <Link href={`/industries/${i.slug}`} className="card group flex h-full flex-col p-6 transition-shadow hover:shadow-card">
-                <span className="flex h-11 w-11 items-center justify-center rounded bg-navy-900 text-white">
-                  <IndustryIcon name={i.icon} className="h-5 w-5" />
-                </span>
-                <h2 className="mt-5 font-display text-xl font-semibold text-navy-950 group-hover:text-signal-600">{i.name}</h2>
-                <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">{i.intro}</p>
-                <p className="mt-4 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-muted">{productsForIndustry(i.id).length} packaging solutions</p>
-                <span className="link-arrow mt-auto pt-4 text-[0.9rem]">Explore {i.shortName} <ArrowRight className="h-4 w-4" aria-hidden /></span>
+      <PageHero tone="dark" crumbs={[{ name: "Industries", href: "/industries/" }]} eyebrow={`${industries.length} industries · ${industries.reduce((a, i) => a + i.operators.length, 0)} business types`} title="Tell us what you run. We'll show you what you need." intro="Buyers often know their business, not the technical name of the packaging. Start here: every business type maps to the products it uses, by material." />
+      <section className="section-tight bg-sand"><div className="wrap wrap-wide"><IndustryFinder data={finder} /></div></section>
+      <section className="section">
+        <div className="wrap wrap-wide">
+          <SectionHead eyebrow="All industries" title="Packaging knowledge, sector by sector." />
+          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {industries.map((i, k) => (
+              <Link key={i.id} href={i.url} className={`tile reveal group ${k === 0 ? "lg:col-span-2 lg:row-span-2" : ""}`} style={{ ["--i" as string]: k % 3 }}>
+                <div className="p-3 pb-0"><Render src={i.image} alt="" label={false} className="rounded-[20px]" ratio={k === 0 ? "aspect-[16/10]" : "aspect-[16/10]"} sizes="(min-width:1024px) 33vw, 100vw" /></div>
+                <div className="flex flex-1 flex-col p-6">
+                  <h2 className={`font-display font-semibold tracking-tight ${k === 0 ? "text-3xl" : "text-xl"}`}>{i.name}</h2>
+                  <p className="mt-2 text-[15px] text-stone">{i.headline}</p>
+                  <p className="mt-3 text-sm text-charcoal">{i.operators.map((o) => o.name).join(" · ")}</p>
+                  <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-red">Explore <ArrowRight className="tile-arrow h-4 w-4" /></span>
+                </div>
               </Link>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+        </div>
       </section>
-      <CustomRequirementBand />
-      <CtaBand title="Can't see your industry?" text="Merova's packaging is used well beyond these sectors. Tell us what you pack and we'll recommend a solution." primary={{ label: "Discuss Your Requirement", href: "/custom-requirement" }} />
+      <CtaBand />
     </>
   );
 }

@@ -1,13 +1,5 @@
 import { Suspense } from "react";
-import { EnquiryReceived } from "./EnquiryReceived";
+import { Received } from "./Received";
 import { pageMetadata } from "@/lib/seo";
-
-export const metadata = pageMetadata({ title: "Enquiry Received | Merova Printpack", description: "Your enquiry has been received by Merova Printpack.", path: "/enquiry-received", noindex: true });
-
-export default function Page() {
-  return (
-    <Suspense fallback={<div className="container-x py-24" />}>
-      <EnquiryReceived />
-    </Suspense>
-  );
-}
+export const metadata = pageMetadata({ title: "Enquiry received | Merova Printpack", description: "Your enquiry has been received.", path: "/enquiry-received/", noindex: true });
+export default function Page() { return <Suspense><Received /></Suspense>; }

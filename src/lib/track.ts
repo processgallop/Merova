@@ -7,21 +7,11 @@
  * docs/TRACKING-PLAN.md.
  */
 export type TrackEvent =
-  | "quote_submit"
-  | "quote_step"
-  | "enquiry_submit"
-  | "whatsapp_click"
-  | "phone_click"
-  | "email_click"
-  | "flyer_download"
-  | "catalogue_download"
-  | "profile_download"
-  | "document_download"
-  | "mira_open"
-  | "mira_message"
-  | "mira_handoff"
-  | "industry_select"
-  | "cta_click";
+  | "view_product" | "view_category" | "view_industry" | "view_operator"
+  | "add_to_enquiry" | "basket_view" | "rfq_start" | "rfq_step" | "rfq_submit_success" | "rfq_submit_error"
+  | "enquiry_submit" | "download" | "whatsapp_click" | "phone_click" | "email_click"
+  | "mira_open" | "mira_message" | "mira_recommendation_click" | "mira_handover"
+  | "search" | "search_click" | "cta_click" | "industry_select";
 
 type Params = Record<string, string | number | boolean | undefined>;
 

@@ -1,15 +1,46 @@
 /**
  * Central site configuration.
  *
- * Every business contact detail comes from environment variables. Nothing is
- * hardcoded or invented: when a value is not configured the UI shows an honest
- * fallback (route to the enquiry form) instead of a fake number or address.
- * See .env.example and docs/CONFIGURATION.md.
+ * Contact details come from environment variables. Where Merova has not yet supplied a verified value, a SAMPLE
+ * value is used so the full design can be reviewed. SAMPLE values are deliberately non-working (an invalid phone
+ * range and a reserved .example domain) so no stranger can be contacted by mistake. While any SAMPLE value is in
+ * use, `site.sample` is true and the footer shows a sample-data notice. Replace them in Vercel env (see .env.example).
  */
 
 const env = (key: string) => {
   const v = process.env[key];
   return v && v.trim().length > 0 ? v.trim() : undefined;
+};
+
+const SAMPLE = {
+  whatsapp: "911234567890",
+  phone: "+91 12345 67890",
+  email: "hello@merova.example",
+  salesEmail: "sales@merova.example",
+  careersEmail: "careers@merova.example",
+  officeAddress: "Merova House, 4th Floor, Sample Business Park, Andheri East, Mumbai 400 093, India",
+  plantAddress: "Plot 00, Sample Industrial Estate, Bhiwandi, Thane 421 302, India",
+  hours: "Monday to Saturday, 9:30 am – 6:30 pm IST",
+  legalName: "Merova Printpack Private Limited",
+  gstin: "27AAAAA0000A1Z5",
+};
+
+const pick = <K extends keyof typeof SAMPLE>(k: K, envKey: string) => {
+  const v = env(envKey);
+  return { value: v ?? SAMPLE[k], sample: !v };
+};
+
+const c = {
+  whatsapp: pick("whatsapp", "NEXT_PUBLIC_WHATSAPP_NUMBER"),
+  phone: pick("phone", "NEXT_PUBLIC_CONTACT_PHONE"),
+  email: pick("email", "NEXT_PUBLIC_CONTACT_EMAIL"),
+  salesEmail: pick("salesEmail", "NEXT_PUBLIC_SALES_EMAIL"),
+  careersEmail: pick("careersEmail", "NEXT_PUBLIC_CAREERS_EMAIL"),
+  officeAddress: pick("officeAddress", "NEXT_PUBLIC_OFFICE_ADDRESS"),
+  plantAddress: pick("plantAddress", "NEXT_PUBLIC_PLANT_ADDRESS"),
+  hours: pick("hours", "NEXT_PUBLIC_BUSINESS_HOURS"),
+  legalName: pick("legalName", "NEXT_PUBLIC_LEGAL_NAME"),
+  gstin: pick("gstin", "NEXT_PUBLIC_GSTIN"),
 };
 
 export const site = {
@@ -18,45 +49,37 @@ export const site = {
   tagline: "Packaging, Perfected.",
   proposition: "Engineered to Protect. Designed to Perform.",
   description:
-    "Merova Printpack is a multi-material packaging partner for corrugated, paperboard, foodservice, flexible and custom packaging — specified, sampled and supplied to your application.",
+    "Merova Printpack is a multi-material printing and packaging partner: paper, plastic and film, compostable, and corrugated packaging, specified to your product and sampled before production.",
   url: (env("NEXT_PUBLIC_SITE_URL") ?? "https://merova-printpack.vercel.app").replace(/\/$/, ""),
   locale: "en_IN",
   contact: {
-    // Digits only, with country code, e.g. 919876543210. Supplied by Merova.
-    whatsapp: env("NEXT_PUBLIC_WHATSAPP_NUMBER")?.replace(/\D/g, ""),
-    phone: env("NEXT_PUBLIC_CONTACT_PHONE"),
-    email: env("NEXT_PUBLIC_CONTACT_EMAIL"),
-    salesEmail: env("NEXT_PUBLIC_SALES_EMAIL"),
-    careersEmail: env("NEXT_PUBLIC_CAREERS_EMAIL"),
-    officeAddress: env("NEXT_PUBLIC_OFFICE_ADDRESS"),
-    plantAddress: env("NEXT_PUBLIC_PLANT_ADDRESS"),
-    hours: env("NEXT_PUBLIC_BUSINESS_HOURS"),
-    legalName: env("NEXT_PUBLIC_LEGAL_NAME") ?? "Merova Printpack",
-    gstin: env("NEXT_PUBLIC_GSTIN"),
+    whatsapp: c.whatsapp.value.replace(/\D/g, ""),
+    phone: c.phone.value,
+    email: c.email.value,
+    salesEmail: c.salesEmail.value,
+    careersEmail: c.careersEmail.value,
+    officeAddress: c.officeAddress.value,
+    plantAddress: c.plantAddress.value,
+    hours: c.hours.value,
+    legalName: c.legalName.value,
+    gstin: c.gstin.value,
   },
-  social: {
-    linkedin: env("NEXT_PUBLIC_LINKEDIN_URL"),
-    instagram: env("NEXT_PUBLIC_INSTAGRAM_URL"),
-  },
-  analytics: {
-    gaId: env("NEXT_PUBLIC_GA_ID"),
-    gtmId: env("NEXT_PUBLIC_GTM_ID"),
-    gscVerification: env("NEXT_PUBLIC_GSC_VERIFICATION"),
-  },
+  /** True while any contact detail is a SAMPLE value. */
+  sample: Object.values(c).some((x) => x.sample) || env("NEXT_PUBLIC_SAMPLE_CONTENT") !== "off",
+  social: { linkedin: env("NEXT_PUBLIC_LINKEDIN_URL"), instagram: env("NEXT_PUBLIC_INSTAGRAM_URL") },
+  analytics: { gaId: env("NEXT_PUBLIC_GA_ID"), gtmId: env("NEXT_PUBLIC_GTM_ID"), gscVerification: env("NEXT_PUBLIC_GSC_VERIFICATION") },
   turnstileSiteKey: env("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),
+  /** Production indexing only when explicitly enabled. */
+  indexable: env("NEXT_PUBLIC_INDEXABLE") === "true",
 } as const;
 
-export const absoluteUrl = (path = "/") =>
-  `${site.url}${path.startsWith("/") ? path : `/${path}`}`;
+export const absoluteUrl = (path = "/") => `${site.url}${path.startsWith("/") ? path : `/${path}`}`;
 
-export const DEFAULT_WA_MESSAGE =
-  "Hello Merova Team, I am interested in your packaging solutions. I would like to discuss my requirements.";
+export const DEFAULT_WA_MESSAGE = "Hello Merova team, I would like to discuss a packaging requirement.";
+export const productWaMessage = (name: string, category: string, url: string) =>
+  `I am interested in ${name} (${category}) from Merova Printpack. Please share product details and quotation information. ${absoluteUrl(url)}`;
 
 export function whatsappHref(message: string = DEFAULT_WA_MESSAGE) {
-  if (!site.contact.whatsapp) return undefined;
   return `https://wa.me/${site.contact.whatsapp}?text=${encodeURIComponent(message)}`;
 }
-
-export function telHref(phone?: string) {
-  return phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined;
-}
+export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;

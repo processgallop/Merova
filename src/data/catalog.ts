@@ -1,80 +1,181 @@
-import { corrugatedProducts } from "./products/corrugated";
-import { paperProducts } from "./products/paper";
-import { foodserviceProducts } from "./products/foodservice";
-import { flexibleProducts } from "./products/flexible";
-import { customProducts } from "./products/custom";
-import { industries, industryById, industryBySlug } from "./industries";
-import { verticalById, verticalBySlug, verticals } from "./verticals";
-import type { IndustryId, Product, VerticalId } from "./types";
-
-export const products: Product[] = [
-  ...corrugatedProducts,
-  ...paperProducts,
-  ...foodserviceProducts,
-  ...flexibleProducts,
-  ...customProducts,
-];
-
-const bySlug = new Map(products.map((p) => [p.slug, p]));
-
-export const getProduct = (slug: string) => bySlug.get(slug);
-
-export const productsInVertical = (id: VerticalId) => products.filter((p) => p.vertical === id);
-
-export const productUrl = (p: Product) => `/${verticalById[p.vertical].slug}/${p.slug}`;
-export const flyerUrl = (p: Product) => `/assets/downloads/flyers/merova-${p.slug}-flyer.pdf`;
-export const quoteUrl = (p?: Product, industry?: IndustryId) => {
-  const params = new URLSearchParams();
-  if (p) params.set("product", p.slug);
-  if (industry) params.set("industry", industry);
-  const qs = params.toString();
-  return `/request-a-quote${qs ? `?${qs}` : ""}`;
-};
-export const industryUrl = (id: IndustryId) => `/industries/${industryById[id].slug}`;
-
-/** Industry-to-product mapping: featured products first, then any other product tagged with the industry. */
-export function productsForIndustry(id: IndustryId): Product[] {
-  const ind = industryById[id];
-  const featured = ind.featured.map((s) => bySlug.get(s)).filter((p): p is Product => Boolean(p));
-  const tagged = products.filter((p) => p.industries.includes(id) && !ind.featured.includes(p.slug));
-  return [...featured, ...tagged];
-}
-
-export const relatedProducts = (p: Product) =>
-  p.related.map((s) => bySlug.get(s)).filter((x): x is Product => Boolean(x));
-
-export const DOWNLOADS = {
-  catalogue: "/assets/downloads/merova-product-catalogue.pdf",
-  profile: "/assets/downloads/merova-company-profile.pdf",
-  capabilities: "/assets/downloads/merova-manufacturing-capabilities.pdf",
-  sustainability: "/assets/downloads/merova-sustainability-approach.pdf",
-} as const;
-
 /**
- * Integrity check, run in tests and at build time via scripts/validate-data.ts:
- * every cross-reference must resolve so no card or link points nowhere.
+ * Product and industry catalogue. Single source: docs/stage-1/source/register.py → src/data/generated/register.json.
+ * Products flagged "SUP" (India single-use plastic prohibition) are held: they are not generated, listed or mapped.
  */
-export function validateCatalog(): string[] {
-  const errors: string[] = [];
-  const seen = new Set<string>();
-  for (const p of products) {
-    if (seen.has(p.slug)) errors.push(`duplicate product slug ${p.slug}`);
-    seen.add(p.slug);
-    for (const r of p.related) if (!bySlug.has(r)) errors.push(`${p.slug}: related '${r}' missing`);
-    for (const i of p.industries) if (!industryById[i]) errors.push(`${p.slug}: industry '${i}' missing`);
-    if (p.faqs.length < 2) errors.push(`${p.slug}: needs at least 2 FAQs`);
-    if (p.specs.length < 2) errors.push(`${p.slug}: needs a specification table`);
-  }
-  for (const ind of industries) {
-    for (const s of ind.featured) {
-      const p = bySlug.get(s);
-      if (!p) errors.push(`industry ${ind.id}: featured '${s}' missing`);
-      else if (!p.industries.includes(ind.id)) errors.push(`industry ${ind.id}: featured '${s}' is not tagged with the industry`);
-    }
-    if (productsForIndustry(ind.id).length < 5) errors.push(`industry ${ind.id}: fewer than 5 products`);
-  }
-  for (const v of verticals) if (productsInVertical(v.id).length === 0) errors.push(`vertical ${v.id} empty`);
-  return errors;
+import reg from "./generated/register.json";
+import { PRODUCT_CONTENT, SUB_CONTENT } from "./product-content";
+import { INDUSTRY_CONTENT, OPERATOR_CONTENT } from "./industry-content";
+
+export type CategoryId = "paper" | "plastic" | "compostable" | "corrugated";
+
+export interface Category {
+  id: CategoryId;
+  name: string;
+  short: string;
+  slug: string;
+  promise: string;
+  intro: string;
+  accent: string;
+  image: string;
 }
 
-export { industries, verticals, industryById, verticalById, industryBySlug, verticalBySlug };
+export interface SpecRow { label: string; value: string; kind: "indicative" | "option" }
+export interface Faq { q: string; a: string }
+
+export interface Product {
+  id: string;
+  slug: string;
+  name: string;
+  category: CategoryId;
+  subId: string;
+  subcategory: string;
+  status: 1 | 2 | 3;
+  description: string;
+  headline: string;
+  overview: string[];
+  variants: string[];
+  applications: string;
+  parameters: string[];
+  customisation: string[];
+  materials: string[];
+  specs: SpecRow[];
+  quality: string[];
+  faqs: Faq[];
+  related: string[];
+  rfqProfile: string;
+  rfqFields: string[];
+  flags: string;
+  note: string;
+  merged: string;
+  url: string;
+  image: string;
+  imageAlt: string;
+  flyer: string;
+  keywords: string[];
+}
+
+export interface Operator {
+  id: string;
+  slug: string;
+  name: string;
+  page: boolean;
+  industry: string;
+  primary: string[];
+  secondary: string[];
+  url: string;
+  headline: string;
+  intro: string;
+  points: { title: string; text: string }[];
+  faqs: Faq[];
+  image: string;
+  note: string;
+}
+
+export interface Industry {
+  id: string;
+  slug: string;
+  name: string;
+  headline: string;
+  intro: string;
+  needs: { title: string; text: string }[];
+  faqs: Faq[];
+  operators: Operator[];
+  url: string;
+  image: string;
+}
+
+const ACCENT: Record<CategoryId, string> = { paper: "var(--color-kraft)", plastic: "var(--color-film)", compostable: "var(--color-fibre)", corrugated: "var(--color-liner)" };
+const SHORT: Record<CategoryId, string> = { paper: "Paper", plastic: "Plastic & Films", compostable: "Compostable", corrugated: "Corrugated" };
+
+export const categories: Category[] = (Object.entries(reg.categories) as [CategoryId, { name: string; slug: string; promise: string; intro: string }][]).map(([id, c]) => ({
+  id, name: c.name, short: SHORT[id], slug: c.slug, promise: c.promise, intro: c.intro, accent: ACCENT[id], image: `/assets/renders/scenes/cat-${id}.webp`,
+}));
+export const categoryById = Object.fromEntries(categories.map((c) => [c.id, c])) as Record<CategoryId, Category>;
+export const categoryBySlug = (slug: string) => categories.find((c) => c.slug === slug);
+
+type RawProduct = (typeof reg.products)[number];
+const held = new Set(reg.products.filter((p) => p.flags === "SUP").map((p) => p.id));
+
+function build(p: RawProduct): Product {
+  const c = PRODUCT_CONTENT[p.id] ?? {};
+  const sc = SUB_CONTENT[p.sub] ?? { overview: "", quality: [], materials: [] };
+  const category = p.category as CategoryId;
+  return {
+    id: p.id, slug: p.slug, name: p.name, category, subId: p.sub, subcategory: p.subcategory, status: p.status as 1 | 2 | 3,
+    description: p.desc,
+    headline: c.headline ?? p.desc,
+    overview: [p.desc, c.overview ?? sc.overview].filter(Boolean),
+    variants: p.variants,
+    applications: p.apps,
+    parameters: p.params,
+    customisation: p.custom.length ? p.custom : ["Custom sizes within tooling", "Brand print on request"],
+    materials: c.materials ?? sc.materials,
+    specs: c.specs ?? [],
+    quality: c.quality ?? sc.quality,
+    faqs: [...(c.faqs ?? []), ...(sc.faqs ?? [])].slice(0, 5),
+    related: p.related.filter((r) => !held.has(r)),
+    rfqProfile: p.rfq, rfqFields: p.rfq_fields,
+    flags: p.flags, note: p.note, merged: p.merged,
+    url: p.url,
+    image: `/assets/renders/products/${p.slug}.webp`,
+    imageAlt: `${p.name}: ${p.shot.split(";")[0].replace(/\.$/, "")}`,
+    flyer: `/assets/downloads/flyers/merova-${p.slug}.pdf`,
+    keywords: [p.name, p.subcategory, ...p.variants, ...(p.merged ? p.merged.split(/;\s*/) : []), ...(c.keywords ?? [])].map((s) => s.toLowerCase()),
+  };
+}
+
+export const products: Product[] = reg.products.filter((p) => !held.has(p.id)).map(build);
+export const heldProducts = reg.products.filter((p) => held.has(p.id)).map((p) => ({ id: p.id, name: p.name, note: p.note }));
+export const productById = Object.fromEntries(products.map((p) => [p.id, p])) as Record<string, Product>;
+export const productBySlug = (slug: string) => products.find((p) => p.slug === slug);
+export const productsIn = (cat: CategoryId) => products.filter((p) => p.category === cat);
+export const subcategoriesOf = (cat: CategoryId) =>
+  Object.entries(reg.subcategories)
+    .filter(([, s]) => s.category === cat)
+    .map(([id, s]) => ({ id, name: s.name, slug: s.name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""), products: products.filter((p) => p.subId === id) }))
+    .filter((s) => s.products.length);
+
+export const industries: Industry[] = reg.industries.map((i) => {
+  const ic = INDUSTRY_CONTENT[i.id];
+  return {
+    id: i.id, slug: i.slug, name: i.name, url: `/industries/${i.slug}/`,
+    headline: ic?.headline ?? i.name, intro: ic?.intro ?? "", needs: ic?.needs ?? [], faqs: ic?.faqs ?? [],
+    image: `/assets/renders/scenes/ind-${i.slug}.webp`,
+    operators: i.ops.map((o) => {
+      const oc = OPERATOR_CONTENT[o.id];
+      return {
+        id: o.id, slug: o.slug, name: o.name, page: o.page, industry: i.id,
+        primary: o.primary.filter((x) => !held.has(x)), secondary: o.secondary.filter((x) => !held.has(x)),
+        url: o.page ? `/industries/${i.slug}/${o.slug}/` : `/industries/${i.slug}/#${o.slug}`,
+        headline: oc?.headline ?? `Packaging for ${o.name.toLowerCase()}`, intro: oc?.intro ?? "", points: oc?.points ?? [], faqs: oc?.faqs ?? [],
+        image: o.page ? `/assets/renders/scenes/op-${o.slug}.webp` : `/assets/renders/scenes/ind-${i.slug}.webp`, note: o.note,
+      };
+    }),
+  };
+});
+export const industryBySlug = (slug: string) => industries.find((i) => i.slug === slug);
+export const allOperators = industries.flatMap((i) => i.operators);
+export const operatorById = Object.fromEntries(allOperators.map((o) => [o.id, o])) as Record<string, Operator>;
+
+/** Operators that use a product, split primary/secondary. */
+export function operatorsFor(productId: string) {
+  const primary: Operator[] = [], secondary: Operator[] = [];
+  for (const o of allOperators) { if (o.primary.includes(productId)) primary.push(o); else if (o.secondary.includes(productId)) secondary.push(o); }
+  return { primary, secondary };
+}
+export const relatedProducts = (p: Product) => p.related.map((id) => productById[id]).filter(Boolean);
+export const groupByCategory = (ids: string[]) =>
+  categories.map((c) => ({ category: c, products: ids.map((id) => productById[id]).filter((p) => p && p.category === c.id) }));
+
+export const quoteHref = (p?: Product) => (p ? `/request-a-quote/?add=${p.id}` : "/request-a-quote/");
+
+/** Lightweight index shipped to the browser for search, basket and Mira (guided mode). */
+export const clientIndex = {
+  products: products.map((p) => ({ id: p.id, n: p.name, c: p.category, s: p.subcategory, u: p.url, i: p.image, d: p.description, k: p.keywords.join(" "), v: p.variants, f: p.rfqProfile })),
+  operators: allOperators.map((o) => ({ id: o.id, n: o.name, u: o.url, ind: industries.find((i) => i.id === o.industry)!.name, p: o.primary, x: o.secondary })),
+  categories: categories.map((c) => ({ id: c.id, n: c.name, u: `/products/${c.slug}/` })),
+};
+export type ClientIndex = typeof clientIndex;
+export type ClientProduct = ClientIndex["products"][number];
+
+export const counts = { products: products.length, categories: categories.length, industries: industries.length, operators: allOperators.length };

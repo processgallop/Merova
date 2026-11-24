@@ -1,297 +1,197 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { ArrowRight, ChevronDown, Menu, MessageCircle, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import { IndustryIcon } from "@/components/ui/Icon";
-import { primaryNav, type NavItem } from "@/data/navigation";
-import type { Menus } from "@/data/menus";
+import { BasketCount } from "@/components/basket/Basket";
 
-export function Header({ menus }: { menus: Menus }) {
-  const pathname = usePathname();
-  const [open, setOpen] = useState<string | null>(null);
+export interface NavData {
+  categories: { id: string; name: string; short: string; url: string; promise: string; image: string; count: number; accent: string; subs: { name: string; url: string }[] }[];
+  industries: { name: string; url: string; image: string; ops: { name: string; url: string }[] }[];
+  totalProducts: number;
+}
+
+const ABOUT = [
+  ["Company overview", "/about/", "Who we are and how we work"],
+  ["Manufacturing & infrastructure", "/about/manufacturing/", "Processes, equipment and plant"],
+  ["Quality assurance", "/about/quality/", "Checks from material to dispatch"],
+  ["Process excellence", "/about/process/", "From requirement to delivery"],
+  ["Client servicing", "/about/client-servicing/", "How enquiries and orders are run"],
+  ["Sustainability", "/about/sustainability/", "Materials, stated precisely"],
+  ["Leadership & team", "/about/leadership/", "The functions behind every order"],
+  ["Careers", "/about/careers/", "Work with us"],
+  ["Business partnerships", "/about/partnerships/", "Suppliers and partners"],
+] as const;
+const RESOURCES = [
+  ["Download centre", "/resources/downloads/", "Catalogue, brochures, flyers, profile"],
+  ["Technical resources", "/resources/technical/", "Guides to materials and specs"],
+  ["FAQs", "/resources/faqs/", "Answers by topic"],
+  ["Insights", "/insights/", "Buyer guides and articles"],
+] as const;
+
+type Panel = "products" | "industries" | "about" | "resources" | null;
+
+export function Header({ nav }: { nav: NavData }) {
+  const [open, setOpen] = useState<Panel>(null);
   const [mobile, setMobile] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const navRef = useRef<HTMLElement>(null);
+  const [ind, setInd] = useState(0);
+  const pathname = usePathname();
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Close menus on route change. Adjusting state during render (rather than in an
-  // effect) is React's recommended pattern for resetting state when a value changes.
-  const [prevPath, setPrevPath] = useState(pathname);
-  if (prevPath !== pathname) {
-    setPrevPath(pathname);
-    setOpen(null);
-    setMobile(false);
-  }
-
+  useEffect(() => { setOpen(null); setMobile(false); }, [pathname]);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    onScroll(); window.addEventListener("scroll", onScroll, { passive: true });
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { setOpen(null); setMobile(false); } };
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("keydown", onKey); };
   }, []);
+  useEffect(() => { document.body.style.overflow = mobile ? "hidden" : ""; }, [mobile]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpen(null);
-        setMobile(false);
-      }
-    };
-    const onClick = (e: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(e.target as Node)) setOpen(null);
-    };
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onClick);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("mousedown", onClick);
-    };
-  }, []);
+  const enter = (p: Panel) => { if (timer.current) clearTimeout(timer.current); setOpen(p); };
+  const leave = () => { timer.current = setTimeout(() => setOpen(null), 140); };
+  const openSearch = () => window.dispatchEvent(new Event("merova:search"));
+  const active = (prefix: string) => pathname.startsWith(prefix);
 
-  useEffect(() => {
-    document.body.style.overflow = mobile ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobile]);
-
-  const enter = (key: string) => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    setOpen(key);
-  };
-  const leave = () => {
-    closeTimer.current = setTimeout(() => setOpen(null), 160);
-  };
-
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const Trigger = ({ id, label, prefix }: { id: Exclude<Panel, null>; label: string; prefix: string }) => (
+    <button type="button" aria-expanded={open === id} aria-controls={`panel-${id}`} onClick={() => setOpen(open === id ? null : id)} onMouseEnter={() => enter(id)} onMouseLeave={leave}
+      className={`group relative flex h-11 items-center gap-1.5 rounded-full px-4 text-[15px] font-medium transition-colors ${open === id || active(prefix) ? "text-red" : "text-charcoal hover:text-ink"}`}>
+      {label}<ChevronDown className={`h-4 w-4 transition-transform duration-300 ${open === id ? "rotate-180" : ""}`} aria-hidden />
+      <span className={`absolute inset-x-4 -bottom-0.5 h-0.5 origin-left rounded-full bg-red transition-transform duration-300 ${open === id || active(prefix) ? "scale-x-100" : "scale-x-0"}`} />
+    </button>
+  );
 
   return (
-    <header
-      className={`sticky top-0 z-50 border-b bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/85 transition-shadow ${
-        scrolled ? "border-line shadow-[0_6px_20px_-14px_rgb(13_31_56/0.35)]" : "border-transparent"
-      }`}
-    >
-      <nav ref={navRef} aria-label="Primary" className="container-x flex h-[4.25rem] items-center gap-4 lg:h-[4.75rem] xl:!px-6 2xl:!px-10">
-        <Link href="/" className="shrink-0">
-          <Logo />
-          <span className="sr-only"> — home</span>
-        </Link>
-
-        <ul className="ml-auto hidden items-center xl:flex">
-          {primaryNav.map((item) => (
-            <li key={item.label} className="relative" onMouseEnter={() => item.kind !== "link" && enter(item.label)} onMouseLeave={leave}>
-              {item.kind === "link" ? (
-                <Link
-                  href={item.href}
-                  className={`block whitespace-nowrap rounded px-2 py-2 text-[0.875rem] font-semibold transition-colors 2xl:px-3 2xl:text-[0.9rem] ${
-                    isActive(item.href) ? "text-signal-600" : "text-navy-900 hover:text-signal-600"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  aria-expanded={open === item.label}
-                  aria-controls={`menu-${item.label}`}
-                  onClick={() => setOpen(open === item.label ? null : item.label)}
-                  className={`flex items-center gap-1 whitespace-nowrap rounded px-2 py-2 text-[0.875rem] font-semibold transition-colors 2xl:px-3 2xl:text-[0.9rem] ${
-                    isActive(item.href) || open === item.label ? "text-signal-600" : "text-navy-900 hover:text-signal-600"
-                  }`}
-                >
-                  {item.label}
-                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open === item.label ? "rotate-180" : ""}`} aria-hidden />
-                </button>
-              )}
-              {item.kind === "dropdown" && open === item.label && (
-                <div id={`menu-${item.label}`} className="absolute left-0 top-full pt-2">
-                  <ul className="card min-w-[15rem] p-2 shadow-lift">
-                    {item.items.map((s) => (
-                      <li key={s.href}>
-                        <Link href={s.href} className="block rounded px-3 py-2 text-[0.92rem] text-ink-2 hover:bg-paper-2 hover:text-navy-900">
-                          {s.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-
-        <div className="ml-auto flex items-center gap-2 xl:ml-3">
-          <Link href="/request-a-quote" className="btn btn-primary btn-sm hidden sm:inline-flex">
-            Request a Quote
-          </Link>
-          <button
-            type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded border border-line-strong text-navy-900 xl:hidden"
-            aria-label={mobile ? "Close menu" : "Open menu"}
-            aria-expanded={mobile}
-            aria-controls="mobile-nav"
-            onClick={() => setMobile((m) => !m)}
-          >
-            {mobile ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+    <header className={`no-print sticky top-0 z-50 transition-shadow duration-300 ${scrolled || open ? "shadow-[0_1px_0_var(--color-line),0_12px_32px_-24px_rgb(42_38_38/0.4)]" : ""}`} style={{ background: "var(--color-cloud)" }} onMouseLeave={leave}>
+      <a href="#main" className="skip-link">Skip to content</a>
+      <div className="wrap wrap-wide flex h-[76px] items-center gap-4">
+        <Link href="/" aria-label="Merova Printpack home" className="flex-none"><Logo height={46} /></Link>
+        <nav aria-label="Main" className="ml-6 hidden items-center lg:flex">
+          <Trigger id="products" label="Products" prefix="/products" />
+          <Trigger id="industries" label="Industries" prefix="/industries" />
+          <Trigger id="about" label="About Merova" prefix="/about" />
+          <Trigger id="resources" label="Resources" prefix="/resources" />
+          <Link href="/contact/" className={`flex h-11 items-center rounded-full px-4 text-[15px] font-medium ${active("/contact") ? "text-red" : "text-charcoal hover:text-ink"}`}>Contact</Link>
+        </nav>
+        <div className="ml-auto flex items-center gap-1">
+          <button type="button" onClick={openSearch} className="icon-btn" aria-label="Search products (Ctrl K)"><Search className="h-5 w-5" aria-hidden /></button>
+          <Link href="/request-a-quote/" className="icon-btn relative" aria-label="Your enquiry basket"><ShoppingBag className="h-5 w-5" aria-hidden /><BasketCount /></Link>
+          <Link href="/request-a-quote/" className="btn btn-primary btn-sm ml-2 hidden sm:inline-flex">Request a Quote <ArrowRight className="arrow h-4 w-4" aria-hidden /></Link>
+          <button type="button" className="icon-btn lg:hidden" aria-label="Open menu" aria-expanded={mobile} onClick={() => setMobile(true)}><Menu className="h-6 w-6" aria-hidden /></button>
         </div>
+      </div>
 
-        {/* Mega menus */}
-        {(open === "Products" || open === "Industries") && (
-          <div
-            id={`menu-${open}`}
-            className="absolute inset-x-0 top-full hidden xl:block"
-            onMouseEnter={() => enter(open)}
-            onMouseLeave={leave}
-          >
-            <div className="border-y border-line bg-white shadow-lift">
-              <div className="container-x py-8">{open === "Products" ? <ProductsMega menus={menus} /> : <IndustriesMega menus={menus} />}</div>
+      {/* Desktop panels */}
+      {open && (
+        <div className="absolute inset-x-0 top-full hidden lg:block" onMouseEnter={() => enter(open)} onMouseLeave={leave}>
+          <div className="fade-in border-t border-line bg-cloud shadow-[0_40px_80px_-40px_rgb(42_38_38/0.45)]">
+            {open === "products" && (
+              <div id="panel-products" className="wrap wrap-wide py-8">
+                <div className="grid grid-cols-4 gap-5">
+                  {nav.categories.map((c, i) => (
+                    <div key={c.id} className="fade-in group" style={{ animationDelay: `${i * 40}ms` }}>
+                      <Link href={c.url} className="block overflow-hidden rounded-[20px] bg-sand">
+                        <Image src={c.image} alt="" width={640} height={480} className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-105" sizes="22vw" />
+                      </Link>
+                      <div className="mt-4 flex items-center gap-2"><span className="mat-dot" style={{ ["--mat" as string]: c.accent }} /><Link href={c.url} className="h4 hover:text-red">{c.name}</Link></div>
+                      <p className="mt-1 text-sm text-stone">{c.promise} <span className="tnum">· {c.count} products</span></p>
+                      <ul className="mt-3 grid gap-1.5">
+                        {c.subs.map((s) => <li key={s.url}><Link href={s.url} className="text-[14px] text-charcoal hover:text-red">{s.name}</Link></li>)}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8 flex items-center justify-between border-t border-line pt-5 text-sm">
+                  <Link href="/products/" className="link-arrow">View all {nav.totalProducts} products <ArrowRight className="h-4 w-4" /></Link>
+                  <Link href="/custom-packaging/" className="text-charcoal hover:text-red">Not sure what you need? <span className="font-semibold">Describe your requirement →</span></Link>
+                </div>
+              </div>
+            )}
+            {open === "industries" && (
+              <div id="panel-industries" className="wrap wrap-wide grid grid-cols-[280px_1fr] gap-8 py-8">
+                <ul className="grid content-start gap-1 border-r border-line pr-6">
+                  {nav.industries.map((d, i) => (
+                    <li key={d.url}>
+                      <Link href={d.url} onMouseEnter={() => setInd(i)} onFocus={() => setInd(i)} className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors ${ind === i ? "bg-white text-red shadow-[var(--shadow-rest)]" : "text-charcoal hover:text-ink"}`}>
+                        {d.name}<ArrowRight className={`h-4 w-4 transition-opacity ${ind === i ? "opacity-100" : "opacity-0"}`} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <div key={ind} className="fade-in grid grid-cols-[1fr_320px] gap-8">
+                  <div>
+                    <p className="eyebrow">{nav.industries[ind].name}</p>
+                    <ul className="mt-4 grid grid-cols-2 gap-3">
+                      {nav.industries[ind].ops.map((o) => (
+                        <li key={o.url}><Link href={o.url} className="group flex items-center justify-between rounded-2xl border border-line bg-white px-4 py-3.5 text-[15px] font-medium hover:border-ink">{o.name}<ArrowRight className="h-4 w-4 text-red transition-transform group-hover:translate-x-1" /></Link></li>
+                      ))}
+                    </ul>
+                  </div>
+                  <Link href={nav.industries[ind].url} className="group overflow-hidden rounded-[20px] bg-sand">
+                    <Image src={nav.industries[ind].image} alt="" width={640} height={480} className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-105" sizes="320px" />
+                    <span className="block p-4 text-sm font-semibold text-ink">Explore {nav.industries[ind].name} →</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+            {(open === "about" || open === "resources") && (
+              <div id={`panel-${open}`} className="wrap wrap-wide py-8">
+                <ul className="grid grid-cols-3 gap-3">
+                  {(open === "about" ? ABOUT : RESOURCES).map(([t, u, d]) => (
+                    <li key={u}><Link href={u} className="group block rounded-2xl border border-transparent p-4 hover:border-line hover:bg-white"><span className="flex items-center gap-2 font-semibold text-ink group-hover:text-red">{t}<ArrowRight className="h-4 w-4 opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" /></span><span className="mt-1 block text-sm text-stone">{d}</span></Link></li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile sheet */}
+      {mobile && (
+        <div className="fixed inset-0 z-[80] lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+          <div className="absolute inset-0 bg-ink/40" onClick={() => setMobile(false)} />
+          <div className="pop-in absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-cloud">
+            <div className="flex h-[76px] items-center justify-between px-4"><Logo height={40} /><button type="button" className="icon-btn" aria-label="Close menu" onClick={() => setMobile(false)}><X className="h-6 w-6" /></button></div>
+            <div className="flex-1 overflow-y-auto px-4 pb-6">
+              <MobileGroup title="Products">
+                {nav.categories.map((c) => (
+                  <details key={c.id} className="border-b border-line py-1">
+                    <summary className="flex cursor-pointer items-center gap-2 py-3 font-medium"><span className="mat-dot" style={{ ["--mat" as string]: c.accent }} />{c.name}<ChevronDown className="ml-auto h-4 w-4" /></summary>
+                    <ul className="grid gap-2 pb-3 pl-4">
+                      <li><Link href={c.url} className="text-sm font-semibold text-red">All {c.short} ({c.count})</Link></li>
+                      {c.subs.map((s) => <li key={s.url}><Link href={s.url} className="text-sm text-charcoal">{s.name}</Link></li>)}
+                    </ul>
+                  </details>
+                ))}
+              </MobileGroup>
+              <MobileGroup title="Industries">
+                {nav.industries.map((d) => (
+                  <details key={d.url} className="border-b border-line py-1">
+                    <summary className="flex cursor-pointer items-center py-3 font-medium">{d.name}<ChevronDown className="ml-auto h-4 w-4" /></summary>
+                    <ul className="grid gap-2 pb-3 pl-4"><li><Link href={d.url} className="text-sm font-semibold text-red">Overview</Link></li>{d.ops.map((o) => <li key={o.url}><Link href={o.url} className="text-sm text-charcoal">{o.name}</Link></li>)}</ul>
+                  </details>
+                ))}
+              </MobileGroup>
+              <MobileGroup title="About Merova">{ABOUT.map(([t, u]) => <Link key={u} href={u} className="block border-b border-line py-3 font-medium">{t}</Link>)}</MobileGroup>
+              <MobileGroup title="Resources">{RESOURCES.map(([t, u]) => <Link key={u} href={u} className="block border-b border-line py-3 font-medium">{t}</Link>)}</MobileGroup>
+              <Link href="/contact/" className="mt-6 block font-display text-2xl font-semibold">Contact</Link>
+            </div>
+            <div className="grid grid-cols-2 gap-2 border-t border-line p-4" style={{ paddingBottom: "max(16px, env(safe-area-inset-bottom))" }}>
+              <button type="button" className="btn btn-outline" onClick={() => { setMobile(false); openSearch(); }}><Search className="h-4 w-4" /> Search</button>
+              <Link href="/request-a-quote/" className="btn btn-primary">Request a Quote</Link>
             </div>
           </div>
-        )}
-      </nav>
-
-      {/* Portalled to <body>: the header's backdrop-filter would otherwise trap the fixed drawer inside the header box. */}
-      {mobile && createPortal(<MobileNav menus={menus} />, document.body)}
+        </div>
+      )}
     </header>
   );
 }
 
-function ProductsMega({ menus }: { menus: Menus }) {
-  return (
-    <div className="grid grid-cols-[repeat(5,minmax(0,1fr))_15rem] gap-8">
-      {menus.productMenu.map((col) => (
-        <div key={col.href}>
-          <Link href={col.href} className="group flex items-center gap-1 font-display text-[0.98rem] font-semibold text-navy-950 hover:text-signal-600">
-            {col.title}
-            <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
-          </Link>
-          <ul className="mt-3 space-y-1.5 border-t border-line pt-3">
-            {col.items.map((i) => (
-              <li key={i.href}>
-                <Link href={i.href} className="text-[0.88rem] text-ink-2 hover:text-signal-600">
-                  {i.label}
-                </Link>
-              </li>
-            ))}
-            {col.count > col.items.length && (
-              <li>
-                <Link href={col.href} className="text-[0.85rem] font-semibold text-navy-700 hover:text-signal-600">
-                  View all {col.count} →
-                </Link>
-              </li>
-            )}
-          </ul>
-        </div>
-      ))}
-      <div className="rounded bg-navy-900 p-5 text-white">
-        <p className="eyebrow eyebrow-light">Not sure what you need?</p>
-        <p className="mt-2 font-display text-lg font-semibold leading-snug">Start from your industry or your product.</p>
-        <div className="mt-4 flex flex-col gap-2">
-          <Link href="/#find-your-packaging" className="btn btn-primary btn-sm">Find Your Packaging</Link>
-          <Link href="/custom-requirement" className="btn btn-ghost-light btn-sm">Discuss a Custom Requirement</Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function IndustriesMega({ menus }: { menus: Menus }) {
-  return (
-    <div className="grid grid-cols-[1fr_17rem] gap-8">
-      <ul className="grid grid-cols-5 gap-3">
-        {menus.industryMenu.map((i) => (
-          <li key={i.href}>
-            <Link href={i.href} className="group flex h-full flex-col gap-3 rounded border border-line p-4 transition-colors hover:border-navy-900 hover:bg-paper">
-              <span className="flex h-9 w-9 items-center justify-center rounded bg-navy-50 text-navy-800 group-hover:bg-navy-900 group-hover:text-white">
-                <IndustryIcon name={i.icon} className="h-[18px] w-[18px]" />
-              </span>
-              <span className="text-[0.9rem] font-semibold leading-snug text-navy-950">{i.label}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <div className="flex flex-col justify-between rounded bg-paper-2 p-5">
-        <div>
-          <p className="eyebrow">Have a different requirement?</p>
-          <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">
-            Share your specifications, drawings or photographs. Our team will assess your application.
-          </p>
-        </div>
-        <Link href="/custom-requirement" className="btn btn-navy btn-sm mt-4">Discuss Your Requirement</Link>
-      </div>
-    </div>
-  );
-}
-
-function MobileNav({ menus }: { menus: Menus }) {
-  const [section, setSection] = useState<string | null>(null);
-  const toggle = (k: string) => setSection(section === k ? null : k);
-  const groups: Record<string, { label: string; href: string }[]> = {
-    Industries: menus.industryMenu.map((i) => ({ label: i.label, href: i.href })),
-    Products: [
-      { label: "All products", href: "/products" },
-      ...menus.productMenu.map((c) => ({ label: c.title, href: c.href })),
-    ],
-  };
-  return (
-    <div id="mobile-nav" className="fixed inset-x-0 bottom-0 top-[4.25rem] z-40 overflow-y-auto bg-paper xl:hidden lg:top-[4.75rem]">
-      <div className="container-x pb-28 pt-4">
-        <ul className="divide-y divide-line border-y border-line">
-          {primaryNav.map((item: NavItem) => {
-            const sub = item.kind === "link" ? null : item.kind === "mega" ? groups[item.label] : item.items;
-            if (!sub)
-              return (
-                <li key={item.label}>
-                  <Link href={item.href} className="flex min-h-[3.25rem] items-center text-[1.05rem] font-semibold text-navy-950">
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            const expanded = section === item.label;
-            return (
-              <li key={item.label}>
-                <button
-                  type="button"
-                  className="flex min-h-[3.25rem] w-full items-center justify-between text-left text-[1.05rem] font-semibold text-navy-950"
-                  aria-expanded={expanded}
-                  onClick={() => toggle(item.label)}
-                >
-                  {item.label}
-                  <ChevronDown className={`h-5 w-5 transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden />
-                </button>
-                {expanded && (
-                  <ul className="mb-3 grid gap-0.5 border-l-2 border-signal pl-4">
-                    <li>
-                      <Link href={item.href} className="block py-2 text-[0.95rem] font-semibold text-navy-800">
-                        {item.label} overview
-                      </Link>
-                    </li>
-                    {sub.map((s) => (
-                      <li key={s.href}>
-                        <Link href={s.href} className="block py-2 text-[0.95rem] text-ink-2">
-                          {s.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-        <div className="mt-6 grid gap-3">
-          <Link href="/request-a-quote" className="btn btn-primary">Request a Quote</Link>
-          <Link href="/custom-requirement" className="btn btn-outline">Discuss a Custom Requirement</Link>
-          <Link href="/contact" className="btn btn-outline">
-            <MessageCircle className="h-4 w-4" aria-hidden /> Speak With Our Team
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+function MobileGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return <div className="mt-6"><p className="eyebrow mb-1">{title}</p>{children}</div>;
 }

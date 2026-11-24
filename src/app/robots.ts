@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, site } from "@/lib/site";
 
+/** Indexing is off unless this is the production deployment AND NEXT_PUBLIC_INDEXABLE=true (sample content must not be indexed). */
 export default function robots(): MetadataRoute.Robots {
-  // Preview deployments on Vercel should not be indexed.
-  const isProduction = process.env.VERCEL_ENV ? process.env.VERCEL_ENV === "production" : true;
+  const open = process.env.VERCEL_ENV === "production" && site.indexable;
   return {
-    rules: isProduction ? [{ userAgent: "*", allow: "/", disallow: ["/api/", "/print/", "/enquiry-received"] }] : [{ userAgent: "*", disallow: "/" }],
+    rules: open ? [{ userAgent: "*", allow: "/", disallow: ["/api/", "/print/", "/enquiry-received/", "/request-a-quote/basket/"] }] : [{ userAgent: "*", disallow: "/" }],
     sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

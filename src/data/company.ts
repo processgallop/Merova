@@ -77,3 +77,35 @@ export const CLAIM_DEFINITIONS = [
   { term: "Biodegradable", text: "Broken down by microorganisms over time. On its own the term specifies neither conditions nor timeframe, so Merova does not use it as a standalone claim." },
   { term: "Compostable", text: "Breaks down under defined composting conditions within a defined time, verified against a standard (for example EN 13432, ASTM D6400 or IS 17088). Industrial and home compostability are different certifications." },
 ];
+
+/**
+ * SAMPLE facility facts for preview. Replace with Merova-verified data (verification items V-09, V-10).
+ * Every block that renders these shows a "Sample data" badge.
+ */
+export const SAMPLE_FACILITY = {
+  facts: [
+    { value: "4", label: "material categories under one specification process" },
+    { value: "71", label: "product types in the portfolio" },
+    { value: "9", label: "industries served" },
+    { value: "2", label: "locations: office and plant (sample addresses)" },
+  ],
+  equipment: [
+    { area: "Printing", items: ["Multi-colour sheet-fed offset press", "Flexographic printing for corrugated and film", "Digital label press"] },
+    { area: "Corrugation & conversion", items: ["Corrugation line for 3, 5 and 7-ply board", "Rotary and flatbed die-cutters", "Folder-gluers and stitching"] },
+    { area: "Foodservice & film", items: ["Paper cup and container forming", "Film slitting and rewinding", "Pouch and bag making"] },
+    { area: "Quality", items: ["Bursting strength and ECT testing", "Thickness and GSM measurement", "Colour viewing booth"] },
+  ],
+  certifications: [
+    { name: "ISO 9001:2015 quality management", status: "Sample: certificate to be supplied" },
+    { name: "FSSC 22000 / food-contact compliance", status: "Sample: certificate to be supplied" },
+    { name: "FSC® chain of custody", status: "Sample: certificate to be supplied" },
+    { name: "CPCB certificates for compostable grades", status: "Sample: certificate to be supplied" },
+  ],
+};
+
+export const VALUES = [
+  { title: "Specified, not sold", text: "We start from the product, the line and the route, and specify packaging to suit, rather than pushing a catalogue item." },
+  { title: "Sample before production", text: "Fit, handling and print are approved on a sample, and that sample becomes the reference for every repeat order." },
+  { title: "Print as a discipline", text: "Colour, registration and finish are controlled from proof to final inspection." },
+  { title: "Material honesty", text: "Compostable, recyclable and conventional materials are named precisely, and claims are backed by certificates." },
+];

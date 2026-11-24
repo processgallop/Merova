@@ -1,69 +1,42 @@
-import Link from "next/link";
+import Image from "next/image";
 import { Download, FileText } from "lucide-react";
-import { CtaBand, PageHero } from "@/components/ui/blocks";
-import { TrackedLink } from "@/components/ui/TrackedLink";
-import { DOWNLOADS, flyerUrl, productUrl, productsInVertical, verticals } from "@/data/catalog";
-import { pageMetadata } from "@/lib/seo";
+import { CtaBand, PageHero, SectionHead } from "@/components/ui/blocks";
+import { DownloadFilter } from "./Filter";
+import { categories, productsIn, products } from "@/data/catalog";
 import { pdfSizes } from "@/lib/files";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = pageMetadata({
-  title: "Downloads Centre | Product Flyers, Catalogue & Company Profile | Merova Printpack",
-  description: "Download Merova product flyers, the complete product catalogue, company profile, manufacturing capabilities brochure and sustainability approach.",
-  path: "/resources/downloads",
-});
+export const metadata = pageMetadata({ title: "Download Centre | Catalogue, Brochures & Product Flyers | Merova", description: "Download the Merova master catalogue, category brochures, company profile and one-page flyers for every product. No forms.", path: "/resources/downloads/" });
 
-export default function DownloadsPage() {
+export default function Page() {
   const sizes = pdfSizes();
-  const docs = [
-    { title: "Complete Product Catalogue", text: "Every Merova product with formats, materials and specifications.", href: DOWNLOADS.catalogue, event: "catalogue_download" as const },
-    { title: "Company Profile", text: "Who we are, how we work and what we supply.", href: DOWNLOADS.profile, event: "profile_download" as const },
-    { title: "Manufacturing Capabilities", text: "Processes, quality stages and capabilities by vertical.", href: DOWNLOADS.capabilities, event: "document_download" as const },
-    { title: "Sustainability Approach", text: "Material choices, waste reduction and how claims are made.", href: DOWNLOADS.sustainability, event: "document_download" as const },
+  const main = [
+    { title: "Master product catalogue", text: `Every product across four materials.`, href: "/assets/downloads/merova-product-catalogue.pdf", red: true },
+    { title: "Company profile", text: "Who we are, what we make, how we work.", href: "/assets/downloads/merova-company-profile.pdf" },
   ];
   return (
     <>
-      <PageHero eyebrow="Downloads Centre" title="Product flyers, catalogue and company documents." intro="All documents are PDFs, readable on desktop and mobile. Each product flyer includes a QR code linking back to its product page." crumbs={[{ name: "Resources", href: "/resources" }, { name: "Downloads", href: "/resources/downloads" }]} />
-      <section className="py-14 lg:py-20">
-        <div className="container-x">
-          <h2 className="t-2">Company documents</h2>
-          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {docs.map((d) => (
-              <li key={d.href} className="flex flex-col rounded-md border border-line bg-white p-6">
-                <FileText className="h-7 w-7 text-signal" strokeWidth={1.5} aria-hidden />
-                <h3 className="mt-4 font-display text-lg font-semibold text-navy-950">{d.title}</h3>
-                <p className="mt-2 flex-1 text-[0.9rem] leading-relaxed text-ink-2">{d.text}</p>
-                <TrackedLink href={d.href} download event={d.event} className="btn btn-navy btn-sm mt-5"><Download className="h-4 w-4" aria-hidden /> PDF{sizes[d.href] ? ` · ${sizes[d.href]}` : ""}</TrackedLink>
-              </li>
-            ))}
-          </ul>
+      <PageHero crumbs={[{ name: "Resources", href: "/resources/" }, { name: "Download centre", href: "/resources/downloads/" }]} eyebrow="Download centre" title="Specifications you can share." intro="Instant PDF downloads. No forms, no email gate." />
+      <section id="catalogue" className="section-tight bg-sand">
+        <div className="wrap wrap-wide grid gap-4 md:grid-cols-2">
+          {main.map((d) => <a key={d.href} href={d.href} download className={`tile reveal p-8 ${d.red ? "tile-red" : ""}`}><FileText className="h-8 w-8" /><h2 className="mt-10 font-display text-3xl font-semibold">{d.title}</h2><p className={`mt-2 ${d.red ? "text-white/85" : "text-stone"}`}>{d.text} PDF{sizes[d.href] ? ` · ${sizes[d.href]}` : ""}</p><span className="mt-6 inline-flex items-center gap-2 font-semibold"><Download className="h-4 w-4" /> Download</span></a>)}
         </div>
       </section>
-      <section id="flyers" className="border-t border-line bg-white py-14 lg:py-20">
-        <div className="container-x">
-          <h2 className="t-2">Individual product flyers</h2>
-          <div className="mt-8 grid gap-8">
-            {verticals.map((v) => (
-              <div key={v.id}>
-                <h3 className="font-display text-lg font-semibold text-navy-950">{v.name}</h3>
-                <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {productsInVertical(v.id).map((p) => (
-                    <li key={p.slug} className="flex items-center justify-between gap-3 rounded border border-line px-4 py-3">
-                      <Link href={productUrl(p)} className="text-[0.92rem] font-semibold text-navy-900 hover:text-signal-600">{p.name}</Link>
-                      <TrackedLink href={flyerUrl(p)} download event="flyer_download" params={{ product: p.slug }} className="inline-flex shrink-0 items-center gap-1 text-[0.82rem] font-semibold text-navy-700 hover:text-signal-600" aria-label={`Download ${p.name} flyer (PDF)`}>
-                        <Download className="h-3.5 w-3.5" aria-hidden /> PDF
-                      </TrackedLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+      <section id="brochures" className="section-tight">
+        <div className="wrap wrap-wide">
+          <SectionHead eyebrow="Category brochures" title="One brochure per material." />
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {categories.map((c) => { const href = `/assets/downloads/merova-${c.slug}-brochure.pdf`; return <a key={c.id} href={href} download className="tile reveal group"><div className="p-3 pb-0"><div className="relative aspect-[3/4] overflow-hidden rounded-[20px] bg-red"><Image src={c.image} alt="" fill sizes="25vw" className="tile-img object-cover opacity-90 mix-blend-luminosity" /><span className="absolute inset-x-4 bottom-4 font-display text-xl font-semibold text-white drop-shadow">{c.name}</span></div></div><div className="p-5"><p className="text-sm text-stone">{productsIn(c.id).length} products · PDF{sizes[href] ? ` · ${sizes[href]}` : ""}</p><span className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-red"><Download className="h-4 w-4" /> Download</span></div></a>; })}
           </div>
-          <p className="mt-10 rounded-md bg-paper-2 p-5 text-[0.9rem] text-ink-2">
-            <strong className="text-ink">Technical data sheets:</strong> each product flyer includes its specification table. Order-specific technical data sheets are issued with your quotation once the specification is confirmed.
-          </p>
         </div>
       </section>
-      <CtaBand title="Ready to discuss a requirement?" text="Use the quote form to share specifications and files with the right team." />
+      <section id="flyers" className="section-tight bg-sand">
+        <div className="wrap wrap-wide">
+          <SectionHead eyebrow="Product flyers" title={`${products.length} one-page flyers.`} />
+          <div className="mt-8"><DownloadFilter items={products.map((p) => ({ id: p.id, n: p.name, c: p.category, href: p.flyer, size: sizes[p.flyer], i: p.image }))} cats={categories.map((c) => ({ id: c.id, n: c.short }))} /></div>
+        </div>
+      </section>
+      <CtaBand />
     </>
   );
 }

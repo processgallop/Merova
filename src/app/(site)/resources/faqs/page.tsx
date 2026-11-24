@@ -1,46 +1,31 @@
 import { CtaBand, FaqList, PageHero } from "@/components/ui/blocks";
-import { verticals, industries } from "@/data/catalog";
-import { faqJsonLd, pageMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { SUB_CONTENT } from "@/data/product-content";
+import { faqJsonLd, pageMetadata } from "@/lib/seo";
 
-export const metadata = pageMetadata({
-  title: "Packaging FAQs | Merova Printpack",
-  description: "Frequently asked questions about Merova's packaging products, quotations, customisation, quality, food contact and sustainability.",
-  path: "/resources/faqs",
-});
+export const metadata = pageMetadata({ title: "FAQs | Packaging Materials, Printing, Quotes | Merova Printpack", description: "Answers to common questions on packaging materials, printing, artwork, samples, quotations, food contact, compostability and India's plastic rules.", path: "/resources/faqs/" });
 
 const GENERAL = [
-  { q: "How do I request a quotation?", a: "Use the Request a Quote form. Choose your product and the form asks for the details that matter for it — dimensions, materials, printing and quantity — and lets you attach drawings, artwork or photographs." },
-  { q: "What happens after I submit an enquiry?", a: "You receive a reference number, and the enquiry is routed to the team responsible for your product. A specialist reviews it and contacts you to confirm details, recommend a specification and arrange samples or a quotation." },
-  { q: "Do you supply samples?", a: "Sampling is part of the development process for new and custom packaging. Sampling terms are confirmed with each quotation." },
-  { q: "What are your minimum order quantities and lead times?", a: "They depend on the product, specification and print. The team confirms them with your quotation — share your volumes and timeline in the quote form." },
-  { q: "Is my information confidential?", a: "Yes. Enquiry details and files are used only to assess and respond to your requirement. Mention it if you need a non-disclosure agreement." },
-  { q: "Are the product images photographs of Merova products?", a: "Product visuals are format illustrations or representative imagery unless captioned otherwise. They show the type of packaging; your packaging is specified and sampled to your requirement." },
-  { q: "What does 'confirmed at quotation' mean on a specification?", a: "It marks a Merova-specific value — such as board grade, GSM, micron or tolerance — that is confirmed in writing for your order rather than published as a general figure." },
+  { q: "What does Merova Printpack supply?", a: "Printing and packaging across four materials: paper products (cartons, rigid boxes, foodservice, bags, labels, print), plastic products and films, compostable products, and corrugated and fluted products." },
+  { q: "How do I get a quotation?", a: "Add products to your enquiry from any product or industry page, then send the enquiry with approximate quantities. You can also describe a custom requirement. The team replies with a recommended specification and a quotation." },
+  { q: "Do you publish prices?", a: "No. Price depends on size, material, print, finish and quantity, so every requirement is quoted." },
+  { q: "Are the specifications on the website final?", a: "Values marked 'Indicative' are typical ranges for the format. Your exact specification is confirmed at quotation and on the approved sample." },
+  { q: "Can I get samples?", a: "Yes. Samples are produced for fit, handling and print approval before production. Sampling terms are confirmed with the quotation." },
+  { q: "What artwork do you need?", a: "Print-ready vector files (PDF, AI or EPS) on our dieline, with fonts outlined and 3 mm bleed. We supply dielines on request." },
+  { q: "Do you supply single-use plastic cups, plates or cutlery?", a: "No. These items have been prohibited in India since 1 July 2022. We offer paper and certified compostable alternatives." },
+  { q: "How are compostable products certified?", a: "Each compostable product is published with its certification (industrial or home compostable) and, in India, its CPCB certificate number for the grade supplied." },
 ];
+const SECTIONS = [["General", GENERAL], ["Cartons & rigid boxes", [...(SUB_CONTENT["PA-A"].faqs ?? []), ...(SUB_CONTENT["PA-B"].faqs ?? [])]], ["Foodservice", SUB_CONTENT["PA-C"].faqs ?? []], ["Films & flexible packaging", [...(SUB_CONTENT["PL-A"].faqs ?? []), ...(SUB_CONTENT["PL-D"].faqs ?? [])]], ["Compostable", [...(SUB_CONTENT["CO-A"].faqs ?? []), ...(SUB_CONTENT["CO-D"].faqs ?? [])]], ["Corrugated", SUB_CONTENT["CR-A"].faqs ?? []]] as const;
 
-export default function FaqsPage() {
-  const groups = [
-    { title: "General", faqs: GENERAL },
-    ...verticals.map((v) => ({ title: v.name, faqs: v.faqs })),
-    { title: "Industries", faqs: industries.flatMap((i) => i.faqs).slice(0, 8) },
-  ];
-  const all = groups.flatMap((g) => g.faqs);
+export default function Page() {
   return (
     <>
-      <PageHero eyebrow="FAQs" title="Frequently asked questions" intro="Can't find your answer? Ask Mira, or contact the team." crumbs={[{ name: "Resources", href: "/resources" }, { name: "FAQs", href: "/resources/faqs" }]} />
-      <section className="py-14 lg:py-20">
-        <div className="container-x grid gap-12">
-          {groups.map((g) => (
-            <div key={g.title} className="grid gap-6 lg:grid-cols-[1fr_2fr]">
-              <h2 className="t-3">{g.title}</h2>
-              <FaqList faqs={g.faqs} schema={false} />
-            </div>
-          ))}
-        </div>
+      <JsonLd data={faqJsonLd(GENERAL)} />
+      <PageHero crumbs={[{ name: "Resources", href: "/resources/" }, { name: "FAQs", href: "/resources/faqs/" }]} eyebrow="FAQs" title="Answers, by topic." />
+      <section className="section-tight">
+        <div className="wrap wrap-wide grid gap-14">{SECTIONS.map(([t, f]) => <div key={t} className="grid gap-8 lg:grid-cols-[0.6fr_1.4fr]"><h2 className="h3">{t}</h2><FaqList faqs={[...f]} /></div>)}</div>
       </section>
-      <JsonLd data={faqJsonLd(all)} />
-      <CtaBand title="Still have a question?" text="Send it to the team and the right specialist will reply." primary={{ label: "Contact Us", href: "/contact" }} secondary={{ label: "Request a Quote", href: "/request-a-quote" }} />
+      <CtaBand title="Didn't find your answer?" text="Ask Mira, message us on WhatsApp, or send your question to the team." primary={{ label: "Contact the team", href: "/contact/" }} />
     </>
   );
 }

@@ -974,6 +974,8 @@ def write_outputs():
                 industries=INDUSTRIES, dedup=DEDUP, excluded=EXCLUDED, verification=VERIFY, decisions=DECISIONS,
                 sitemap=S, blog=BLOG, redirects=redirects())
     json.dump(data, open(f"{OUT}/register.json", "w"), indent=1, ensure_ascii=False)
+    gen = os.path.join(OUT, "..", "..", "src", "data", "generated"); os.makedirs(gen, exist_ok=True)
+    json.dump(data, open(os.path.join(gen, "register.json"), "w"), ensure_ascii=False)
 
     # ── XLSX
     from openpyxl import Workbook

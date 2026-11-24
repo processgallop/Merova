@@ -2,14 +2,14 @@ import { PageHero } from "@/components/ui/blocks";
 import { site } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 
-export const metadata = pageMetadata({ title: "Terms and Conditions | Merova Printpack", description: "Terms of use for the Merova Printpack website.", path: "/terms" });
+export const metadata = pageMetadata({ title: "Terms and Conditions | Merova Printpack", description: "Terms of use for the Merova Printpack website.", path: "/terms/" });
 
 export default function TermsPage() {
   return (
     <>
-      <PageHero eyebrow="Legal" title="Terms and Conditions" intro={`Terms governing your use of the ${site.name} website.`} crumbs={[{ name: "Terms", href: "/terms" }]} />
-      <section className="py-14">
-        <div className="container-x prose-merova max-w-3xl">
+      <PageHero eyebrow="Legal" title="Terms and Conditions" intro={`Terms governing your use of the ${site.name} website.`} crumbs={[{ name: "Terms", href: "/terms/" }]} />
+      <section className="section-tight">
+        <div className="wrap prose-merova max-w-3xl">
           <h2>Website information</h2>
           <p>Content on this website is provided for general information about Merova&apos;s packaging products and services. Specifications marked as industry reference are general technical information. Specifications marked &ldquo;confirmed at quotation&rdquo; are confirmed for each order and are not offers or guarantees until stated in a written quotation.</p>
           <h2>Images</h2>

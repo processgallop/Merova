@@ -71,13 +71,13 @@ export function Analytics({ gaId, gtmId }: { gaId?: string; gtmId?: string }) {
         </>
       )}
       {ready && choice === null && (
-        <div role="dialog" aria-live="polite" aria-label="Cookie preferences" className="no-print fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-2xl rounded-md border border-line bg-white p-5 shadow-lift sm:inset-x-6">
-          <p className="text-sm leading-relaxed text-ink-2">
+        <div role="dialog" aria-live="polite" aria-label="Cookie preferences" className="no-print fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-2xl rounded-[20px] border border-line bg-white p-5 shadow-[var(--shadow-pop)] sm:inset-x-6">
+          <p className="text-sm leading-relaxed text-charcoal">
             We use analytics cookies to understand how the site is used and improve it. They are only set if you accept.{" "}
-            <Link href="/privacy-policy#cookies" className="font-semibold text-navy-800 underline underline-offset-2">Privacy policy</Link>
+            <Link href="/privacy-policy#cookies" className="font-semibold text-red underline underline-offset-2">Privacy policy</Link>
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <button type="button" className="btn btn-navy btn-sm" onClick={() => decide("granted")}>Accept analytics</button>
+            <button type="button" className="btn btn-dark btn-sm" onClick={() => decide("granted")}>Accept analytics</button>
             <button type="button" className="btn btn-outline btn-sm" onClick={() => decide("denied")}>Decline</button>
           </div>
         </div>

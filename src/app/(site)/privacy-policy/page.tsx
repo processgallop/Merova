@@ -2,15 +2,15 @@ import { PageHero } from "@/components/ui/blocks";
 import { site } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 
-export const metadata = pageMetadata({ title: "Privacy Policy | Merova Printpack", description: "How Merova Printpack collects, uses and protects personal information submitted through this website.", path: "/privacy-policy" });
+export const metadata = pageMetadata({ title: "Privacy Policy | Merova Printpack", description: "How Merova Printpack collects, uses and protects personal information submitted through this website.", path: "/privacy-policy/" });
 
 export default function PrivacyPage() {
   const c = site.contact;
   return (
     <>
-      <PageHero eyebrow="Legal" title="Privacy Policy" intro={`How ${c.legalName} handles personal information submitted through ${site.url.replace(/^https?:\/\//, "")}.`} crumbs={[{ name: "Privacy Policy", href: "/privacy-policy" }]} />
-      <section className="py-14">
-        <div className="container-x prose-merova max-w-3xl">
+      <PageHero eyebrow="Legal" title="Privacy Policy" intro={`How ${c.legalName} handles personal information submitted through ${site.url.replace(/^https?:\/\//, "")}.`} crumbs={[{ name: "Privacy Policy", href: "/privacy-policy/" }]} />
+      <section className="section-tight">
+        <div className="wrap prose-merova max-w-3xl">
           <h2>Information we collect</h2>
           <p>When you submit a quote request, custom requirement or contact form we collect the details you provide: name, company, business email, phone number, location, your enquiry, product and industry selections, technical requirements and any files you attach. We also record the page you submitted from, the referring page and campaign parameters (UTM tags) so we can understand how enquiries reach us.</p>
           <h2>How we use it</h2>

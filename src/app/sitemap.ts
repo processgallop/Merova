@@ -1,25 +1,19 @@
 import type { MetadataRoute } from "next";
-import { industries, productUrl, products, verticals } from "@/data/catalog";
-import { articles, CATEGORIES } from "@/data/blog";
+import { categories, industries, products } from "@/data/catalog";
+import { articles } from "@/content/blog";
 import { absoluteUrl } from "@/lib/site";
 
-/** Indexable pages only. Noindex pages (confirmation, unreviewed articles, case studies placeholder) are excluded. */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticPaths: [string, number][] = [
-    ["/", 1], ["/products", 0.9], ["/industries", 0.9], ["/request-a-quote", 0.9], ["/custom-requirement", 0.8],
-    ["/manufacturing", 0.7], ["/manufacturing/capabilities", 0.6], ["/quality", 0.7], ["/process", 0.6], ["/sustainability", 0.7],
-    ["/company", 0.7], ["/company/leadership", 0.4], ["/company/clients", 0.4], ["/company/client-service", 0.5],
-    ["/company/careers", 0.5], ["/company/partnerships", 0.4], ["/company/suppliers", 0.4],
-    ["/resources", 0.6], ["/resources/downloads", 0.7], ["/resources/faqs", 0.6], ["/blog", 0.7], ["/contact", 0.8],
-    ["/privacy-policy", 0.2], ["/terms", 0.2],
-  ];
-  const usedCats = Object.entries(CATEGORIES).filter(([id]) => articles.some((a) => a.category === id && a.review.status === "reviewed"));
+  const now = new Date();
+  const u = (path: string, priority = 0.6): MetadataRoute.Sitemap[number] => ({ url: absoluteUrl(path), lastModified: now, priority });
   return [
-    ...staticPaths.map(([p, priority]) => ({ url: absoluteUrl(p), priority })),
-    ...verticals.map((v) => ({ url: absoluteUrl(`/${v.slug}`), priority: 0.9 })),
-    ...products.map((p) => ({ url: absoluteUrl(productUrl(p)), priority: 0.8 })),
-    ...industries.map((i) => ({ url: absoluteUrl(`/industries/${i.slug}`), priority: 0.9 })),
-    ...articles.filter((a) => a.review.status === "reviewed").map((a) => ({ url: absoluteUrl(`/blog/${a.slug}`), priority: 0.6 })),
-    ...usedCats.map(([, c]) => ({ url: absoluteUrl(`/blog/category/${c.slug}`), priority: 0.4 })),
+    u("/", 1), u("/products/", 0.9), u("/industries/", 0.9), u("/request-a-quote/", 0.8), u("/custom-packaging/", 0.7), u("/contact/", 0.7),
+    ...categories.map((c) => u(`/products/${c.slug}/`, 0.9)),
+    ...products.map((p) => u(p.url, 0.8)),
+    ...industries.flatMap((i) => [u(i.url, 0.8), ...i.operators.filter((o) => o.page).map((o) => u(o.url, 0.7))]),
+    ...["/about/", "/about/manufacturing/", "/about/quality/", "/about/process/", "/about/client-servicing/", "/about/sustainability/", "/about/careers/", "/about/partnerships/"].map((p) => u(p, 0.5)),
+    ...["/resources/", "/resources/downloads/", "/resources/technical/", "/resources/faqs/", "/insights/"].map((p) => u(p, 0.5)),
+    ...articles.filter((a) => a.review.status === "reviewed").map((a) => u(a.url, 0.5)),
+    u("/privacy-policy/", 0.2), u("/terms/", 0.2),
   ];
 }
