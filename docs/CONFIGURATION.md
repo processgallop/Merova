@@ -1,99 +1,49 @@
-# Configuration and launch setup
+# Configuration & deployment
 
-Every business detail and integration is configured through environment variables (see `.env.example`). Nothing is hard-coded, so the site never shows invented phone numbers, addresses or metrics. Until a value is set, the site shows an honest fallback.
+## 1. Database (required for production)
+The platform needs PostgreSQL to persist admin changes and enquiries.
 
-| Area | Without configuration | To enable |
+| Mode | When | Persistence |
 |---|---|---|
-| Contact details | Hidden. Visitors are routed to the enquiry forms. | `NEXT_PUBLIC_CONTACT_*`, `NEXT_PUBLIC_*_ADDRESS` |
-| WhatsApp | "Chat with Merova" opens a panel with the quote form and contact options | `NEXT_PUBLIC_WHATSAPP_NUMBER` |
-| Enquiry forms | API returns **503**; the form says the enquiry was not sent and shows alternatives | Resend **or** CRM webhook (below) |
-| Acknowledgement email | Not sent. The confirmation page asks the visitor to keep the reference. | Resend |
-| Mira | Guided mode: deterministic answers from the approved catalogue | `ANTHROPIC_API_KEY` |
-| Analytics | Not loaded, and no cookie banner | `NEXT_PUBLIC_GA_ID` and/or `NEXT_PUBLIC_GTM_ID` |
-| Spam protection | Honeypot, minimum completion time and per-IP rate limit | Add Cloudflare Turnstile keys |
+| `DATABASE_URL` set | Production | Persistent PostgreSQL (Neon, Supabase, RDS, Vercel Marketplace Postgres, …) |
+| No `DATABASE_URL`, local dev | `npm run dev` / `next start` locally | Embedded PostgreSQL in `.data/pglite` |
+| No `DATABASE_URL`, on Vercel or during `next build` | Demonstration only | **In-memory, not persistent.** Each server instance has its own copy; changes and sign-ins can be lost. The dashboard shows a warning banner. Website enquiries are refused (503) unless `ALLOW_DEMO_ENQUIRIES=1`. |
 
-`NEXT_PUBLIC_*` values are read at build time, so **redeploy after changing them**.
+**Set up on Vercel:** Project → Storage → Create Database → Neon (Postgres) → connect to the project for Production and Preview. This adds `DATABASE_URL`. Redeploy. On first boot the app runs migrations and seeds the initial content automatically (guarded by a Postgres advisory lock, so concurrent cold starts are safe). Use the pooled connection string; the client disables prepared statements for PgBouncer compatibility.
 
-## 1. Enquiry delivery
+Schema changes: edit `src/db/schema.ts`, run `npm run db:generate`, commit `drizzle/` and `src/db/migrations.generated.ts`. Migrations apply automatically at start-up.
 
-### Option A — Email (Resend)
-1. Create a Resend account and verify the sending domain (DNS records).
-2. Set `RESEND_API_KEY`, `LEAD_EMAIL_FROM` (an address on the verified domain) and `LEAD_EMAIL_DEFAULT`.
-3. Optionally set team inboxes (`LEAD_EMAIL_CORRUGATED`, `…_FOODSERVICE`, `…_CAREERS`, …). Enquiries are routed like this:
-
-| Enquiry | Team | Variable |
+## 2. Environment variables
+| Variable | Required | Purpose |
 |---|---|---|
-| Quote for a corrugated product | Corrugated sales | `LEAD_EMAIL_CORRUGATED` |
-| Quote for a paperboard product | Paperboard sales | `LEAD_EMAIL_PAPER` |
-| Quote for a foodservice product | Foodservice sales | `LEAD_EMAIL_FOODSERVICE` |
-| Quote for a flexible product | Flexible packaging sales | `LEAD_EMAIL_FLEXIBLE` |
-| Custom requirement / custom products | Custom development | `LEAD_EMAIL_CUSTOM` |
-| Technical support | Technical support | `LEAD_EMAIL_TECHNICAL` |
-| Existing order | Customer service | `LEAD_EMAIL_ORDERS` |
-| Supplier | Procurement | `LEAD_EMAIL_SUPPLIERS` |
-| Careers | HR & careers | `LEAD_EMAIL_CAREERS` |
-| Business partnership | Business development | `LEAD_EMAIL_PARTNERSHIPS` |
-| Sales / quote with no product | Sales | `LEAD_EMAIL_DEFAULT` |
+| `DATABASE_URL` | Production | PostgreSQL connection string |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | First boot | Initial Super Administrator (created only when no users exist). Without `ADMIN_PASSWORD` a random password is printed to the server log and must be changed at first sign-in. |
+| `NEXT_PUBLIC_SITE_URL` | Yes | Canonical URL for metadata, sitemap and emails |
+| `RESEND_API_KEY`, `LEAD_EMAIL_FROM` | Recommended | Email notifications to the team and acknowledgements to customers (recipients are set in Admin → Settings) |
+| `LEAD_EMAIL_DEFAULT` | Optional | Fallback recipient if none is set in Settings |
+| `CRM_WEBHOOK_URL`, `CRM_WEBHOOK_SECRET` | Optional | POST every enquiry as JSON to a CRM / Zapier / Make; signed with HMAC-SHA256 in `X-Merova-Signature` |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Optional | Cloudflare Turnstile on forms (honeypot, timing and rate limits are always on) |
+| `ANTHROPIC_API_KEY`, `MIRA_MODEL` | Optional | MIRA AI answers. Without a key MIRA runs in guided mode over the same approved data. |
+| `ENQUIRY_RATE_LIMIT`, `LOGIN_RATE_LIMIT` | Optional | Per-IP limits (defaults 6/min and 10/10 min) |
+| `ALLOW_DEMO_ENQUIRIES` | Never in production | Accept enquiries on the non-persistent demo database |
 
-The team email includes every field, the reference, source page, referrer, UTM tags and the uploaded files (up to 5 files, 4 MB in total). Replies go straight to the customer (`reply-to`).
+Contact details, WhatsApp number, social links, analytics IDs and enquiry recipients are **not** environment variables any more: manage them in Admin → Settings. (`NEXT_PUBLIC_CONTACT_*` values, if present, only pre-fill the first seed.)
 
-### Option B — CRM webhook
-Set `CRM_WEBHOOK_URL` to an endpoint in your CRM or automation tool (HubSpot/Zoho via Zapier, Make or n8n, or a custom endpoint). Each lead is posted as JSON:
+## 3. Deploying
+1. Connect PostgreSQL (above) and set the variables.
+2. Deploy (Vercel: framework preset Next.js, no custom build settings).
+3. Sign in at `/admin`, change the initial password, enable two-step verification, create staff accounts.
+4. Complete Admin → Settings (verified contact details, WhatsApp, enquiry recipients, analytics IDs).
+5. Verify: submit a test enquiry and confirm it appears in Admin → Enquiries (and email/CRM if configured); open `/sitemap.xml` and `/robots.txt`.
 
-```json
-{
-  "ref": "MRV-20261124-1A2B3C", "createdAt": "…", "status": "new",
-  "type": "quote", "typeLabel": "Request a quote", "team": "Foodservice sales",
-  "product": { "slug": "popcorn-tubs", "name": "Popcorn Tubs", "category": "Foodservice & QSR Packaging" },
-  "industry": { "id": "cinema", "name": "Multiplexes & Cinemas" },
-  "specs": { "Product format": "130 oz tub", "Food and temperature": "Hot buttered popcorn" },
-  "quantity": "25,000 – 1,00,000", "delivery": "Pune, India", "timeline": "1–3 months",
-  "contact": { "name": "…", "company": "…", "email": "…", "phone": "…" },
-  "source": { "page": "/request-a-quote?product=popcorn-tubs", "referrer": "…", "utm": {} },
-  "files": [{ "name": "artwork.pdf", "type": "application/pdf", "size": 12345 }]
-}
-```
+Preview deployments are automatically `noindex`.
 
-Map `team` to the CRM owner or queue, use `status` for quotation status, and use `ref` as the external ID. If `CRM_WEBHOOK_SECRET` is set, verify `X-Merova-Signature` (HMAC-SHA256 hex of the raw body). Files are delivered by email (Option A). For file storage in the CRM, add an object-storage upload step. The integration point is `deliverLead()` in `src/lib/enquiry.ts`.
+## 4. Media storage
+Uploaded images, PDFs and enquiry attachments are stored in PostgreSQL (`media.data`, max 4 MB per file — the serverless request limit) and served from `/media/{id}/{name}`; images are converted to WebP (max 2400 px) on upload. Enquiry attachments are private and served only to signed-in staff with enquiry access. Bundled assets (logos, product renders, stock photography, seeded PDFs) are served from `public/`. If volumes grow, move binary storage to object storage (e.g. Vercel Blob/S3) behind `src/lib/admin/media.ts` — the rest of the app only uses URLs.
 
-Both options can run together. The visitor sees success only if at least one of team email, CRM webhook or (in development) the lead store accepted the lead.
-
-### Verify
-1. Submit a test quote with a file attached.
-2. Check that the team inbox and/or CRM received it with the right team and product, that the customer received the acknowledgement, and that the confirmation page shows the same reference.
-3. Check the Vercel function logs for `[enquiry] MRV-… accepted via …`.
-
-## 2. WhatsApp
-Set `NEXT_PUBLIC_WHATSAPP_NUMBER` to digits only, including the country code (for example `9198XXXXXXXX`), then redeploy. The floating "Chat with Merova" button, the product-page WhatsApp CTA and the industry-page CTA all open `https://wa.me/<number>?text=…`. The message names the product or industry being viewed. Clicks are tracked as `whatsapp_click`.
-
-## 3. Mira (AI assistant)
-Set `ANTHROPIC_API_KEY` (optionally `MIRA_MODEL`). Mira then uses Claude with a system prompt containing the approved knowledge base, which is generated automatically from `src/data`, so editing product data updates Mira. Safeguards:
-- Hard rules against inventing specifications, prices, capacity, certifications, lead times and references.
-- Structured JSON output. Links are filtered against the site's real URLs (`ALLOWED_HREFS`).
-- Refusals, errors and timeouts fall back to guided mode.
-- The visitor-facing disclosure "Mira is an AI assistant" is always shown.
-
-## 4. Analytics, Tag Manager and Search Console
-1. **GA4:** create a property and web stream, then set `NEXT_PUBLIC_GA_ID`.
-2. **GTM (optional):** set `NEXT_PUBLIC_GTM_ID`. Events are pushed to `dataLayer` (see `docs/TRACKING-PLAN.md`).
-3. Both load only after the visitor accepts analytics in the cookie banner.
-4. **Search Console:** choose the HTML-tag verification method, copy the `content` token into `NEXT_PUBLIC_GSC_VERIFICATION`, redeploy, then click Verify. Submit `https://<domain>/sitemap.xml`.
-5. In GA4, mark `quote_submit`, `enquiry_submit` and `whatsapp_click` as key events.
-
-## 5. Spam protection (Turnstile)
-Create a Turnstile widget in Cloudflare, then set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`. The widget then appears on the quote and custom-requirement forms and is verified server-side. The honeypot, 3-second minimum completion time and per-IP rate limit are always active. The rate limiter keeps state in memory per instance; for strict global limits, place Vercel Firewall rate-limiting rules in front of `/api/enquiry`.
-
-## 6. Custom domain
-Add the domain in Vercel → Domains, set `NEXT_PUBLIC_SITE_URL` to it, rebuild, and **regenerate the PDFs** so their QR codes and links use the new domain:
-
-```bash
-npm run build && npx next start -p 3100 &
-PDF_BASE=http://localhost:3100 npm run pdfs
-```
-
-Commit the updated files in `public/assets/downloads`.
-
-## 7. Content updates
-- Products, industries, verticals: `src/data/products/*.ts`, `industries.ts`, `verticals.ts`. Run `npm run validate:data` (cross-reference check), `npm run docs` (SEO map and taxonomy) and regenerate the PDFs.
-- Articles: `src/data/blog/*.ts`. Set `review: { status: "reviewed", reviewer: "Name, Role", date: "YYYY-MM-DD" }` once a Merova technical reviewer approves an article. It then becomes indexable and is added to the sitemap.
-- Company facts (certifications, machinery, people, clients): see `docs/ISSUE-REGISTER.md` for the exact places to add them.
+## 5. Security notes
+- Passwords: scrypt; sessions: random 256-bit tokens stored as SHA-256 hashes, HTTP-only `SameSite=Lax` cookies, 12-hour lifetime; 5 failed attempts lock an account for 15 minutes; optional TOTP two-step verification.
+- Every server action and admin API checks the role on the server (`authorize()`); the proxy only performs an optimistic redirect.
+- Server actions are origin-checked by Next.js; admin upload/enquiry APIs check the `Origin` header.
+- CSV exports neutralise spreadsheet formulas. SVG uploads are refused. Theme colours are validated before being written into CSS.
+- Rate limits are per server instance; for strict global limits add a Vercel Firewall rule on `/api/enquiry` and `/admin/login`.

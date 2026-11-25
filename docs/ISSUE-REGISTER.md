@@ -1,31 +1,27 @@
-# Issue register
+# Issue register (outstanding items)
 
-Central register of open items. **Owner:** M = Merova management, D = development, L = legal. **Priority:** P0 = blocks launch, P1 = before or at launch, P2 = after launch.
+**Owner:** M = Merova management, D = development, L = legal. **Priority:** P0 = before production launch, P1 = at launch, P2 = after launch.
 
-| # | Issue | Owner | Priority | Status | Where to resolve | Resolution |
-|---|---|---|---|---|---|---|
-| 1 | No enquiry delivery channel configured; forms return "not connected" (503) | M + D | P0 | Open: needs credentials | Vercel env: Resend and/or `CRM_WEBHOOK_URL` | Verified locally with the lead store: 18 Playwright journeys pass |
-| 2 | Verified contact details (phone, email, addresses, hours, legal name, GSTIN) not supplied; the previous site had placeholders | M | P0 | Open | Vercel env `NEXT_PUBLIC_*` | Placeholders removed; details hidden until supplied |
-| 3 | Verified WhatsApp Business number not supplied | M | P0 | Open | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Fallback panel works; contextual wa.me links verified with a test build |
-| 4 | Confirm which products Merova manufactures in-house vs supplies via partners, and remove any it cannot supply (e.g. rigid boxes, barrier films, compostable films) | M | P0 | Open | `src/data/products/*.ts` | Copy says "supplies/offers"; rigid boxes flagged "subject to capability" |
-| 5 | Product-specific specifications (GSM ranges, micron ranges, flute availability, size limits, tolerances, MOQ) not confirmed | M | P1 | Open | `specs` arrays in `src/data/products/*.ts`, changing `tbc(...)` to `opt(...)` | Unconfirmed values marked "Confirmed at quotation" |
-| 6 | Food-contact documentation per material (foodservice, films) | M | P1 | Open | Product specs, Quality page | Stated as "confirmed per material at quotation" |
-| 7 | Certifications (numbers, scopes, validity) | M | P1 | Open | `src/app/(site)/quality/page.tsx` (certifications section) | Policy statement plus "awaiting confirmation" panel; no logos shown |
-| 8 | Machinery, plant location and size, capacity, authentic facility photos | M | P1 | Open | Manufacturing and Capabilities pages, capabilities brochure | "Awaiting confirmation" panels; representative images captioned |
-| 9 | Leadership profiles and photographs (with consent) | M | P2 | Open | `src/app/(site)/company/leadership/page.tsx` | Function-based content shown |
-| 10 | Client logos, testimonials and case studies (with written permission) | M | P2 | Open | Clients and Case Studies pages (case studies noindex until published) | Reference policy published; nothing invented |
-| 11 | Sustainability evidence (recycled-content %, waste data, compostability certificates) | M | P1 | Open | Sustainability page, `CLAIM_DEFINITIONS`, compostable product specs | Claims defined precisely; no figures shown |
-| 12 | Technical review of the 20 knowledge-centre articles (named reviewer) | M | P1 | Open | `review` field in `src/data/blog/*.ts` | Articles live but `noindex` and out of the sitemap until reviewed |
-| 13 | Original product photography for 49 products | M | P2 | Open | `public/assets/products`, product `image` fields | Captioned studio product visualisations (3D renders) and representative photos in use (see ASSET-REGISTER) |
-| 14 | Provenance of the 18 previous-site images unverified (appear AI-generated) | M | P1 | Open | ASSET-REGISTER | Always captioned "Representative image"; never presented as Merova's own |
-| 15 | Privacy Policy and Terms need legal review | L | P0 | Open | `src/app/(site)/privacy-policy`, `terms` | Drafted, DPDP-aware; review before launch |
-| 16 | GA4 / GTM / Search Console IDs | M | P1 | Open | Vercel env | Consent-gated loader implemented |
-| 17 | Mira AI mode requires `ANTHROPIC_API_KEY` | M | P2 | Open | Vercel env | Guided mode functional and tested; AI mode compiles against the SDK; not exercised without a key |
-| 18 | Cloudflare Turnstile keys (optional) | M | P2 | Open | Vercel env | Honeypot, timing and rate limit active |
-| 19 | Vercel deployment | D | P0 | Resolved | Vercel project `merova-printpack` | Deployed to https://merova-printpack.vercel.app and verified. Auto-deploy on push needs the Vercel GitHub integration (`vercel git connect` / dashboard) |
-| 20 | Custom domain and regenerating PDFs for it; the old merova.vercel.app prototype lives in a different Vercel account and still shows placeholders | M + D | P1 | Open | `NEXT_PUBLIC_SITE_URL`, `npm run pdfs` | PDFs and canonical URLs point to merova-printpack.vercel.app |
-| 21 | Uploaded files are emailed, not stored; add object storage if CRM file storage is needed | D | P2 | Open | `deliverLead()` in `src/lib/enquiry.ts` | 4 MB attachment limit enforced |
-| 22 | In-memory rate limiter is per instance | D | P2 | Open | Vercel Firewall rule on `/api/enquiry` | Documented |
-| 23 | Final creative direction: red-led system, official logo artwork, 5-item nav, redesigned collateral | D | P0 | Resolved | `globals.css`, `Header`, `Footer`, `src/app/print/*`, `public/assets/brand/` | Logos extracted unaltered from `Merova_Logo.pdf`; Sora + Inter; all 53 PDFs regenerated with the layout QA showing 0 clipping |
-| 24 | Product imagery is studio visualisations (3D renders), not photography | M | P1 | Open | `public/assets/products/renders/` | Captioned "Product visualisation"; replace with original photography when available (ASSET-REGISTER shot list) |
-| 25 | Confirm ™ / ® usage on the wordmark and any brand-usage rules (clear space, minimum size) | M | P2 | Open | `public/assets/brand/` | Artwork used as supplied; clear space applied visually |
+| # | Issue | Owner | Priority | Where to resolve |
+|---|---|---|---|---|
+| 1 | Connect a persistent PostgreSQL database (`DATABASE_URL`); without it the deployment is a non-persistent demo | M + D | P0 | Vercel → Storage → Neon (see CONFIGURATION.md) |
+| 2 | Approve promotion of the new platform to production (merova-printpack.vercel.app currently serves the previous build) | M | P0 | Vercel |
+| 3 | Change the initial admin password, enable two-step verification, create staff accounts | M | P0 | /admin/account, /admin/users |
+| 4 | Verified contact details, WhatsApp Business number, addresses, hours, legal name, GSTIN | M | P0 | Admin → Settings |
+| 5 | Enquiry notifications: Resend API key + sending domain, or CRM webhook | M + D | P1 | Environment variables; recipients in Admin → Settings |
+| 6 | Confirm which products are manufactured in-house vs sourced; update each product's availability classification (3 are marked “capability pending”: rigid boxes, compostable shrink and cling films) | M | P0 | Admin → Products → Technical |
+| 7 | Product-specific specifications (GSM, micron, flute, size ranges, tolerances, MOQ, lead time) | M | P1 | Admin → Products → Technical |
+| 8 | Review industry ↔ product mappings for the 5 new industries (construction, corporates, hospitality, agriculture, other) | M | P1 | Admin → Industries → Product mapping |
+| 9 | Certifications, plant/machinery/capacity, leadership profiles, client references (with permission), sustainability evidence | M | P1 | “Awaiting confirmation” sections on About pages (Admin → Pages) |
+| 10 | Authentic product and facility photography to replace renders and stock images | M | P2 | Media library → Replace everywhere |
+| 11 | Flyers for products without a PDF (3 custom-solution records and any new products); regenerate catalogue/company profile after catalogue changes. The automated PDF renderer from the earlier build (`git show 4286794:scripts/generate-pdfs.mjs`, `/print` routes) must be re-pointed at the database to regenerate collateral automatically | D | P1 | Admin → Products → Media & flyer; development |
+| 12 | Technical review of the 20 knowledge-centre articles (named reviewer) so they can be indexed | M | P1 | Admin → Knowledge centre → Review |
+| 13 | Legal review of Privacy Policy and Terms | L | P0 | Admin → Pages |
+| 14 | Brand-owner approval of the horizontal header lockup (built from the official mark and wordmark) and ™/® usage | M | P1 | public/assets/brand |
+| 15 | GA4 / GTM / Search Console IDs | M | P1 | Admin → Settings |
+| 16 | `ANTHROPIC_API_KEY` to enable MIRA's AI mode (guided mode works without it) | M | P2 | Environment variables |
+| 17 | Optional Cloudflare Turnstile keys | M | P2 | Environment variables |
+| 18 | Custom domain; then update `NEXT_PUBLIC_SITE_URL` (QR codes in existing PDFs point to merova-printpack.vercel.app) | M + D | P1 | Vercel, PDFs |
+| 19 | Rate limits are per server instance; add Vercel Firewall rules for `/api/enquiry` and `/admin/login` for global limits | D | P2 | Vercel Firewall |
+| 20 | Media is stored in PostgreSQL (4 MB/file). Move to object storage if the library grows large | D | P2 | `src/lib/admin/media.ts` |
+| 21 | Measure Lighthouse on the production deployment and tune if any score is below target | D | P1 | — |

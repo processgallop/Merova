@@ -1,413 +1,334 @@
 "use client";
-
-import Script from "next/script";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, Loader2, Lock, Paperclip, Trash2 } from "lucide-react";
-import { QUANTITY_BANDS, TIMELINES, UPLOAD_LIMITS, quoteFields, type QuoteField } from "@/data/quote";
-import type { QuoteProfile } from "@/data/types";
+/* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Paperclip, Plus, Search, Trash2, X } from "lucide-react";
+import { quoteFields, QUANTITY_BANDS, TIMELINES, UPLOAD_LIMITS, type QuoteField } from "@/lib/quote";
+import { useSelection } from "@/components/client/selection";
 import { track } from "@/lib/track";
+import { Field, FormError, Honeypot, submitEnquiry, Turnstile, useFileList, useStartedAt } from "./shared";
 
 export interface QuoteProduct {
   slug: string;
   name: string;
-  vertical: string;
-  profile: QuoteProfile;
+  segment: string;
+  segmentCode: string;
+  profile: string;
+  image?: string;
 }
 
 type Mode = "quote" | "custom";
+const STEPS_QUOTE = ["Requirement", "Specifications", "Delivery & files", "Your details"];
+const STEPS_CUSTOM = ["Your requirement", "Delivery & files", "Your details"];
 
-const STEPS: Record<Mode, string[]> = {
-  quote: ["Requirement", "Specifications", "Delivery & files", "Your details"],
-  custom: ["Your requirement", "Details & files", "Your details"],
-};
-
-const FIELD_STEP: Record<Mode, Record<string, number>> = {
-  quote: { product: 0, message: 2, name: 3, email: 3, phone: 3, consent: 3 },
-  custom: { message: 0, name: 2, email: 2, phone: 2, consent: 2 },
-};
-
-export function QuoteEngine({
-  mode,
-  products,
-  verticals,
-  industries,
-  turnstileSiteKey,
-  fallback,
-}: {
-  mode: Mode;
-  products: QuoteProduct[];
-  verticals: { id: string; name: string }[];
-  industries: { id: string; name: string }[];
-  turnstileSiteKey?: string;
-  fallback: { whatsapp?: string; email?: string; phone?: string };
-}) {
+/**
+ * Progressive quotation engine. Industry and products carry in from the page
+ * the visitor came from (?industry=&products=) and from the selection tray;
+ * technical questions depend on each selected product's quote profile.
+ * Success is shown only after the server confirms the enquiry was stored.
+ */
+export function QuoteEngine({ products, industries, mode = "quote", initialProducts = [], initialIndustry = "" }: { products: QuoteProduct[]; industries: { slug: string; name: string }[]; mode?: Mode; initialProducts?: string[]; initialIndustry?: string }) {
   const router = useRouter();
-  const params = useSearchParams();
-  const formRef = useRef<HTMLFormElement>(null);
-  const topRef = useRef<HTMLDivElement>(null);
-
-  const initialProduct = products.find((p) => p.slug === params.get("product"));
+  const steps = mode === "custom" ? STEPS_CUSTOM : STEPS_QUOTE;
   const [step, setStep] = useState(0);
-  const [industry, setIndustry] = useState(params.get("industry") ?? "");
-  const [category, setCategory] = useState(initialProduct?.vertical ?? params.get("category") ?? "");
-  const [product, setProduct] = useState(initialProduct?.slug ?? "");
-  const [files, setFiles] = useState<File[]>([]);
+  const [industry, setIndustry] = useState(initialIndustry);
+  const [chosen, setChosen] = useState<string[]>(initialProducts.filter((s) => products.some((p) => p.slug === s)));
+  const [other, setOther] = useState(mode === "custom");
+  const [specs, setSpecs] = useState<Record<string, Record<string, string>>>({});
+  const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [banner, setBanner] = useState<{ text: string; offline?: boolean } | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [startedAt] = useState(() => Date.now());
+  const [formError, setFormError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [search, setSearch] = useState("");
+  const started = useStartedAt();
+  const files = useFileList(UPLOAD_LIMITS.maxFiles, UPLOAD_LIMITS.maxTotalBytes);
+  const { list: selection, clear: clearSelection } = useSelection();
 
-  const steps = STEPS[mode];
-  const last = steps.length - 1;
-  const selected = products.find((p) => p.slug === product);
-  const profile: QuoteProfile = selected?.profile ?? "custom";
-  // In custom mode the free-text description is captured on step 1, so it is not repeated here.
-  const specFields = quoteFields[profile].filter((f) => !(mode === "custom" && f.name === "productDescription"));
-  const productOptions = useMemo(() => (category ? products.filter((p) => p.vertical === category) : products), [category, products]);
-  const context = params.get("context");
+  // Pull in products picked in the selection tray if the URL carried none.
+  useEffect(() => {
+    if (initialProducts.length || !selection.length) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setChosen((c) => (c.length ? c : selection.map((s) => s.slug).filter((s) => products.some((p) => p.slug === s))));
+  }, [selection, initialProducts.length, products]);
 
   useEffect(() => {
-    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [step]);
+    track("quote_start", { mode, products: chosen.length, industry });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  function validate(s: number): Record<string, string> {
-    const f = formRef.current!;
-    const val = (n: string) => ((f.elements.namedItem(n) as HTMLInputElement | null)?.value ?? "").trim();
+  const bySlug = useMemo(() => new Map(products.map((p) => [p.slug, p])), [products]);
+  const chosenProducts = chosen.map((s) => bySlug.get(s)).filter((p): p is QuoteProduct => Boolean(p));
+  const filtered = search.trim() ? products.filter((p) => `${p.name} ${p.segment}`.toLowerCase().includes(search.toLowerCase())) : products;
+  const set = (k: string, v: string) => setValues((x) => ({ ...x, [k]: v }));
+  const setSpec = (slug: string, k: string, v: string) => setSpecs((x) => ({ ...x, [slug]: { ...x[slug], [k]: v } }));
+  const toggle = (slug: string) => setChosen((c) => (c.includes(slug) ? c.filter((s) => s !== slug) : [...c, slug].slice(0, 20)));
+
+  const stepName = steps[step];
+  function validate(): boolean {
     const e: Record<string, string> = {};
-    if (mode === "quote" && s === 0 && !product) e.product = "Choose a product, or select ‘Something else’.";
-    if (mode === "custom" && s === 0 && val("message").length < 10) e.message = "Please describe what you need packing (a sentence or two is enough).";
-    if (s === last) {
-      if (val("name").length < 2) e.name = "Please enter your name.";
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val("email"))) e.email = "Please enter a valid business email.";
-      if (val("phone") && !/^[+()\-\s\d]{7,20}$/.test(val("phone"))) e.phone = "Please enter a valid phone number.";
-      if (!(f.elements.namedItem("consent") as HTMLInputElement).checked) e.consent = "Please confirm so we can reply to you.";
+    if (stepName === "Requirement" && !chosen.length && !other) e.products = "Select at least one product, or choose “Something else”.";
+    if ((stepName === "Requirement" && other && !(values.message ?? "").trim()) || (stepName === "Your requirement" && (values.message ?? "").trim().length < 10)) e.message = "Please describe what you need packaging for.";
+    if (stepName === "Your details") {
+      if ((values.name ?? "").trim().length < 2) e.name = "Please enter your name.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email ?? "")) e.email = "Please enter a valid business email.";
+      if (values.phone && !/^[+()\-\s\d]{7,20}$/.test(values.phone)) e.phone = "Please enter a valid phone number.";
+      if (values.consent !== "yes") e.consent = "Please confirm we may contact you about this enquiry.";
     }
-    return e;
-  }
-
-  function next() {
-    const e = validate(step);
     setErrors(e);
-    if (Object.keys(e).length) return;
-    track("quote_step", { step: step + 1, mode });
-    setStep((x) => Math.min(x + 1, last));
+    return Object.keys(e).length === 0;
   }
 
-  function addFiles(list: FileList | null) {
-    if (!list) return;
-    const merged = [...files, ...Array.from(list)].slice(0, UPLOAD_LIMITS.maxFiles);
-    const total = merged.reduce((n, f) => n + f.size, 0);
-    if (total > UPLOAD_LIMITS.maxTotalBytes) {
-      setErrors((e) => ({ ...e, files: "Attachments must total 4 MB or less. You can send larger files after we reply." }));
-      return;
-    }
-    setErrors((prev) => {
-      const rest = { ...prev };
-      delete rest.files;
-      return rest;
-    });
-    setFiles(merged);
-  }
+  const next = () => {
+    if (!validate()) return;
+    track("quote_step", { step: step + 1, name: stepName, mode });
+    setStep((s) => Math.min(s + 1, steps.length - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const back = () => setStep((s) => Math.max(0, s - 1));
 
-  async function submit(ev: React.FormEvent) {
-    ev.preventDefault();
-    if (step !== last) return next();
-    const e = validate(last);
-    setErrors(e);
-    if (Object.keys(e).length) return;
-    setSubmitting(true);
-    setBanner(null);
-    const fd = new FormData(formRef.current!);
-    fd.delete("files_picker");
-    fd.set("page", window.location.pathname + window.location.search);
-    fd.set("referrer", document.referrer);
-    files.forEach((f) => fd.append("files", f, f.name));
-    try {
-      const res = await fetch("/api/enquiry", { method: "POST", body: fd });
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; ref?: string; team?: string; acknowledged?: boolean; error?: string; code?: string; fields?: Record<string, string> };
-      if (res.ok && data.ok && data.ref) {
-        track(mode === "quote" ? "quote_submit" : "enquiry_submit", { product: product || "none", industry: industry || "none", type: mode });
-        const q = new URLSearchParams({ ref: data.ref, team: data.team ?? "", ack: data.acknowledged ? "1" : "0", type: mode });
-        router.push(`/enquiry-received?${q}`);
-        return;
-      }
-      if (data.fields) {
-        setErrors(data.fields);
-        const first = Object.keys(data.fields)[0];
-        const target = FIELD_STEP[mode][first];
-        if (target !== undefined) setStep(target);
-      }
-      setBanner({ text: data.error ?? "We couldn't submit your enquiry. Please try again.", offline: data.code === "not_configured" || res.status >= 500 });
-    } catch {
-      setBanner({ text: "Network error — your enquiry was not sent. Please check your connection and try again.", offline: true });
-    } finally {
-      setSubmitting(false);
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (step < steps.length - 1) return next();
+    if (!validate()) return;
+    setBusy(true);
+    setFormError("");
+    const fd = new FormData(e.currentTarget);
+    fd.set("type", mode === "custom" ? "custom" : "quote");
+    fd.set("startedAt", String(started.current));
+    fd.set("industry", industry);
+    fd.set("products", JSON.stringify(chosenProducts.map((p) => ({ slug: p.slug, specs: specs[p.slug] ?? {} }))));
+    for (const [k, v] of Object.entries(values)) fd.set(k, v);
+    fd.delete("files");
+    for (const f of files.files) fd.append("files", f);
+    const result = await submitEnquiry(fd);
+    setBusy(false);
+    if (result.ok) {
+      track("quote_submit", { mode, products: chosenProducts.length, industry });
+      clearSelection();
+      router.push(`/enquiry-received?ref=${encodeURIComponent(result.ref)}`);
+    } else {
+      setFormError(result.message);
+      if (result.fields) setErrors(result.fields);
+      track("quote_error", { mode });
     }
   }
-
-  const err = (n: string) => errors[n] && <p id={`${n}-error`} className="field-error" role="alert">{errors[n]}</p>;
-  const aria = (n: string) => (errors[n] ? { "aria-invalid": true as const, "aria-describedby": `${n}-error` } : {});
 
   return (
-    <div ref={topRef} className="scroll-mt-28">
-      {turnstileSiteKey && <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" />}
-
+    <form onSubmit={submit} noValidate className="relative">
+      <Honeypot />
       {/* Progress */}
-      <ol className="mb-8 grid gap-2" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0,1fr))` }} aria-label="Progress">
-        {steps.map((label, i) => (
-          <li key={label} aria-current={i === step ? "step" : undefined}>
-            <div className={`h-1.5 rounded-full ${i <= step ? "bg-red-500" : "bg-line"}`} />
-            <p className={`mt-2 hidden text-[0.78rem] font-semibold sm:block ${i === step ? "text-char-950" : "text-muted"}`}>
-              <span className="font-sans tabular-nums">{String(i + 1).padStart(2, "0")}</span> {label}
-            </p>
+      <ol className="mb-10 grid gap-2" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }} aria-label="Progress">
+        {steps.map((s, i) => (
+          <li key={s} aria-current={i === step ? "step" : undefined}>
+            <div className={`h-1 transition-colors duration-500 ${i <= step ? "bg-red" : "bg-line"}`} />
+            <p className={`mt-2.5 hidden text-xs font-semibold sm:block ${i === step ? "text-heading" : "text-muted"}`}><span className="tabular-nums">{String(i + 1).padStart(2, "0")}</span> {s}</p>
           </li>
         ))}
       </ol>
-      <p className="mb-6 text-sm text-muted sm:hidden">
-        Step {step + 1} of {steps.length}: <span className="font-semibold text-char-950">{steps[step]}</span>
-      </p>
+      <p className="mb-6 text-sm text-muted sm:hidden">Step {step + 1} of {steps.length}: <strong className="text-heading">{stepName}</strong></p>
 
-      <form ref={formRef} onSubmit={submit} noValidate className="rounded-sm border border-line bg-white p-5 sm:p-8">
-        <input type="hidden" name="type" value={mode} />
-        <input type="hidden" name="startedAt" value={startedAt} />
-        <input type="hidden" name="category" value={category} />
-        {["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"].map((k) => params.get(k) && <input key={k} type="hidden" name={k} value={params.get(k)!} />)}
-        {context && <input type="hidden" name="spec_context" value={context} />}
-        <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
-          <label>Website<input type="text" name="website" tabIndex={-1} autoComplete="off" /></label>
-        </div>
-
-        {/* ---------- QUOTE: Step 1 ---------- */}
-        {mode === "quote" && (
-          <fieldset hidden={step !== 0} className="grid gap-5">
-            <legend className="mb-1 font-display text-xl font-semibold text-char-950">What do you need?</legend>
-            <div className="grid gap-5 md:grid-cols-2">
-              <div>
-                <label htmlFor="industry" className="field-label">Industry <span className="font-normal text-muted">(optional)</span></label>
-                <select id="industry" name="industry" className="field" value={industry} onChange={(e) => setIndustry(e.target.value)}>
-                  <option value="">Select your industry</option>
-                  {industries.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="category-select" className="field-label">Product category</label>
-                <select
-                  id="category-select"
-                  className="field"
-                  value={category}
-                  onChange={(e) => {
-                    setCategory(e.target.value);
-                    if (selected && selected.vertical !== e.target.value) setProduct("");
-                  }}
-                >
-                  <option value="">All categories</option>
-                  {verticals.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
-                </select>
-              </div>
-            </div>
-            <div>
-              <label htmlFor="product" className="field-label">Product</label>
-              <select id="product" name="product" className="field" value={product} onChange={(e) => setProduct(e.target.value)} {...aria("product")}>
-                <option value="">Select a product</option>
-                {productOptions.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}
-                <option value="other">Something else / not sure</option>
-              </select>
-              {err("product")}
-              {product === "other" && <p className="field-hint">No problem — describe your requirement on the next step.</p>}
-            </div>
-          </fieldset>
-        )}
-
-        {/* ---------- CUSTOM: Step 1 ---------- */}
-        {mode === "custom" && (
-          <fieldset hidden={step !== 0} className="grid gap-5">
-            <legend className="mb-1 font-display text-xl font-semibold text-char-950">Tell us about your requirement</legend>
-            <div>
-              <label htmlFor="message" className="field-label">What are you looking for?</label>
-              <textarea id="message" name="message" rows={6} className="field" placeholder="Describe the product, its size and weight, how it is shipped and sold, and what the packaging needs to do." {...aria("message")} />
-              {err("message")}
-            </div>
-            <div className="grid gap-5 md:grid-cols-2">
-              <div>
-                <label htmlFor="industry" className="field-label">Industry <span className="font-normal text-muted">(optional)</span></label>
-                <select id="industry" name="industry" className="field" value={industry} onChange={(e) => setIndustry(e.target.value)}>
-                  <option value="">Select your industry</option>
-                  {industries.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="product" className="field-label">Closest product <span className="font-normal text-muted">(optional)</span></label>
-                <select id="product" name="product" className="field" value={product} onChange={(e) => setProduct(e.target.value)}>
-                  <option value="">Not sure</option>
-                  {products.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}
-                </select>
-              </div>
-            </div>
-          </fieldset>
-        )}
-
-        {/* ---------- Specifications ---------- */}
-        <fieldset hidden={step !== 1} className="grid gap-5">
-          <legend className="mb-1 font-display text-xl font-semibold text-char-950">
-            {mode === "quote" ? (selected ? `${selected.name}: specifications` : "Your requirement") : "Specifications"}
-          </legend>
-          <p className="-mt-2 text-sm text-muted">Fill in what you know — the team will help with the rest.</p>
-          <div className="grid gap-5 md:grid-cols-2">
-            {specFields.map((f) => <SpecInput key={`${profile}-${f.name}`} field={f} />)}
-            <div>
-              <label htmlFor="quantity" className="field-label">Required quantity</label>
-              <select id="quantity" name="quantity" className="field" defaultValue="">
-                <option value="">Select a range</option>
-                {QUANTITY_BANDS.map((q) => <option key={q}>{q}</option>)}
-              </select>
-            </div>
-          </div>
-        </fieldset>
-
-        {/* ---------- Delivery & files ---------- */}
-        <fieldset hidden={step !== (mode === "quote" ? 2 : 1)} className={`grid gap-5 ${mode === "custom" && step === 1 ? "mt-8 border-t border-line pt-8" : ""}`}>
-          <legend className="mb-1 font-display text-xl font-semibold text-char-950">Delivery, timeline & reference files</legend>
-          <div className="grid gap-5 md:grid-cols-2">
-            <div>
-              <label htmlFor="delivery" className="field-label">Delivery location</label>
-              <input id="delivery" name="delivery" className="field" placeholder="City, state / country" autoComplete="address-level2" />
-            </div>
-            <div>
-              <label htmlFor="timeline" className="field-label">Required timeline</label>
-              <select id="timeline" name="timeline" className="field" defaultValue="">
-                <option value="">Select</option>
-                {TIMELINES.map((t) => <option key={t}>{t}</option>)}
-              </select>
-            </div>
-          </div>
-          {mode === "quote" && (
-            <div>
-              <label htmlFor="message" className="field-label">Additional details <span className="font-normal text-muted">(optional)</span></label>
-              <textarea id="message" name="message" rows={4} className="field" placeholder="Anything else we should know — current issues, performance needs, food contact, export, testing…" {...aria("message")} />
-              {err("message")}
-            </div>
-          )}
+      {stepName === "Requirement" ? (
+        <div className="space-y-8">
+          <Field label="Your industry" name="industry-select" hint="Helps us route your enquiry to the right team.">
+            <select id="industry-select" className="field" value={industry} onChange={(e) => setIndustry(e.target.value)}>
+              <option value="">Select your industry (optional)</option>
+              {industries.map((i) => <option key={i.slug} value={i.slug}>{i.name}</option>)}
+            </select>
+          </Field>
           <div>
-            <p className="field-label">Upload photographs, drawings, artwork, dielines or specifications</p>
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed border-line-strong bg-paper px-4 py-7 text-center hover:border-char-700">
-              <Paperclip className="h-5 w-5 text-char-700" aria-hidden />
-              <span className="text-sm font-semibold text-char-900">Choose files</span>
-              <span className="text-xs text-muted">Up to {UPLOAD_LIMITS.maxFiles} files, 4 MB total · PDF, images, AI, EPS, DXF, DWG, ZIP, Office</span>
-              <input type="file" name="files_picker" multiple accept={UPLOAD_LIMITS.accept.join(",")} className="sr-only" onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
-            </label>
-            {err("files")}
-            {files.length > 0 && (
-              <ul className="mt-3 grid gap-2">
-                {files.map((f, i) => (
-                  <li key={f.name + i} className="flex items-center justify-between rounded border border-line px-3 py-2 text-sm">
-                    <span className="truncate">{f.name} <span className="text-muted">· {Math.max(1, Math.round(f.size / 1024))} KB</span></span>
-                    <button type="button" onClick={() => setFiles(files.filter((_, j) => j !== i))} className="p-1 text-muted hover:text-signal-700" aria-label={`Remove ${f.name}`}>
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </li>
+            <p className="field-label">Products you need <span className="font-normal text-muted">— select one or several</span></p>
+            {chosenProducts.length ? (
+              <ul className="mb-4 flex flex-wrap gap-2">
+                {chosenProducts.map((p) => (
+                  <li key={p.slug} className="chip is-active">{p.name}<button type="button" onClick={() => toggle(p.slug)} aria-label={`Remove ${p.name}`}><X className="size-3.5" /></button></li>
                 ))}
               </ul>
-            )}
-          </div>
-        </fieldset>
-
-        {/* ---------- Contact ---------- */}
-        <fieldset hidden={step !== last} className="grid gap-5">
-          <legend className="mb-1 font-display text-xl font-semibold text-char-950">Your details</legend>
-          <div className="grid gap-5 md:grid-cols-2">
-            <div>
-              <label htmlFor="name" className="field-label">Contact person</label>
-              <input id="name" name="name" className="field" autoComplete="name" {...aria("name")} />
-              {err("name")}
-            </div>
-            <div>
-              <label htmlFor="company" className="field-label">Company name <span className="font-normal text-muted">(recommended)</span></label>
-              <input id="company" name="company" className="field" autoComplete="organization" />
-            </div>
-            <div>
-              <label htmlFor="email" className="field-label">Business email</label>
-              <input id="email" name="email" type="email" className="field" autoComplete="email" inputMode="email" {...aria("email")} />
-              {err("email")}
-            </div>
-            <div>
-              <label htmlFor="phone" className="field-label">Mobile <span className="font-normal text-muted">(optional)</span></label>
-              <input id="phone" name="phone" type="tel" className="field" autoComplete="tel" inputMode="tel" placeholder="+91" {...aria("phone")} />
-              {err("phone")}
-            </div>
-            <div className="md:col-span-2">
-              <label htmlFor="location" className="field-label">Your location <span className="font-normal text-muted">(optional)</span></label>
-              <input id="location" name="location" className="field" autoComplete="address-level2" placeholder="City, country" />
-            </div>
-          </div>
-          <label className="flex items-start gap-3 text-sm text-ink-2">
-            <input type="checkbox" name="consent" value="yes" className="mt-1 h-4 w-4 accent-[#0d1f38]" {...aria("consent")} />
-            <span>I agree that Merova may contact me about this enquiry. My information will be handled as described in the <a href="/privacy-policy" target="_blank" className="font-semibold text-char-800 underline">privacy policy</a>.</span>
-          </label>
-          {err("consent")}
-          {turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} />}
-          <p className="flex items-center gap-2 text-xs text-muted"><Lock className="h-3.5 w-3.5" aria-hidden /> Your enquiry and files are confidential and used only to respond to your requirement.</p>
-        </fieldset>
-
-        {banner && (
-          <div role="alert" className="mt-6 rounded-sm border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <p className="flex items-start gap-2 font-semibold"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />{banner.text}</p>
-            {banner.offline && (
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {fallback.whatsapp && <li><a href={fallback.whatsapp} target="_blank" rel="noopener" className="btn btn-sm btn-primary">WhatsApp</a></li>}
-                {fallback.email && <li><a href={`mailto:${fallback.email}`} className="btn btn-outline btn-sm">Email {fallback.email}</a></li>}
-                {fallback.phone && <li><a href={`tel:${fallback.phone.replace(/[^\d+]/g, "")}`} className="btn btn-outline btn-sm">Call {fallback.phone}</a></li>}
-                {!fallback.whatsapp && !fallback.email && !fallback.phone && <li className="text-ink-2">Direct contact details will be published here once confirmed.</li>}
+            ) : null}
+            <div className="border border-line bg-surface">
+              <div className="relative border-b border-line">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
+                <label htmlFor="product-search" className="sr-only">Search products</label>
+                <input id="product-search" type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search 50+ products…" className="h-12 w-full bg-transparent pl-10 pr-3 outline-none" />
+              </div>
+              <ul className="max-h-72 overflow-y-auto" role="listbox" aria-multiselectable="true" aria-label="Products">
+                {filtered.map((p) => {
+                  const on = chosen.includes(p.slug);
+                  return (
+                    <li key={p.slug} role="option" aria-selected={on}>
+                      <button type="button" onClick={() => toggle(p.slug)} className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${on ? "bg-red-tint" : "hover:bg-paper"}`}>
+                        <span className={`flex size-5 flex-none items-center justify-center border ${on ? "border-red bg-red text-white" : "border-line"}`}>{on ? <Check className="size-3.5" /> : null}</span>
+                        <span className="flex-1 font-medium text-heading">{p.name}</span>
+                        <span className="text-xs text-muted"><span className="text-red">{p.segmentCode}</span> {p.segment}</span>
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
-            )}
+            </div>
+            {errors.products ? <p className="mt-2 text-xs font-semibold text-red">{errors.products}</p> : null}
           </div>
-        )}
-
-        <div className="mt-8 flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
-          {step > 0 ? (
-            <button type="button" className="btn btn-outline" onClick={() => setStep(step - 1)}><ArrowLeft className="h-4 w-4" aria-hidden /> Back</button>
-          ) : <span />}
-          {step < last ? (
-            <button type="button" className="btn btn-navy" onClick={next}>Continue <ArrowRight className="h-4 w-4" aria-hidden /></button>
-          ) : (
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? <><Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Submitting…</> : <><Check className="h-4 w-4" aria-hidden /> {mode === "quote" ? "Submit quote request" : "Submit requirement"}</>}
-            </button>
-          )}
+          <label className="flex cursor-pointer items-start gap-3">
+            <input type="checkbox" checked={other} onChange={(e) => setOther(e.target.checked)} className="mt-1 size-4 accent-[var(--c-red)]" />
+            <span><span className="font-semibold text-heading">Something else / not sure</span><span className="block text-sm text-muted">Describe your requirement and we will recommend the right format.</span></span>
+          </label>
+          {other ? (
+            <Field label="Describe your requirement" name="message" error={errors.message} required>
+              <textarea id="message" className="field" value={values.message ?? ""} onChange={(e) => set("message", e.target.value)} placeholder="What do you need to pack, how is it shipped and sold, and roughly how many?" />
+            </Field>
+          ) : null}
         </div>
-      </form>
-    </div>
+      ) : null}
+
+      {stepName === "Specifications" ? (
+        <div className="space-y-6">
+          {chosenProducts.length ? (
+            chosenProducts.map((p, idx) => (
+              <fieldset key={p.slug} className="border border-line bg-surface p-5 sm:p-6">
+                <legend className="sr-only">{p.name}</legend>
+                <div className="mb-5 flex items-center gap-4">
+                  {p.image ? <img src={p.image} alt="" className="size-14 flex-none bg-paper object-cover" /> : null}
+                  <div className="flex-1">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted">Product {idx + 1} · {p.segment}</p>
+                    <p className="font-display text-lg font-bold text-heading">{p.name}</p>
+                  </div>
+                  <button type="button" onClick={() => toggle(p.slug)} className="flex size-10 items-center justify-center text-muted hover:text-red" aria-label={`Remove ${p.name}`}><Trash2 className="size-4" /></button>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Quantity" name={`${p.slug}-qty`}>
+                    <select id={`${p.slug}-qty`} className="field" value={specs[p.slug]?.Quantity ?? ""} onChange={(e) => setSpec(p.slug, "Quantity", e.target.value)}>
+                      <option value="">Select quantity</option>
+                      {QUANTITY_BANDS.map((q) => <option key={q}>{q}</option>)}
+                    </select>
+                  </Field>
+                  {(quoteFields[p.profile as keyof typeof quoteFields] ?? quoteFields.custom).map((f) => (
+                    <SpecInput key={f.name} f={f} id={`${p.slug}-${f.name}`} value={specs[p.slug]?.[f.label] ?? ""} onChange={(v) => setSpec(p.slug, f.label, v)} />
+                  ))}
+                </div>
+              </fieldset>
+            ))
+          ) : (
+            <p className="border border-line bg-surface p-6 text-sm">No catalogue product selected — your description will be reviewed by the team. <button type="button" className="font-semibold text-red underline" onClick={() => setStep(0)}>Add products</button></p>
+          )}
+          <p className="text-sm text-muted">Everything here is optional. Approximate values are fine — the team confirms the specification with you.</p>
+        </div>
+      ) : null}
+
+      {stepName === "Your requirement" ? (
+        <div className="space-y-6">
+          <Field label="Your industry" name="industry-select">
+            <select id="industry-select" className="field" value={industry} onChange={(e) => setIndustry(e.target.value)}>
+              <option value="">Select your industry (optional)</option>
+              {industries.map((i) => <option key={i.slug} value={i.slug}>{i.name}</option>)}
+            </select>
+          </Field>
+          <Field label="What needs packing?" name="message" error={errors.message} required hint="Product, size and weight, how it is shipped, stored and sold, and what isn't working today.">
+            <textarea id="message" className="field min-h-40" value={values.message ?? ""} onChange={(e) => set("message", e.target.value)} />
+          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {quoteFields.custom.filter((f) => f.name !== "productDescription").map((f) => (
+              <SpecInput key={f.name} f={f} id={`custom-${f.name}`} value={values[`spec_${f.name}`] ?? ""} onChange={(v) => set(`spec_${f.name}`, v)} />
+            ))}
+            <Field label="Quantity" name="quantity">
+              <select id="quantity" className="field" value={values.quantity ?? ""} onChange={(e) => set("quantity", e.target.value)}>
+                <option value="">Select quantity</option>
+                {QUANTITY_BANDS.map((q) => <option key={q}>{q}</option>)}
+              </select>
+            </Field>
+          </div>
+          {chosenProducts.length ? <p className="text-sm">Related products noted: {chosenProducts.map((p) => p.name).join(", ")}</p> : null}
+        </div>
+      ) : null}
+
+      {stepName === "Delivery & files" ? (
+        <div className="space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Delivery location" name="delivery" hint="City / state / country">
+              <input id="delivery" className="field" value={values.delivery ?? ""} onChange={(e) => set("delivery", e.target.value)} />
+            </Field>
+            <Field label="Timeline" name="timeline">
+              <select id="timeline" className="field" value={values.timeline ?? ""} onChange={(e) => set("timeline", e.target.value)}>
+                <option value="">Select timeline</option>
+                {TIMELINES.map((t) => <option key={t}>{t}</option>)}
+              </select>
+            </Field>
+          </div>
+          {mode === "quote" && !other ? (
+            <Field label="Anything else we should know?" name="notes">
+              <textarea id="notes" className="field" value={values.message ?? ""} onChange={(e) => set("message", e.target.value)} placeholder="Printing, finishing, current supplier issues, sampling needs…" />
+            </Field>
+          ) : null}
+          <div>
+            <p className="field-label">Supporting files <span className="font-normal text-muted">— drawings, artwork, photographs or specification sheets</span></p>
+            <label className="flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-[color-mix(in_oklab,var(--c-border)_40%,var(--c-charcoal))] bg-surface px-6 py-8 text-center transition-colors hover:border-red">
+              <Paperclip className="size-5 text-red" />
+              <span className="text-sm font-semibold text-heading">Choose files</span>
+              <span className="text-xs text-muted">Up to {UPLOAD_LIMITS.maxFiles} files, 4 MB in total · {UPLOAD_LIMITS.accept.join(" ")}</span>
+              <input type="file" multiple accept={UPLOAD_LIMITS.accept.join(",")} className="sr-only" onChange={(e) => { files.add(e.target.files); e.target.value = ""; }} />
+            </label>
+            {files.error ? <p className="mt-2 text-xs font-semibold text-red">{files.error}</p> : null}
+            {files.files.length ? (
+              <ul className="mt-3 space-y-1.5">
+                {files.files.map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 bg-surface px-3 py-2 text-sm"><Paperclip className="size-4 text-muted" /><span className="flex-1 truncate">{f.name}</span><span className="text-xs text-muted">{Math.ceil(f.size / 1024)} KB</span><button type="button" onClick={() => files.remove(i)} aria-label={`Remove ${f.name}`}><X className="size-4" /></button></li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {stepName === "Your details" ? (
+        <div className="space-y-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Contact person" name="name" error={errors.name} required><input id="name" autoComplete="name" className="field" aria-invalid={Boolean(errors.name)} value={values.name ?? ""} onChange={(e) => set("name", e.target.value)} /></Field>
+            <Field label="Company" name="company"><input id="company" autoComplete="organization" className="field" value={values.company ?? ""} onChange={(e) => set("company", e.target.value)} /></Field>
+            <Field label="Business email" name="email" error={errors.email} required><input id="email" type="email" autoComplete="email" className="field" aria-invalid={Boolean(errors.email)} value={values.email ?? ""} onChange={(e) => set("email", e.target.value)} /></Field>
+            <Field label="Mobile / phone" name="phone" error={errors.phone}><input id="phone" type="tel" autoComplete="tel" className="field" aria-invalid={Boolean(errors.phone)} value={values.phone ?? ""} onChange={(e) => set("phone", e.target.value)} /></Field>
+            <Field label="Your location" name="location"><input id="location" className="field" value={values.location ?? ""} onChange={(e) => set("location", e.target.value)} /></Field>
+          </div>
+          <label className="flex cursor-pointer items-start gap-3 text-sm">
+            <input type="checkbox" checked={values.consent === "yes"} onChange={(e) => set("consent", e.target.checked ? "yes" : "")} className="mt-0.5 size-4 accent-[var(--c-red)]" />
+            <span>I agree that Merova may contact me about this enquiry. See the <Link href="/privacy-policy" className="underline">privacy policy</Link>.</span>
+          </label>
+          {errors.consent ? <p className="text-xs font-semibold text-red">{errors.consent}</p> : null}
+          <Turnstile />
+          <div className="border-t border-line pt-5 text-sm">
+            <p className="font-semibold text-heading">Summary</p>
+            <p className="mt-1">{chosenProducts.length ? `${chosenProducts.length} product${chosenProducts.length > 1 ? "s" : ""}: ${chosenProducts.map((p) => p.name).join(", ")}` : "Custom / unlisted requirement"}{industry ? ` · ${industries.find((i) => i.slug === industry)?.name}` : ""}{files.files.length ? ` · ${files.files.length} file(s)` : ""}</p>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-8"><FormError message={formError} /></div>
+      <div className="mt-8 flex items-center justify-between gap-4 border-t border-line pt-6">
+        {step > 0 ? <button type="button" onClick={back} className="btn btn-outline"><ArrowLeft className="size-4" /><span>Back</span></button> : <span />}
+        {step < steps.length - 1 ? (
+          <button type="button" onClick={next} className="btn"><span>Continue</span><ArrowRight className="btn-arrow size-4" /></button>
+        ) : (
+          <button type="submit" className="btn" disabled={busy}>{busy ? <Loader2 className="size-4 animate-spin" /> : null}<span>{busy ? "Submitting…" : "Submit enquiry"}</span>{busy ? null : <ArrowRight className="btn-arrow size-4" />}</button>
+        )}
+      </div>
+      {stepName === "Requirement" && !chosen.length ? <p className="mt-4 flex items-center gap-2 text-xs text-muted"><Plus className="size-3.5" />Tip: on any industry page, use “Enquire” on several products to build one consolidated request.</p> : null}
+    </form>
   );
 }
 
-function SpecInput({ field }: { field: QuoteField }) {
-  const id = `spec_${field.name}`;
-  const label = (
-    <label htmlFor={id} className="field-label">{field.label} <span className="font-normal text-muted">(optional)</span></label>
-  );
-  if (field.type === "select")
-    return (
-      <div>
-        {label}
-        <select id={id} name={id} className="field" defaultValue="">
-          <option value="">Select</option>
-          {field.options!.map((o) => <option key={o}>{o}</option>)}
-        </select>
-      </div>
-    );
-  if (field.type === "textarea")
-    return (
-      <div className="md:col-span-2">
-        {label}
-        <textarea id={id} name={id} rows={4} className="field" placeholder={field.placeholder} />
-        {field.hint && <p className="field-hint">{field.hint}</p>}
-      </div>
-    );
+function SpecInput({ f, id, value, onChange }: { f: QuoteField; id: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
-      {label}
-      <input id={id} name={id} className="field" placeholder={field.placeholder} />
-      {field.hint && <p className="field-hint">{field.hint}</p>}
+    <div className={f.type === "textarea" ? "sm:col-span-2" : ""}>
+      <Field label={f.label} name={id} hint={f.hint}>
+        {f.type === "select" ? (
+          <select id={id} className="field" value={value} onChange={(e) => onChange(e.target.value)}>
+            <option value="">Select</option>
+            {f.options?.map((o) => <option key={o}>{o}</option>)}
+          </select>
+        ) : f.type === "textarea" ? (
+          <textarea id={id} className="field" value={value} placeholder={f.placeholder} onChange={(e) => onChange(e.target.value)} />
+        ) : (
+          <input id={id} className="field" value={value} placeholder={f.placeholder} onChange={(e) => onChange(e.target.value)} />
+        )}
+      </Field>
     </div>
   );
 }

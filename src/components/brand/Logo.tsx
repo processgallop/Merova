@@ -1,38 +1,64 @@
 /* eslint-disable @next/next/no-img-element */
-/**
- * Official Merova logo artwork, exported unaltered from the master file
- * (public/assets/brand/source/Merova_Logo.pdf) by scripts/brand-logos.mjs.
- *  - primary: red mark + charcoal wordmark, for Cloud Dancer / white backgrounds
- *  - reverse: cream mark + wordmark, for Merova Red / charcoal backgrounds
- *  - mark-red / mark-cream: the mark alone
- * Aspect ratios come from the trimmed viewBoxes and must not be changed.
- */
-const ART = {
+import { EMBLEM_PATH, EMBLEM_TRANSFORM, EMBLEM_VIEWBOX } from "./emblem-path";
+
+const LOCKUPS = {
+  horizontal: { src: "/assets/brand/merova-lockup-horizontal.svg", ratio: 1585 / 303 },
+  "horizontal-light": { src: "/assets/brand/merova-lockup-horizontal-light.svg", ratio: 1585 / 303 },
+  "horizontal-reverse": { src: "/assets/brand/merova-lockup-horizontal-reverse.svg", ratio: 1585 / 303 },
   primary: { src: "/assets/brand/merova-logo-primary.svg", ratio: 843.66 / 375.16 },
   reverse: { src: "/assets/brand/merova-logo-reverse.svg", ratio: 703.69 / 344.39 },
-  "mark-red": { src: "/assets/brand/merova-mark-red.svg", ratio: 703.69 / 344.39 },
-  "mark-cream": { src: "/assets/brand/merova-mark-cream.svg", ratio: 703.69 / 344.39 },
 } as const;
 
-export type LogoVariant = keyof typeof ART;
+export type LogoVariant = keyof typeof LOCKUPS;
 
-export function Logo({ variant = "primary", height = 56, className = "" }: { variant?: LogoVariant; height?: number; className?: string }) {
-  const a = ART[variant];
+/** Official Merova artwork. `src` lets the admin-managed logo override the default file. */
+export function Logo({ variant = "horizontal", height = 34, src, className = "" }: { variant?: LogoVariant; height?: number; src?: string; className?: string }) {
+  const a = LOCKUPS[variant];
   return (
     <img
-      src={a.src}
-      alt="Merova"
+      src={src || a.src}
+      alt="Merova Printpack"
       width={Math.round(height * a.ratio)}
       height={height}
-      className={`block h-auto max-w-none ${className}`}
-      style={{ height, width: Math.round(height * a.ratio) }}
+      className={`block max-w-none ${className}`}
+      style={{ height, width: src ? "auto" : Math.round(height * a.ratio) }}
       decoding="async"
     />
   );
 }
 
-/** Mark only (legacy name kept for existing imports). */
-export function Glyph({ className = "", tone = "red" }: { className?: string; tone?: "red" | "cream"; color?: string }) {
-  const a = ART[tone === "red" ? "mark-red" : "mark-cream"];
-  return <img src={a.src} alt="" aria-hidden="true" className={className} style={{ aspectRatio: String(a.ratio) }} />;
+/**
+ * The Merova emblem as inline SVG, using the exact master path.
+ * - `mode="fill"`: solid emblem (watermarks, compositions)
+ * - `mode="draw"`: the outline traces itself, then fills — the signature motion
+ * - `mode="outline"`: static outline
+ */
+export function Emblem({
+  className = "",
+  color = "var(--c-red)",
+  mode = "fill",
+  strokeWidth = 3,
+  title,
+}: {
+  className?: string;
+  color?: string;
+  mode?: "fill" | "draw" | "line" | "outline";
+  strokeWidth?: number;
+  title?: string;
+}) {
+  const stroke = mode !== "fill";
+  return (
+    <svg viewBox={EMBLEM_VIEWBOX} className={`${mode === "draw" ? "emblem-draw filled" : mode === "line" ? "emblem-draw" : ""} ${className}`} role={title ? "img" : undefined} aria-hidden={title ? undefined : true} aria-label={title} preserveAspectRatio="xMidYMid meet">
+      <path
+        d={EMBLEM_PATH}
+        transform={EMBLEM_TRANSFORM}
+        fill={mode === "outline" || mode === "line" ? "none" : color}
+        stroke={stroke ? color : "none"}
+        strokeWidth={stroke ? strokeWidth : 0}
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+        style={mode === "draw" || mode === "line" ? ({ "--len": 2600 } as React.CSSProperties) : undefined}
+      />
+    </svg>
+  );
 }

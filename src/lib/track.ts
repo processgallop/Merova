@@ -1,43 +1,15 @@
-"use client";
-
 /**
- * Conversion tracking. Events are pushed to window.dataLayer (GTM) and gtag
- * (GA4) only when analytics has been enabled by consent; otherwise they are
- * queued in memory and dropped. Event names are documented in
- * docs/TRACKING-PLAN.md.
+ * Analytics events (see docs/TRACKING-PLAN.md). Events go to the GTM
+ * dataLayer and, when GA4 is loaded directly, to gtag. Both load only after
+ * cookie consent, so nothing leaves the browser before the visitor agrees.
  */
-export type TrackEvent =
-  | "quote_submit"
-  | "quote_step"
-  | "enquiry_submit"
-  | "whatsapp_click"
-  | "phone_click"
-  | "email_click"
-  | "flyer_download"
-  | "catalogue_download"
-  | "profile_download"
-  | "document_download"
-  | "mira_open"
-  | "mira_message"
-  | "mira_handoff"
-  | "industry_select"
-  | "cta_click";
-
 type Params = Record<string, string | number | boolean | undefined>;
 
-declare global {
-  interface Window {
-    dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
-    __merovaConsent?: boolean;
-  }
-}
-
-export function track(event: TrackEvent, params: Params = {}) {
+export function track(event: string, params: Params = {}) {
   if (typeof window === "undefined") return;
+  const w = window as unknown as { dataLayer?: unknown[]; gtag?: (...a: unknown[]) => void };
   const payload = { ...params, page_path: window.location.pathname };
-  if (!window.__merovaConsent) return;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ event, ...payload });
-  window.gtag?.("event", event, payload);
+  w.dataLayer = w.dataLayer || [];
+  w.dataLayer.push({ event, ...payload });
+  if (typeof w.gtag === "function") w.gtag("event", event, payload);
 }

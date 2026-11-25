@@ -1,23 +1,34 @@
-# Asset register and replacement list
+# Asset register
 
-| Asset | Location | Source | Licence / status | Shown as | Replace with |
-|---|---|---|---|---|---|
-| Master logo artwork | `public/assets/brand/source/Merova_Logo.ai`, `Merova_Logo.pdf`, page SVGs | Supplied by Merova (Nov 2026) | Merova brand asset | Source of all logo files | — |
-| Logo variants: primary, reverse, mark-red, mark-cream (+ on-cloud, on-red, square) | `public/assets/brand/merova-*.{svg,png,@2x.png,@4x.png,webp}` | Extracted unaltered from the PDF (`scripts/brand-logos.mjs`: background removed, viewBox trimmed) | Merova brand asset | Header, footer, PDFs | — (confirm ™ usage) |
-| Favicon, apple icon, 192/512 px icons | `src/app/icon.svg`, `src/app/apple-icon.png`, `public/assets/brand/merova-icon-192.png`, `merova-logo-512.png` | Square mark from the master artwork | Derived | Brand | — |
-| Default OG image | `public/assets/brand/og-default.png` | `scripts/brand-assets.mjs` (reverse logo + hero render) | Derived | Social sharing | — |
-| 44 studio product visualisations | `public/assets/products/renders/*.webp`, print JPEGs in `public/assets/print/renders/` | Rendered for this project in Blender/Cycles (`scripts/render/`, processed by `scripts/process-renders.mjs`) | Original, owned | Captioned **"Product visualisation"** | Original product photography |
-| 7 product photographs (`corrugated-shippers`, `printed-folding-cartons`, `stand-up-pouches`, `protective-inserts`, `shelf-ready-packaging`, `bespoke-dielines`, `recycled-content-board-packs`) | `public/assets/products/*.webp` | Previous site `/images/merova/` | Provenance unverified; appear AI-generated | Captioned **"Representative image"** | Original Merova product photography |
-| 11 facility and context images (`hero-factory-packaging`, `about-production-floor`, `capabilities-press-hall`, `sustainability-*`, `contact-logistics`, `insight-*`) | `public/assets/manufacturing/*.webp` | Previous site | Provenance unverified; appear AI-generated; **not** Merova's facility | Captioned "Representative image" (manufacturing hero: "not a Merova facility") | Authentic facility photography |
-| Print JPEG derivatives | `public/assets/print/*.jpg` | Generated from the WebP files (`scripts/print-images.mjs`) | Derived | PDFs only | Regenerate after replacing photos |
-| PDFs (catalogue, profile, 2 brochures, 49 flyers) | `public/assets/downloads/` | Generated from `/print/*` (`scripts/generate-pdfs.mjs`) | Original | Downloads | Regenerate after data or domain changes |
-| Leadership role images from the previous site | Not used | Previous site | Show anonymous people | — | Real portraits with consent |
+## Stock photography (Unsplash) — representative only
+Captioned “Representative image” on the website and flagged as stock in the media library. Never presented as Merova facilities, people, clients or products. Licence: [Unsplash License](https://unsplash.com/license). Downloads were registered through the Unsplash API.
 
-**Not used on purpose:** any image that could be read as a real Merova employee, client or facility.
+| Use | File | Photographer | Source |
+|---|---|---|---|
+| automotive | public/assets/stock/industry-automotive.webp | Mike van den Bos | https://unsplash.com/photos/vLTVjiY4Fr0 |
+| food-beverage | public/assets/stock/industry-food-beverage.webp | Richard R | https://unsplash.com/photos/5aZ80momNb4 |
+| pharmaceutical | public/assets/stock/industry-pharmaceutical.webp | Melany @ tuinfosalud.com | https://unsplash.com/photos/F6clvre8fGg |
+| retail | public/assets/stock/industry-retail.webp | Clark Street Mercantile | https://unsplash.com/photos/P3pI6xzovu0 |
+| fmcg | public/assets/stock/industry-fmcg.webp | Quilia | https://unsplash.com/photos/SvhXD3kPSTY |
+| cinema | public/assets/stock/industry-cinema.webp | Felipe Bustillo | https://unsplash.com/photos/4VDRCoNuvE0 |
+| construction | public/assets/stock/industry-construction.webp | Frames For Your Heart | https://unsplash.com/photos/VoI2jd75M6Q |
+| industrial | public/assets/stock/industry-industrial.webp | Ant Rozetsky | https://unsplash.com/photos/SLIFI67jv5k |
+| ecommerce | public/assets/stock/industry-ecommerce.webp | Ali Mkumbwa | https://unsplash.com/photos/DU2ybvshovg |
+| electronics | public/assets/stock/industry-electronics.webp | Umberto | https://unsplash.com/photos/jXd2FSvcRr8 |
+| gifts-premium | public/assets/stock/industry-gifts.webp | Anastasiia Chepinska | https://unsplash.com/photos/NrAv5nwdIrw |
+| corporates | public/assets/stock/industry-corporates.webp | kate.sade | https://unsplash.com/photos/2zZp12ChxhU |
+| hospitality | public/assets/stock/industry-hospitality.webp | Ruslan Keba | https://unsplash.com/photos/TTuRieJW2YI |
+| agriculture | public/assets/stock/industry-agriculture.webp | Unsplash contributor | https://unsplash.com/photos/l_5MJnbrmrs |
+| warehouse | public/assets/stock/editorial-warehouse.webp | CHUTTERSNAP | https://unsplash.com/photos/BNBA1h-NgdY |
 
-## Photography shot list (to replace visualisations)
-For each of the 49 products: a 4:3 hero on a neutral background, one detail or texture shot, and one in-use or application shot. Supply at least 2400 px on the long edge, sRGB.
+## Product visualisations
+`public/assets/products/renders/*.webp` — original studio renders of packaging formats made for Merova (Blender pipeline in `scripts/render/`). Captioned “Product visualisation”. Replace with original photography when available.
 
-Facility: exterior; each process (printing, corrugation, die-cutting, finishing, film conversion); QC lab and inspection; warehouse and dispatch.
+## Earlier representative images
+`public/assets/products/*.webp`, `public/assets/manufacturing/*.webp` — from the previous site; provenance unverified (appear AI-generated). Captioned “Representative image” where used.
 
-People: leadership portraits, team at work (with written consent).
+## Brand
+`public/assets/brand/` — official artwork from `source/Merova_Logo.pdf` (unaltered). `merova-lockup-horizontal*.svg` generated by `scripts/brand-lockup.mjs` (exact mark and wordmark glyphs, repositioned; needs brand approval).
+
+## Uploaded media
+Managed in Admin → Media library with title, alt text, credit, source URL and licence fields.

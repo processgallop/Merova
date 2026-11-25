@@ -1,77 +1,59 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
-import { Breadcrumbs } from "@/components/ui/blocks";
+import { ArrowRight, Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Crumbs } from "@/components/ui/blocks";
 import { ContactForm } from "@/components/forms/ContactForm";
-import { CONTACT_TOPICS } from "@/data/contact";
-import { TrackedLink } from "@/components/ui/TrackedLink";
-import { site, telHref, whatsappHref } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { getSiteSettings } from "@/lib/content";
+import { meta } from "@/lib/meta";
+import { telHref, whatsappHref } from "@/lib/site";
 
-export const metadata = pageMetadata({
-  title: "Contact Merova Printpack | Sales, Technical, Orders, Suppliers & Careers",
-  description: "Contact Merova Printpack. Separate routes for sales enquiries, technical support, existing orders, suppliers, careers and business partnerships.",
-  path: "/contact",
-});
+export const revalidate = 3600;
+export const metadata = meta({ title: "Contact Merova Printpack", description: "Speak with Merova's sales, technical, order, supplier, careers or partnership teams.", path: "/contact" });
 
-export default function ContactPage() {
-  const c = site.contact;
-  const wa = whatsappHref();
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ topic?: string }> }) {
+  const [{ topic }, site] = await Promise.all([searchParams, getSiteSettings()]);
+  const wa = whatsappHref(site.whatsapp, site.whatsappMessage);
+  const channels = [
+    site.phone && { icon: Phone, label: "Telephone", value: site.phone, href: telHref(site.phone) },
+    site.email && { icon: Mail, label: "Email", value: site.email, href: `mailto:${site.email}` },
+    site.salesEmail && { icon: Mail, label: "Sales", value: site.salesEmail, href: `mailto:${site.salesEmail}` },
+    wa && { icon: MessageCircle, label: "WhatsApp", value: "Chat with Merova", href: wa },
+  ].filter(Boolean) as { icon: typeof Phone; label: string; value: string; href?: string }[];
   return (
-    <section className="py-10 lg:py-14">
-      <div className="container-x">
-        <Breadcrumbs items={[{ name: "Contact", href: "/contact" }]} />
-        <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem]">
-          <div>
-            <p className="eyebrow">Contact</p>
-            <h1 className="t-1 mt-3">Speak with the right Merova team.</h1>
-            <p className="lede mt-4 max-w-2xl">Choose your enquiry type and it will be routed to the team that can help. For new packaging requirements, the quote form is the fastest route.</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/request-a-quote" className="btn btn-primary">Request a Quote</Link>
-              <Link href="/custom-requirement" className="btn btn-outline">Discuss a Custom Requirement</Link>
-            </div>
-            <div className="mt-10">
-              <Suspense fallback={<div className="h-96 animate-pulse rounded-sm border border-line bg-white" />}>
-                <ContactForm fallback={{ whatsapp: wa, email: c.email, phone: c.phone }} />
-              </Suspense>
-            </div>
+    <section>
+      <div className="wrap grid gap-12 pb-24 pt-8 lg:grid-cols-12">
+        <div className="lg:col-span-5">
+          <Crumbs items={[{ name: "Contact", href: "/contact" }]} />
+          <p className="eyebrow mt-10">Contact</p>
+          <h1 className="t-display mt-5">Let&apos;s Define the Right Packaging Solution for Your Business.</h1>
+          <p className="t-lead mt-5">Choose the team you need. Every message is logged with a reference and routed to the right specialist.</p>
+          {channels.length ? (
+            <ul className="mt-10 divide-y divide-line border-y border-line">
+              {channels.map((c) => (
+                <li key={c.label}>
+                  <a href={c.href} className="group flex items-center gap-4 py-4" {...(c.href?.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                    <c.icon className="size-5 text-red" />
+                    <span className="flex-1"><span className="block text-xs text-muted">{c.label}</span><span className="font-semibold text-heading group-hover:text-red">{c.value}</span></span>
+                    <ArrowRight className="size-4 text-muted transition-transform group-hover:translate-x-1" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-10 border-l-2 border-red pl-4 text-sm">Direct phone and email details will be published here once verified. The form reaches the team today.</p>
+          )}
+          <div className="mt-8 space-y-4 text-sm">
+            {site.officeAddress ? <p className="flex gap-3"><MapPin className="size-5 flex-none text-red" /><span><strong className="block text-heading">Office</strong>{site.officeAddress}</span></p> : null}
+            {site.plantAddress ? <p className="flex gap-3"><MapPin className="size-5 flex-none text-red" /><span><strong className="block text-heading">Manufacturing</strong>{site.plantAddress}</span></p> : null}
+            {site.hours ? <p className="flex gap-3"><Clock className="size-5 flex-none text-red" /><span><strong className="block text-heading">Business hours</strong>{site.hours}</span></p> : null}
+            {site.mapUrl && /^https:\/\/(www\.)?google\.[a-z.]+\/maps\/embed/.test(site.mapUrl) ? <iframe src={site.mapUrl} title="Map" className="mt-4 aspect-video w-full border-0" loading="lazy" /> : null}
           </div>
-
-          <aside className="grid content-start gap-5">
-            <div className="rounded-sm border border-line bg-white p-6">
-              <h2 className="font-display text-lg font-semibold text-char-950">Direct contact</h2>
-              <ul className="mt-4 grid gap-3 text-[0.92rem]">
-                {wa && <li><TrackedLink href={wa} target="_blank" rel="noopener" event="whatsapp_click" className="inline-flex items-center gap-2 font-semibold text-red-600"><MessageCircle className="h-4 w-4" aria-hidden /> Chat with Merova</TrackedLink></li>}
-                {c.phone && <li><TrackedLink href={telHref(c.phone)!} event="phone_click" className="inline-flex items-center gap-2 text-char-800"><Phone className="h-4 w-4" aria-hidden /> {c.phone}</TrackedLink></li>}
-                {c.email && <li><TrackedLink href={`mailto:${c.email}`} event="email_click" className="inline-flex items-center gap-2 break-all text-char-800"><Mail className="h-4 w-4 shrink-0" aria-hidden /> {c.email}</TrackedLink></li>}
-                {c.salesEmail && <li><TrackedLink href={`mailto:${c.salesEmail}`} event="email_click" className="inline-flex items-center gap-2 break-all text-char-800"><Mail className="h-4 w-4 shrink-0" aria-hidden /> Sales: {c.salesEmail}</TrackedLink></li>}
-                {c.hours && <li className="flex items-center gap-2 text-ink-2"><Clock className="h-4 w-4" aria-hidden /> {c.hours}</li>}
-                {!wa && !c.phone && !c.email && (
-                  <li className="text-ink-2">Direct phone, email and WhatsApp details will appear here once confirmed. In the meantime, the form routes your message to the right team.</li>
-                )}
-              </ul>
-            </div>
-            {(c.officeAddress || c.plantAddress) && (
-              <div className="rounded-sm border border-line bg-white p-6">
-                <h2 className="font-display text-lg font-semibold text-char-950">Locations</h2>
-                <ul className="mt-4 grid gap-4 text-[0.92rem] text-ink-2">
-                  {c.officeAddress && <li className="flex gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden /><span><strong className="block text-ink">Office</strong>{c.officeAddress}</span></li>}
-                  {c.plantAddress && <li className="flex gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden /><span><strong className="block text-ink">Manufacturing facility</strong>{c.plantAddress}</span></li>}
-                </ul>
-              </div>
-            )}
-            <div className="rounded-sm bg-paper-2 p-6">
-              <h2 className="font-display text-base font-semibold text-char-950">Enquiry channels</h2>
-              <ul className="mt-3 grid gap-2.5 text-[0.88rem]">
-                {CONTACT_TOPICS.map((t) => (
-                  <li key={t.id}>
-                    <Link href={`/contact?topic=${t.id}`} scroll={false} className="font-semibold text-char-800 hover:text-red-600">{t.label}</Link>
-                    <span className="block text-ink-2">{t.hint}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </aside>
+          <div className="mt-10 grid gap-3 sm:grid-cols-2">
+            <Link href="/request-a-quote" className="btn"><span>Request a Quote</span></Link>
+            <Link href="/custom-requirement" className="btn btn-outline"><span>Custom Requirement</span></Link>
+          </div>
+        </div>
+        <div className="lg:col-span-7 lg:pt-24">
+          <ContactForm defaultTopic={topic} />
         </div>
       </div>
     </section>

@@ -1,179 +1,125 @@
 import Link from "next/link";
-import { ArrowRight, ChevronRight, Plus } from "lucide-react";
-import type { ReactNode } from "react";
-import { JsonLd } from "@/components/seo/JsonLd";
-import { breadcrumbJsonLd, faqJsonLd } from "@/lib/seo";
-import type { Faq, ProductImage } from "@/data/types";
-import { Media } from "./Media";
-export { Media };
+import { ArrowRight, ChevronRight } from "lucide-react";
+import { Fragment } from "react";
 
-export function Breadcrumbs({ items }: { items: { name: string; href: string }[] }) {
-  const all = [{ name: "Home", href: "/" }, ...items];
-  return (
-    <>
-      <nav aria-label="Breadcrumb" className="text-[0.82rem] text-muted">
-        <ol className="flex flex-wrap items-center gap-1">
-          {all.map((it, i) => (
-            <li key={it.href} className="flex items-center gap-1">
-              {i > 0 && <ChevronRight className="h-3.5 w-3.5 opacity-60" aria-hidden />}
-              {i === all.length - 1 ? (
-                <span aria-current="page" className="text-ink-2">{it.name}</span>
-              ) : (
-                <Link href={it.href} className="hover:text-red-600 hover:underline underline-offset-4">{it.name}</Link>
-              )}
-            </li>
-          ))}
-        </ol>
-      </nav>
-      <JsonLd data={breadcrumbJsonLd(all)} />
-    </>
-  );
-}
-
-export function SectionHeading({
+export function SectionHead({
   eyebrow,
   title,
   intro,
   align = "left",
-  as: As = "h2",
+  index,
   light = false,
+  className = "",
   action,
 }: {
   eyebrow?: string;
-  title: ReactNode;
-  intro?: ReactNode;
-  align?: "left" | "center";
-  as?: "h1" | "h2";
+  title: string;
+  intro?: string;
+  align?: "left" | "split";
+  index?: string;
   light?: boolean;
-  action?: ReactNode;
+  className?: string;
+  action?: React.ReactNode;
 }) {
-  return (
-    <div className={`rise flex flex-col gap-5 ${action ? "md:flex-row md:items-end md:justify-between" : ""} ${align === "center" ? "items-center text-center" : ""}`}>
-      <div className={align === "center" ? "mx-auto max-w-3xl" : "max-w-3xl"}>
-        {eyebrow && <p className={`eyebrow ${light ? "eyebrow-light" : ""}`}>{eyebrow}</p>}
-        <As className={`${As === "h1" ? "t-1" : "t-2"} mt-4 ${light ? "!text-cloud" : ""}`}>{title}</As>
-        {intro && <p className={`lede mt-5 ${light ? "!text-cloud" : ""}`}>{intro}</p>}
+  if (align === "split") {
+    return (
+      <div className={`grid gap-6 lg:grid-cols-12 lg:items-end ${className}`}>
+        <div className="lg:col-span-7" data-reveal>
+          {eyebrow ? <p className={`eyebrow ${light ? "light" : ""}`}>{index ? <span className="opacity-60">{index}</span> : null}{eyebrow}</p> : null}
+          <h2 className={`t-display mt-5 ${light ? "text-white" : ""}`}>{title}</h2>
+        </div>
+        <div className="lg:col-span-5" data-reveal style={{ "--d": 1 } as React.CSSProperties}>
+          {intro ? <p className={`t-lead ${light ? "text-white/80" : "text-body"}`}>{intro}</p> : null}
+          {action ? <div className="mt-6">{action}</div> : null}
+        </div>
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+    );
+  }
+  return (
+    <div className={`max-w-3xl ${className}`} data-reveal>
+      {eyebrow ? <p className={`eyebrow ${light ? "light" : ""}`}>{eyebrow}</p> : null}
+      <h2 className={`t-h2 mt-5 ${light ? "text-white" : ""}`}>{title}</h2>
+      {intro ? <p className={`t-lead mt-5 ${light ? "text-white/80" : ""}`}>{intro}</p> : null}
+      {action ? <div className="mt-7">{action}</div> : null}
     </div>
   );
 }
 
-export function FaqList({ faqs, schema = true }: { faqs: Faq[]; schema?: boolean }) {
+export function Btn({ href, children, variant = "primary", size, className = "", arrow = true, ...rest }: { href: string; children: React.ReactNode; variant?: "primary" | "dark" | "outline" | "light" | "ghost-light"; size?: "sm"; className?: string; arrow?: boolean } & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href">) {
+  const cls = `btn ${variant !== "primary" ? `btn-${variant}` : ""} ${size === "sm" ? "btn-sm" : ""} ${className}`;
+  const external = /^https?:|^mailto:|^tel:|\.pdf$/.test(href);
+  const inner = (
+    <>
+      <span>{children}</span>
+      {arrow ? <ArrowRight className="btn-arrow size-4" aria-hidden /> : null}
+    </>
+  );
+  return external ? (
+    <a href={href} className={cls} {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})} {...rest}>
+      {inner}
+    </a>
+  ) : (
+    <Link href={href} className={cls} {...rest}>
+      {inner}
+    </Link>
+  );
+}
+
+export function Crumbs({ items, light = false }: { items: { name: string; href: string }[]; light?: boolean }) {
+  const all = [{ name: "Home", href: "/" }, ...items];
   return (
-    <div className="divide-y divide-line border-y border-line">
-      {faqs.map((f) => (
-        <details key={f.q} className="group py-1">
-          <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-4 text-left font-display text-[1.02rem] font-semibold text-char-950 [&::-webkit-details-marker]:hidden">
-            {f.q}
-            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-char-200 transition-colors group-open:border-red-500 group-open:bg-red-500 group-open:text-white">
-              <Plus className="h-3.5 w-3.5 transition-transform duration-300 group-open:rotate-45" aria-hidden />
+    <nav aria-label="Breadcrumb" className={`text-[13px] ${light ? "text-white/70" : "text-muted"}`}>
+      <ol className="flex flex-wrap items-center gap-1.5">
+        {all.map((c, i) => (
+          <Fragment key={c.href}>
+            <li>
+              {i === all.length - 1 ? (
+                <span aria-current="page" className={light ? "text-white" : "text-heading"}>{c.name}</span>
+              ) : (
+                <Link href={c.href} className="hover:text-red">{c.name}</Link>
+              )}
+            </li>
+            {i < all.length - 1 ? <ChevronRight className="size-3.5 opacity-50" aria-hidden /> : null}
+          </Fragment>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+export function Faqs({ items, light = false }: { items: { q: string; a: string }[]; light?: boolean }) {
+  return (
+    <div className={`divide-y border-y ${light ? "divide-white/15 border-white/15" : "divide-line border-line"}`}>
+      {items.map((f, i) => (
+        <details key={i} className="group py-1">
+          <summary className={`flex cursor-pointer list-none items-start justify-between gap-6 py-5 text-left font-display text-lg font-semibold tracking-tight ${light ? "text-white" : "text-heading"} [&::-webkit-details-marker]:hidden`}>
+            <span>{f.q}</span>
+            <span className="relative mt-1.5 size-4 flex-none" aria-hidden>
+              <span className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 bg-red" />
+              <span className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-red transition-transform duration-300 group-open:scale-y-0" />
             </span>
           </summary>
-          <p className="pb-5 pr-10 leading-relaxed text-ink-2">{f.a}</p>
+          <p className={`pb-6 pr-10 ${light ? "text-white/75" : ""}`}>{f.a}</p>
         </details>
       ))}
-      {schema && <JsonLd data={faqJsonLd(faqs)} />}
     </div>
   );
 }
 
-export function CtaBand({
-  eyebrow = "Start your project",
-  title,
-  text,
-  primary = { label: "Request a Quote", href: "/request-a-quote" },
-  secondary = { label: "Speak With Our Team", href: "/contact" },
-}: {
-  eyebrow?: string;
-  title: string;
-  text: string;
-  primary?: { label: string; href: string };
-  secondary?: { label: string; href: string };
-}) {
-  return (
-    <section className="surface-charcoal relative overflow-hidden border-t-4 border-red-500">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/assets/brand/merova-mark-red.svg" alt="" aria-hidden="true" className="glyph-watermark -right-16 -top-10 w-[38rem] max-w-none !opacity-20" />
-      <div className="container-x relative grid gap-8 py-16 lg:grid-cols-[1.4fr_1fr] lg:items-center lg:py-24">
-        <div className="rise">
-          <p className="eyebrow eyebrow-light">{eyebrow}</p>
-          <h2 className="t-2 mt-4">{title}</h2>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed">{text}</p>
-        </div>
-        <div className="rise flex flex-col gap-3 sm:flex-row lg:justify-end">
-          <Link href={primary.href} className="btn btn-primary">{primary.label} <ArrowRight className="h-4 w-4" aria-hidden /></Link>
-          <Link href={secondary.href} className="btn btn-ghost-light">{secondary.label}</Link>
-        </div>
-      </div>
-    </section>
-  );
+export function Pill({ children, tone = "line" }: { children: React.ReactNode; tone?: "line" | "red" | "ink" }) {
+  const cls = tone === "red" ? "bg-red text-white" : tone === "ink" ? "bg-ink text-white" : "border border-line text-heading bg-surface";
+  return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${cls}`}>{children}</span>;
 }
 
-export function CustomRequirementBand({ context, industry, product }: { context?: string; industry?: string; product?: string }) {
-  const q = new URLSearchParams();
-  if (industry) q.set("industry", industry);
-  if (product) q.set("product", product);
-  if (context && !industry && !product) q.set("context", context);
-  const href = q.size ? `/custom-requirement?${q}` : "/custom-requirement";
+export function List({ items, className = "" }: { items: string[]; className?: string }) {
   return (
-    <section className="container-x py-14 lg:py-16">
-      <div className="rise relative grid gap-6 overflow-hidden rounded-sm border border-line border-l-4 border-l-red-500 bg-white p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-10">
-        <div>
-          <p className="eyebrow">Have a different packaging requirement?</p>
-          <h2 className="t-3 mt-2">Tell us what you are looking for.</h2>
-          <p className="mt-3 max-w-3xl leading-relaxed text-ink-2">
-            Share your specifications, drawings, photographs or sample requirements. Our team will assess your application and help identify the appropriate packaging solution.
-          </p>
-        </div>
-        <Link href={href} className="btn btn-primary">Discuss Your Custom Requirement <ArrowRight className="h-4 w-4" aria-hidden /></Link>
-      </div>
-    </section>
-  );
-}
-
-export function PageHero({
-  eyebrow,
-  title,
-  intro,
-  crumbs,
-  children,
-  image,
-}: {
-  eyebrow: string;
-  title: string;
-  intro: string;
-  crumbs: { name: string; href: string }[];
-  children?: ReactNode;
-  image?: ProductImage;
-}) {
-  return (
-    <section className="relative overflow-hidden border-b border-line bg-paper">
-      <div className="absolute inset-y-0 left-0 w-1.5 bg-red-500" aria-hidden />
-      <div className={`container-x grid gap-10 py-12 lg:py-16 ${image ? "lg:grid-cols-[1.1fr_1fr] lg:items-center" : ""}`}>
-        <div className="reveal">
-          <Breadcrumbs items={crumbs} />
-          <p className="eyebrow mt-9">{eyebrow}</p>
-          <h1 className="t-1 mt-4 max-w-4xl">{title}</h1>
-          <p className="lede mt-6 max-w-3xl">{intro}</p>
-          {children && <div className="mt-9 flex flex-wrap gap-3">{children}</div>}
-        </div>
-        {image && (
-          <div className="relative">
-            <div className="absolute -bottom-4 -right-4 left-10 top-10 hidden bg-red-500 lg:block" aria-hidden />
-            <Media image={image} sizes="(min-width:1024px) 45vw, 100vw" priority className="relative rounded-sm" />
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-export function Pending({ children }: { children: ReactNode }) {
-  return (
-    <p className="flex items-start gap-3 rounded-sm border border-dashed border-char-300 bg-white px-4 py-3 text-[0.88rem] leading-relaxed text-ink-2">
-      <span className="mt-0.5 shrink-0 rounded-sm bg-char-100 px-1.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-[0.1em] text-char-700">Awaiting confirmation</span>
-      <span>{children}</span>
-    </p>
+    <ul className={`space-y-2.5 ${className}`}>
+      {items.map((x) => (
+        <li key={x} className="flex gap-3">
+          <span className="mt-[0.7em] h-[2px] w-3 flex-none bg-red" aria-hidden />
+          <span>{x}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

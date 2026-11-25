@@ -1,3 +1,5 @@
+> **Note (Nov 2026):** this is the audit and strategy for the earlier static rebuild. The current platform (new design, database CMS and admin) is documented in [PLATFORM.md](PLATFORM.md); routes such as `/company` and `/blog` now redirect to `/about` and `/knowledge`.
+
 # Merova Printpack — website audit and digital strategy
 
 This document covers the pre-development deliverables from the project brief (Part 16, items 1–25) and records the decisions taken in the build. Generated companions:

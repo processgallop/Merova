@@ -1,121 +1,135 @@
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { notFound } from "next/navigation";
-import { ArrowRight, Check, MessageCircle } from "lucide-react";
-import { Breadcrumbs, CtaBand, CustomRequirementBand, FaqList, SectionHeading } from "@/components/ui/blocks";
-import { ProductGrid } from "@/components/product/ProductCard";
-import { IndustryIcon } from "@/components/ui/Icon";
-import { TrackedLink } from "@/components/ui/TrackedLink";
-import { industries, industryBySlug, productsForIndustry } from "@/data/catalog";
-import { toCard } from "@/data/cards";
-import { articles } from "@/data/blog";
-import { ArticleCard } from "@/components/blog/ArticleCard";
-import { pageMetadata } from "@/lib/seo";
-import { whatsappHref } from "@/lib/site";
+import { ArrowRight } from "lucide-react";
+import { Emblem } from "@/components/brand/Logo";
+import { Btn, Crumbs, Faqs, List, SectionHead } from "@/components/ui/blocks";
+import { Img } from "@/components/ui/Img";
+import { Icon } from "@/components/ui/Icon";
+import { Discovery } from "@/components/industry/Discovery";
+import { Cta } from "@/components/sections/Sections";
+import { JsonLd, breadcrumbLd, faqLd } from "@/components/seo/JsonLd";
+import { findRedirect, getIndustries, getIndustryBySlug, getPosts, industryUrl, postUrl } from "@/lib/content";
+import { getDiscoveryData } from "@/lib/discovery";
+import { meta } from "@/lib/meta";
 
-export const dynamicParams = false;
-export const generateStaticParams = () => industries.map((i) => ({ slug: i.slug }));
+export const revalidate = 3600;
 type Props = { params: Promise<{ slug: string }> };
 
+export async function generateStaticParams() {
+  return (await getIndustries()).map((i) => ({ slug: i.slug }));
+}
+
 export async function generateMetadata({ params }: Props) {
-  const i = industryBySlug((await params).slug);
-  if (!i) return {};
-  return pageMetadata({ title: i.seo.title, description: i.seo.description, path: `/industries/${i.slug}` });
+  const r = await getIndustryBySlug((await params).slug);
+  if (!r) return {};
+  return meta({ title: `${r.industry.name} Packaging`, description: r.industry.intro, path: industryUrl(r.industry), seo: r.industry.seo, image: (r.industry.banner ?? r.industry.image)?.url });
 }
 
 export default async function IndustryPage({ params }: Props) {
-  const i = industryBySlug((await params).slug);
-  if (!i) notFound();
-  const list = productsForIndustry(i.id);
-  const quote = `/request-a-quote?industry=${i.id}`;
-  const wa = whatsappHref(`Hello Merova Team, I am looking for packaging for the ${i.name} industry. I would like to discuss my requirements.`);
-  const relatedSlugs = new Set(list.map((p) => p.slug));
-  const reading = articles.filter((a) => a.relatedProducts.some((s) => relatedSlugs.has(s))).slice(0, 3);
+  const { slug } = await params;
+  const r = await getIndustryBySlug(slug);
+  if (!r) {
+    const red = await findRedirect(`/industries/${slug}`);
+    if (red) permanentRedirect(red.toPath);
+    notFound();
+  }
+  const { industry: ind, products, sector } = r;
+  const [data, posts] = await Promise.all([getDiscoveryData(), getPosts()]);
+  const segCount = new Set(products.map((p) => p.card.segment.id)).size;
+  const crumbs = [{ name: "Industries", href: "/industries" }, { name: ind.name, href: industryUrl(ind) }];
+  const words = ind.name.toLowerCase().split(/[\s&,]+/).filter((w) => w.length > 3);
+  const reading = posts.filter((p) => words.some((w) => `${p.title} ${p.excerpt}`.toLowerCase().includes(w.slice(0, 6)))).slice(0, 3);
 
   return (
     <>
-      <section className="surface-red-deep relative overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/assets/brand/merova-mark-cream.svg" alt="" aria-hidden="true" className="glyph-watermark -left-24 -bottom-16 w-[44rem] max-w-none" />
-        <div className="container-x relative grid gap-10 py-12 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:py-16">
-          <div className="reveal">
-            <div className="[&_a]:text-cloud [&_span]:text-cloud [&_nav]:text-cloud"><Breadcrumbs items={[{ name: "Industries", href: "/industries" }, { name: i.name, href: `/industries/${i.slug}` }]} /></div>
-            <div className="mt-8 flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-sm bg-cloud text-red-600"><IndustryIcon name={i.icon} className="h-5 w-5" /></span>
-              <p className="eyebrow eyebrow-light">{i.name} packaging</p>
-            </div>
-            <h1 className="t-1 mt-6 max-w-4xl">{i.headline}</h1>
-            <p className="mt-6 max-w-3xl text-lg leading-relaxed">{i.intro}</p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link href="#solutions" className="btn btn-cloud">View {list.length} solutions <ArrowRight className="h-4 w-4" aria-hidden /></Link>
-              <Link href={quote} className="btn btn-ghost-light">Request a Quote for {i.shortName}</Link>
-              {wa && <TrackedLink href={wa} target="_blank" rel="noopener" event="whatsapp_click" params={{ industry: i.id }} className="btn btn-ghost-light"><MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp</TrackedLink>}
+      <section className="relative overflow-hidden bg-ink text-white" data-context={`packaging for ${ind.name}`}>
+        <Img image={ind.banner ?? ind.image} priority className="absolute inset-0 opacity-50" />
+        <div className="absolute inset-0 bg-[linear-gradient(100deg,var(--c-ink)_30%,color-mix(in_oklab,var(--c-ink)_55%,transparent)_65%,color-mix(in_oklab,var(--c-red)_50%,transparent))]" />
+        <Emblem className="pointer-events-none absolute -right-[5%] -bottom-[10%] w-[50%] opacity-[0.1]" color="#fff" />
+        <div className="wrap relative pb-20 pt-10">
+          <Crumbs items={crumbs} light />
+          <div className="mt-14 max-w-3xl">
+            <p className="eyebrow light rise-in"><Icon name={ind.icon} className="size-4" />{sector?.name ?? "Industry"}</p>
+            <h1 className="t-display rise-in mt-6 text-white" style={{ "--d": 1 } as React.CSSProperties}>{ind.name}</h1>
+            <p className="t-lead rise-in mt-6 text-white/85" style={{ "--d": 2 } as React.CSSProperties}>{ind.headline}</p>
+            <div className="rise-in mt-9 flex flex-wrap gap-3" style={{ "--d": 3 } as React.CSSProperties}>
+              <Btn href="#solutions">View {products.length} solutions</Btn>
+              <Btn href={`/request-a-quote?industry=${ind.slug}`} variant="ghost-light">Request a Quote</Btn>
             </div>
           </div>
-          <div className="relative">
-            <div className="absolute -bottom-4 -right-4 left-10 top-10 hidden bg-red-800/60 lg:block" aria-hidden />
-            <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-paper-2">
-              <Image src={i.image} alt={`Packaging for ${i.name.toLowerCase()}`} fill priority sizes="(min-width:1024px) 45vw, 100vw" className="object-cover" />
-              <span className="absolute bottom-2 left-2 rounded-sm bg-white/85 px-1.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.1em] text-char-600">{i.image.includes("/renders/") ? "Product visualisation" : "Representative image"}</span>
+          <dl className="rise-in mt-14 flex flex-wrap gap-x-12 gap-y-4 border-t border-white/15 pt-6 text-sm" style={{ "--d": 4 } as React.CSSProperties}>
+            <div><dt className="text-white/60">Relevant products</dt><dd className="index-num text-3xl text-white">{products.length}</dd></div>
+            <div><dt className="text-white/60">Product segments</dt><dd className="index-num text-3xl text-white">{segCount}</dd></div>
+            {ind.subIndustries.length ? <div><dt className="text-white/60">Sub-industries covered</dt><dd className="index-num text-3xl text-white">{ind.subIndustries.length}</dd></div> : null}
+          </dl>
+        </div>
+        <p className="media-caption absolute bottom-3 right-4 !text-white/60">Representative image{(ind.banner ?? ind.image)?.credit ? ` · ${(ind.banner ?? ind.image)?.credit}` : ""}</p>
+      </section>
+
+      <section className="section">
+        <div className="wrap grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <p className="eyebrow">Industry introduction</p>
+            <p className="t-lead mt-6 text-heading">{ind.intro}</p>
+            {ind.subIndustries.length ? (
+              <>
+                <p className="mt-10 text-[11px] font-bold uppercase tracking-[0.14em] text-muted">Includes</p>
+                <ul className="mt-3 flex flex-wrap gap-1.5">{ind.subIndustries.map((s) => <li key={s} className="rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-medium text-heading">{s}</li>)}</ul>
+              </>
+            ) : null}
+          </div>
+          <div className="lg:col-span-7">
+            <p className="eyebrow">Typical packaging requirements</p>
+            <div className="mt-6 grid gap-px bg-line sm:grid-cols-3">
+              {ind.challenges.map((c, i) => (
+                <div key={c.title} className="bg-cloud p-5" data-reveal style={{ "--d": i } as React.CSSProperties}>
+                  <p className="index-num text-2xl text-red">{String(i + 1).padStart(2, "0")}</p>
+                  <h2 className="mt-3 font-display text-base font-bold">{c.title}</h2>
+                  <p className="mt-2 text-sm">{c.text}</p>
+                </div>
+              ))}
             </div>
+            {ind.considerations.length ? (
+              <div className="mt-8">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted">What we consider when specifying</p>
+                <List items={ind.considerations} className="mt-4 grid gap-x-8 sm:grid-cols-2 [&>li]:mt-0" />
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
 
-      <section className="py-14 lg:py-20">
-        <div className="container-x">
-          <SectionHeading eyebrow="What matters" title={`Packaging challenges in ${i.shortName.toLowerCase()}`} />
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {i.challenges.map((c, n) => (
-              <div key={c.title} className="rounded-sm border border-line bg-white p-6">
-                <span className="font-display text-2xl font-semibold text-red-500">{String(n + 1).padStart(2, "0")}</span>
-                <h3 className="mt-2 font-display text-[1.08rem] font-semibold text-char-950">{c.title}</h3>
-                <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-2">{c.text}</p>
-              </div>
-            ))}
+      <section id="solutions" className="section surface-paper" style={{ scrollMarginTop: "var(--header-h)" }}>
+        <div className="wrap">
+          <SectionHead align="split" eyebrow="Relevant products" title={`Packaging for ${ind.shortName || ind.name}, across every segment.`} intro="Grouped by product segment. Filter by material, application or product type, add several products to one enquiry, or download any flyer." />
+          <div className="mt-12"><Discovery data={data} mode="industry" initialIndustry={ind.slug} /></div>
+        </div>
+      </section>
+
+      {ind.faqs.length ? (
+        <section className="section">
+          <div className="wrap grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-4"><SectionHead eyebrow="FAQs" title={`${ind.shortName || ind.name} packaging questions`} /></div>
+            <div className="lg:col-span-8"><Faqs items={ind.faqs} /></div>
           </div>
-          <div className="mt-6 rounded-sm border border-line bg-paper-2 p-6">
-            <h3 className="font-display text-[1.02rem] font-semibold text-char-950">What we consider when specifying</h3>
-            <ul className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-              {i.considerations.map((c) => (
-                <li key={c} className="flex gap-2.5 text-[0.93rem] text-ink-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-red-500" aria-hidden />{c}</li>
+        </section>
+      ) : null}
+
+      {reading.length ? (
+        <section className="section-tight border-t border-line">
+          <div className="wrap">
+            <p className="eyebrow">Further reading</p>
+            <ul className="mt-6 grid gap-px bg-line md:grid-cols-3">
+              {reading.map((p) => (
+                <li key={p.id} className="bg-cloud"><Link href={postUrl(p)} className="group flex h-full items-start justify-between gap-4 p-5"><span className="font-display font-bold text-heading group-hover:text-red">{p.title}</span><ArrowRight className="mt-1 size-4 flex-none text-red" /></Link></li>
               ))}
             </ul>
           </div>
-        </div>
-      </section>
-
-      <section id="solutions" className="scroll-mt-24 border-y border-line bg-white py-14 lg:py-20">
-        <div className="container-x">
-          <SectionHeading
-            eyebrow={`${list.length} packaging solutions`}
-            title={`Packaging for ${i.name.toLowerCase()}`}
-            intro="Every product links to its specifications, FAQs and downloadable flyer, and the quote button carries your industry through to the form."
-            action={<Link href={quote} className="btn btn-primary">Request a Quote <ArrowRight className="h-4 w-4" aria-hidden /></Link>}
-          />
-          <div className="mt-10"><ProductGrid cards={list.map(toCard)} industry={i.id} /></div>
-        </div>
-      </section>
-
-      <CustomRequirementBand industry={i.id} />
-
-      <section className="py-14 lg:py-20">
-        <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.6fr]">
-          <SectionHeading eyebrow="FAQs" title={`${i.shortName} packaging questions`} />
-          <FaqList faqs={i.faqs} />
-        </div>
-      </section>
-
-      {reading.length > 0 && (
-        <section className="border-t border-line bg-white py-14 lg:py-20">
-          <div className="container-x">
-            <h2 className="t-2">Further reading</h2>
-            <ul className="mt-8 grid gap-5 md:grid-cols-3">{reading.map((a) => <li key={a.slug}><ArticleCard article={a} /></li>)}</ul>
-          </div>
         </section>
-      )}
+      ) : null}
 
-      <CtaBand title={`Talk to Merova about ${i.shortName.toLowerCase()} packaging`} text="Tell us what you pack, how it ships and how many you need. We'll recommend the format and send a quotation." primary={{ label: "Request a Quote", href: quote }} />
+      <Cta data={{ variant: "red", heading: `Let's define the right packaging for your ${(ind.shortName || ind.name).toLowerCase()} operation.`, text: "Your industry is carried into the quote form automatically.", primary: { label: "Request a Quote", href: `/request-a-quote?industry=${ind.slug}` }, secondary: { label: "Discuss a Custom Requirement", href: `/custom-requirement?industry=${ind.slug}` } }} />
+      <JsonLd data={[breadcrumbLd(crumbs), ...(ind.faqs.length ? [faqLd(ind.faqs)] : [])]} />
     </>
   );
 }

@@ -1,13 +1,16 @@
 import {
-  Car, Clapperboard, Cpu, Factory, Gift, Pill, ShoppingBasket, Store, Truck, UtensilsCrossed, Package,
-  type LucideIcon,
+  Boxes, Building2, Car, ConciergeBell, Cpu, Factory, Gift, HardHat, Pill, Popcorn, Shapes, ShoppingBag, ShoppingCart, Truck, UtensilsCrossed, Wheat, Package, type LucideIcon,
 } from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
-  Pill, Car, UtensilsCrossed, Store, Gift, Factory, Truck, Clapperboard, ShoppingBasket, Cpu,
+  Pill, Car, UtensilsCrossed, ShoppingBag, Gift, Factory, Truck, Popcorn, ShoppingCart, Cpu, HardHat, Building2, ConciergeBell, Wheat, Shapes, Boxes, Package,
+  // aliases used by earlier content
+  Film: Popcorn, Clapperboard: Popcorn, Utensils: UtensilsCrossed, Package2: Package, PackageOpen: Package, Smartphone: Cpu, Laptop: Cpu, Store: ShoppingBag, Sparkles: Gift,
 };
 
-export function IndustryIcon({ name, className = "h-5 w-5" }: { name: string; className?: string }) {
-  const I = ICONS[name] ?? Package;
-  return <I className={className} aria-hidden="true" strokeWidth={1.6} />;
+export const ICON_NAMES = Object.keys(ICONS);
+
+export function Icon({ name, className = "size-5", strokeWidth = 1.6 }: { name: string; className?: string; strokeWidth?: number }) {
+  const C = ICONS[name] ?? Boxes;
+  return <C className={className} strokeWidth={strokeWidth} aria-hidden />;
 }

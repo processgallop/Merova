@@ -50,3 +50,6 @@ next-env.d.ts
 # Blender render pipeline caches
 scripts/render/__pycache__/
 scripts/render/_tex/
+
+# database backups
+/backups/

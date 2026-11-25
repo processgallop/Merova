@@ -1,27 +1,19 @@
 # Conversion tracking plan
 
-Events are sent by `track()` in `src/lib/track.ts` to `window.dataLayer` (GTM) and `gtag` (GA4), **only after the visitor accepts analytics cookies**. Every event includes `page_path`.
+`track()` (`src/lib/track.ts`) pushes events to `window.dataLayer` (GTM) and calls `gtag` when GA4 is loaded directly. GA4/GTM load **only after the visitor accepts analytics cookies** (IDs set in Admin → Settings). Every event includes `page_path`.
 
-| Event | Fires when | Parameters | GA4 key event |
+| Event | Fires when | Parameters | Suggested key event |
 |---|---|---|---|
-| `quote_submit` | Quote form accepted by the API (redirect to confirmation) | `product`, `industry`, `type` | ✅ |
-| `enquiry_submit` | Custom requirement or contact form accepted by the API | `type` (custom/sales/technical/orders/suppliers/careers/partnerships), `product`, `industry` | ✅ |
-| `quote_step` | Visitor advances a quote step | `step`, `mode` | — (funnel) |
-| `whatsapp_click` | Any WhatsApp link or button | `context` / `product` / `industry`, `configured` | ✅ |
-| `phone_click` | `tel:` link | `href` | ✅ |
-| `email_click` | `mailto:` link | `href` | — |
-| `flyer_download` | Product flyer link | `product`, `href` | ✅ |
-| `catalogue_download` | Catalogue link | `href` | ✅ |
-| `profile_download` | Company profile link | `href` | — |
-| `document_download` | Capabilities or sustainability brochure | `href` | — |
-| `industry_select` | Industry chosen in the discovery engine | `industry` | — |
-| `mira_open` / `mira_message` / `mira_handoff` | Assistant opened, message sent, or a reply flagged for human handoff | — | — |
+| `industry_select` | Industry chosen in the finder (home, /industries) | `industry`, `location` | — |
+| `filter_use` | Segment / type / material / application filter changed | `filter`, `value`, `industry` | — |
+| `discovery_search` | Search in the industry finder (debounced) | `query`, `industry` | — |
+| `product_click` | Product card opened | `product`, `industry` | — |
+| `product_select` / `product_unselect` | Product added to / removed from the consolidated enquiry | `product`, `selected_count` | — |
+| `cta_click` | Header quote, tray quote, industry quote, custom requirement CTAs | `cta`, … | — |
+| `quote_start` / `quote_step` / `quote_submit` / `quote_error` | Quote engine opened / step advanced / accepted by server / rejected | `mode`, `products`, `industry`, `step` | `quote_submit` ✅ |
+| `contact_submit` | Contact form accepted | `topic` | ✅ |
+| `flyer_download` / `catalogue_download` / `document_download` | PDF links | `file`, `href` | `catalogue_download` ✅ |
+| `whatsapp_click` / `phone_click` / `email_click` | Contact links | `href`, `context` | `whatsapp_click` ✅ |
+| `mira_open` / `mira_message` / `mira_link` | Assistant opened / message sent / suggested link followed | `page`, `href` | — |
 
-**Source attribution:** the enquiry itself records the source page, referrer and UTM parameters (`utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`) in the lead sent to email and CRM. This works even without analytics consent, because it is first-party data the visitor submits with their enquiry.
-
-**Recommended GA4 setup:**
-1. Funnel exploration: `industry_select` → product page view → `quote_step` (1–4) → `quote_submit`.
-2. Custom dimensions: `product`, `industry`.
-3. Link Search Console.
-
-**Verification:** with GTM Preview / GA4 DebugView open, accept cookies, then trigger each event above and confirm it arrives with parameters. Without consent, confirm that no `gtm.js` or `gtag` request is made.
+Enquiries also store source page, referrer and UTM parameters in the database (first-party, no consent needed), and the dashboard reports industries and products in enquiries. Use GA4 funnel exploration: `industry_select` → `product_click` → `quote_step` → `quote_submit`. Do not assume the largest industry converts best — compare enquiry rates per industry.

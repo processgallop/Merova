@@ -1,0 +1,10 @@
+import { getDb, schema as t } from "../src/db";
+import { sql } from "drizzle-orm";
+const t0 = Date.now();
+const db = await getDb();
+const q = async (name: string) => ((await db.execute(sql.raw(`select count(*)::int as n from ${name}`))) as unknown as { rows: { n: number }[] }).rows[0].n;
+for (const n of ["segments","products","industries","product_industries","posts","pages","media","resources","settings","users","redirects"]) console.log(n, await q(n));
+const r = await db.query.industries.findFirst({ where: (i, { eq }) => eq(i.slug, "cinema-packaging"), with: { products: { with: { product: true } } } });
+console.log(r?.name, r?.products.map((p) => p.product.name).join(", "));
+console.log("ms", Date.now() - t0);
+void t;

@@ -1,25 +1,29 @@
 import type { MetadataRoute } from "next";
-import { industries, productUrl, products, verticals } from "@/data/catalog";
-import { articles, CATEGORIES } from "@/data/blog";
+import { getCatalog, getPostCategories, getPosts, getPublishedPages, industryUrl, postUrl, segmentUrl } from "@/lib/content";
 import { absoluteUrl } from "@/lib/site";
 
-/** Indexable pages only. Noindex pages (confirmation, unreviewed articles, case studies placeholder) are excluded. */
-export default function sitemap(): MetadataRoute.Sitemap {
-  const staticPaths: [string, number][] = [
-    ["/", 1], ["/products", 0.9], ["/industries", 0.9], ["/request-a-quote", 0.9], ["/custom-requirement", 0.8],
-    ["/manufacturing", 0.7], ["/manufacturing/capabilities", 0.6], ["/quality", 0.7], ["/process", 0.6], ["/sustainability", 0.7],
-    ["/company", 0.7], ["/company/leadership", 0.4], ["/company/clients", 0.4], ["/company/client-service", 0.5],
-    ["/company/careers", 0.5], ["/company/partnerships", 0.4], ["/company/suppliers", 0.4],
-    ["/resources", 0.6], ["/resources/downloads", 0.7], ["/resources/faqs", 0.6], ["/blog", 0.7], ["/contact", 0.8],
-    ["/privacy-policy", 0.2], ["/terms", 0.2],
-  ];
-  const usedCats = Object.entries(CATEGORIES).filter(([id]) => articles.some((a) => a.category === id && a.review.status === "reviewed"));
+export const revalidate = 3600;
+
+/** Generated from published records only — drafts, archived items and noindex pages are excluded. */
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [{ segments, cards, industries, products }, posts, pages, cats] = await Promise.all([getCatalog(), getPosts(), getPublishedPages(), getPostCategories()]);
+  const now = new Date();
+  const entry = (path: string, lastModified: Date = now, priority = 0.6): MetadataRoute.Sitemap[number] => ({ url: absoluteUrl(path), lastModified, priority });
   return [
-    ...staticPaths.map(([p, priority]) => ({ url: absoluteUrl(p), priority })),
-    ...verticals.map((v) => ({ url: absoluteUrl(`/${v.slug}`), priority: 0.9 })),
-    ...products.map((p) => ({ url: absoluteUrl(productUrl(p)), priority: 0.8 })),
-    ...industries.map((i) => ({ url: absoluteUrl(`/industries/${i.slug}`), priority: 0.9 })),
-    ...articles.filter((a) => a.review.status === "reviewed").map((a) => ({ url: absoluteUrl(`/blog/${a.slug}`), priority: 0.6 })),
-    ...usedCats.map(([, c]) => ({ url: absoluteUrl(`/blog/category/${c.slug}`), priority: 0.4 })),
+    entry("/", now, 1),
+    entry("/products", now, 0.9),
+    entry("/industries", now, 0.9),
+    entry("/request-a-quote", now, 0.8),
+    entry("/custom-requirement", now, 0.7),
+    entry("/contact", now, 0.7),
+    entry("/resources", now, 0.6),
+    entry("/resources/faqs", now, 0.5),
+    entry("/knowledge", now, 0.6),
+    ...segments.filter((s) => !s.seo.noindex).map((s) => entry(segmentUrl(s), s.updatedAt, 0.8)),
+    ...cards.filter((c) => !products.find((p) => p.id === c.id)?.seo.noindex).map((c) => entry(c.url, products.find((p) => p.id === c.id)?.updatedAt, 0.7)),
+    ...industries.filter((i) => !i.seo.noindex).map((i) => entry(industryUrl(i), i.updatedAt, 0.8)),
+    ...pages.filter((p) => p.slug !== "home" && !p.seo.noindex).map((p) => entry(`/${p.slug}`, p.updatedAt, 0.5)),
+    ...posts.filter((p) => p.reviewStatus === "reviewed" && !p.seo.noindex).map((p) => entry(postUrl(p), p.updatedAt, 0.5)),
+    ...cats.filter((c) => posts.some((p) => p.categoryId === c.id && p.reviewStatus === "reviewed")).map((c) => entry(`/knowledge/category/${c.slug}`, now, 0.4)),
   ];
 }
